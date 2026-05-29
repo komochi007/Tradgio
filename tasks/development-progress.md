@@ -21,11 +21,11 @@
 - 浏览器可运行的基础页面骨架
 - 模块级规格文件第一批
 - Git 仓库初始化
-- 工程目录与模块骨架重组（任务 01）
+- Auth 适配层与登录态模型（任务 03）- 工程目录与模块骨架重组（任务 01）
 - Shared Platform 基础能力初始化（任务 02）
 
 当前未完成：
-- Auth 与登录流程
+
 - Master Data
 - Document Core
 - Inventory Engine
@@ -42,7 +42,7 @@
 |---|---|---|---|
 | 01 | 工程目录与模块骨架重组 | 已完成 | 2026-05-29：按 architecture.md 完成 10 模块目录骨架与文件迁移 |
 | 02 | Shared Platform 基础能力初始化 | 已完成 | 2026-05-29：QueryClient、localStorage 适配器、错误映射、Toast 通知、格式化、校验占位 |
-| 03 | Auth 适配层与登录态模型 | 未开始 | 尚未实现 AuthService、session 恢复与账号上下文 |
+| 03 | Auth 适配层与登录态模型 | 已完成 | 2026-05-29：AuthService 接口 + localStorage 适配器 + AuthContext + useAuth，已接入 Provider 链 |
 | 04 | 登录页、注册页与受保护路由 | 未开始 | 当前无 `/login`、`/register`，也无路由守卫 |
 | 05 | 基础组件层第一批落地 | 未开始 | 当前只有页面级样式，尚未抽离正式基础组件 |
 | 06 | 货品管理页面 | 未开始 | 无业务数据与页面实现 |
@@ -152,9 +152,9 @@
 
 按依赖顺序，建议优先推进：
 
-1. **任务 03**：Auth 适配层与登录态模型（依赖任务 02 已完成）
-2. 任务 04：登录页、注册页与受保护路由
-3. 任务 05：基础组件层第一批落地
+1. **任务 04**：登录页、注册页与受保护路由（依赖任务 03 已完成）
+2. 任务 05：基础组件层第一批落地
+
 
 ---
 
@@ -164,3 +164,20 @@
 - 本文件中的"当前任务状态"
 - 若任务边界变化，更新 `tasks/development-tasks.md`
 - 若新增高复杂度模块规则，更新对应 `specs/*.md`
+
+### 已完成事项 G：Auth 适配层与登录态模型（任务 03）
+- 状态：已完成
+- 完成时间：2026-05-29
+- 结果：
+  - **domain**（`src/modules/auth/domain/`）：`Account` / `AuthSession` / `AuthState` 类型 + `AuthService` 接口
+  - **infrastructure**（`src/modules/auth/infrastructure/`）：`localStorageAuthAdapter` 完整实现
+  - **application**（`src/modules/auth/application/`）：`AuthProvider` + `useAuth` hook，含会话恢复
+  - **Provider 链**：`main.tsx` 已接入 `AuthProvider`（位于 QueryProvider/ToastProvider 之内）
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] `AuthService` 接口包含 `register` / `login` / `logout` / `restoreSession` / `getCurrentAccount`
+  - [x] localStorage 适配器实现账户列表 + session 分离存储
+  - [x] `AuthContext` 暴露 `status` / `account` / `login` / `register` / `logout` / `error`
+  - [x] `useAuth` hook 可被任何页面消费
+  - [x] 启动时自动 `restoreSession`，失败时静默退回 guest 状态
+  - [x] 后续可替换为真实托管 Auth，无需修改页面层
