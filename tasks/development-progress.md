@@ -21,7 +21,8 @@
 - 浏览器可运行的基础页面骨架
 - 模块级规格文件第一批
 - Git 仓库初始化
-- Auth 适配层与登录态模型（任务 03）- 工程目录与模块骨架重组（任务 01）
+- Auth 适配层与登录态模型（任务 03）
+- 登录页、注册页与受保护路由（任务 04）- 工程目录与模块骨架重组（任务 01）
 - Shared Platform 基础能力初始化（任务 02）
 
 当前未完成：
@@ -43,7 +44,7 @@
 | 01 | 工程目录与模块骨架重组 | 已完成 | 2026-05-29：按 architecture.md 完成 10 模块目录骨架与文件迁移 |
 | 02 | Shared Platform 基础能力初始化 | 已完成 | 2026-05-29：QueryClient、localStorage 适配器、错误映射、Toast 通知、格式化、校验占位 |
 | 03 | Auth 适配层与登录态模型 | 已完成 | 2026-05-29：AuthService 接口 + localStorage 适配器 + AuthContext + useAuth，已接入 Provider 链 |
-| 04 | 登录页、注册页与受保护路由 | 未开始 | 当前无 `/login`、`/register`，也无路由守卫 |
+| 04 | 登录页、注册页与受保护路由 | 已完成 | 2026-05-29：LoginPage + RegisterPage + RequireAuth + GuestOnly 守卫，路由结构调整 
 | 05 | 基础组件层第一批落地 | 未开始 | 当前只有页面级样式，尚未抽离正式基础组件 |
 | 06 | 货品管理页面 | 未开始 | 无业务数据与页面实现 |
 | 07 | 往来单位管理页面 | 未开始 | 无业务数据与页面实现 |
@@ -152,8 +153,7 @@
 
 按依赖顺序，建议优先推进：
 
-1. **任务 04**：登录页、注册页与受保护路由（依赖任务 03 已完成）
-2. 任务 05：基础组件层第一批落地
+1. **任务 05**：基础组件层第一批落地（依赖任务 01 已完成）
 
 
 ---
@@ -181,3 +181,21 @@
   - [x] `useAuth` hook 可被任何页面消费
   - [x] 启动时自动 `restoreSession`，失败时静默退回 guest 状态
   - [x] 后续可替换为真实托管 Auth，无需修改页面层
+
+### 已完成事项 H：登录页、注册页与受保护路由（任务 04）
+- 状态：已完成
+- 完成时间：2026-05-29
+- 结果：
+  - **LoginPage**（`src/modules/auth/pages/LoginPage.tsx`）：用户名+密码表单，字段级校验，提交状态，错误展示
+  - **RegisterPage**（`src/modules/auth/pages/RegisterPage.tsx`）：用户名+密码+确认密码表单，长度校验，一致性校验
+  - **RouteGuards**（`src/modules/auth/application/RouteGuards.tsx`）：`RequireAuth`（未登录→/login）、`GuestOnly`（已登录→/overview）
+  - **路由重构**：`/login` 和 `/register` 在 `GuestOnly` 内，业务路由在 `RequireAuth` 内
+  - **AppShell 增强**：显示当前用户名 + 退出登录按钮
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] 未登录访问 `/overview` 等业务路由 → 跳转 `/login`
+  - [x] 已登录访问 `/login` 或 `/register` → 跳转 `/overview`
+  - [x] 刷新页面后可恢复会话（`restoreSession`）
+  - [x] 退出登录后回到 `/login`，无法访问业务页
+  - [x] 登录/注册表单具备：初始态、字段错误、提交中、提交失败 所有状态
+  - [x] 登录页与注册页样式符合 `design.md`（居中卡片、简洁标题、蓝色主按钮）

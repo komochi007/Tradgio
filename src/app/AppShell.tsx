@@ -1,14 +1,15 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { useAuth } from "../modules/auth"
 
 type NavigationItem = {
-  path: string;
-  label: string;
-  description: string;
-};
+  path: string
+  label: string
+  description: string
+}
 
 type AppShellProps = {
-  navigationItems: NavigationItem[];
-};
+  navigationItems: NavigationItem[]
+}
 
 const pageMeta: Record<string, { title: string; description: string }> = {
   "/overview": {
@@ -43,11 +44,18 @@ const pageMeta: Record<string, { title: string; description: string }> = {
     title: "查询",
     description: "跨进货、出货、报价、合同的统一搜索入口。",
   },
-};
+}
 
 export function AppShell({ navigationItems }: AppShellProps) {
-  const location = useLocation();
-  const meta = pageMeta[location.pathname] ?? pageMeta["/overview"];
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { account, logout } = useAuth()
+  const meta = pageMeta[location.pathname] ?? pageMeta["/overview"]
+
+  async function handleLogout() {
+    await logout()
+    navigate("/login", { replace: true })
+  }
 
   return (
     <div className="app-shell">
@@ -74,25 +82,23 @@ export function AppShell({ navigationItems }: AppShellProps) {
           ))}
         </nav>
         <div className="sidebar__footer">
-          <p className="sidebar__footer-label">当前状态</p>
-          <p className="sidebar__footer-value">文档驱动初始化阶段</p>
+          <p className="sidebar__footer-label">当前账号</p>
+          <p className="sidebar__footer-value">{account?.username ?? "未知"}</p>
         </div>
       </aside>
 
       <div className="app-shell__main">
         <header className="topbar">
           <div>
-            <p className="topbar__eyebrow">Project Bootstrap</p>
+            <p className="topbar__eyebrow">Tradgio</p>
             <h1 className="topbar__title">{meta.title}</h1>
             <p className="topbar__description">{meta.description}</p>
           </div>
           <div className="topbar__actions">
-            <button className="button button--ghost" type="button">
-              查看文档
+            <button className="button button--ghost" type="button" onClick={handleLogout}>
+              退出登录
             </button>
-            <button className="button button--primary" type="button">
-              初始化完成
-            </button>
+            <span className="topbar__user">{account?.username}</span>
           </div>
         </header>
         <main className="page-container">
@@ -100,6 +106,5 @@ export function AppShell({ navigationItems }: AppShellProps) {
         </main>
       </div>
     </div>
-  );
+  )
 }
-

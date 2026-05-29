@@ -1,7 +1,10 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import { AppShell } from "./AppShell";
-import { OverviewPage } from "../modules/overview/pages/OverviewPage";
-import { PlaceholderPage } from "../shared/components/PlaceholderPage";
+import { Navigate, Route, Routes } from "react-router-dom"
+import { AppShell } from "./AppShell"
+import { OverviewPage } from "../modules/overview/pages/OverviewPage"
+import { PlaceholderPage } from "../shared/components/PlaceholderPage"
+import { LoginPage } from "../modules/auth/pages/LoginPage"
+import { RegisterPage } from "../modules/auth/pages/RegisterPage"
+import { RequireAuth, GuestOnly } from "../modules/auth/application/RouteGuards"
 
 const navigationItems = [
   { path: "/overview", label: "总览", description: "最近记录、快捷入口和库存摘要" },
@@ -12,36 +15,39 @@ const navigationItems = [
   { path: "/quotes", label: "报价", description: "报价单列表与导出入口" },
   { path: "/contracts", label: "合同", description: "合同记录与附件管理" },
   { path: "/search", label: "查询", description: "跨模块统一搜索" },
-];
+]
 
 export default function App() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={<Navigate to="/overview" replace />}
-      />
-      <Route element={<AppShell navigationItems={navigationItems} />}>
-        <Route
-          path="/overview"
-          element={<OverviewPage />}
-        />
-        {navigationItems
-          .filter((item) => item.path !== "/overview")
-          .map((item) => (
-            <Route
-              key={item.path}
-              path={item.path}
-              element={
-                <PlaceholderPage
-                  title={item.label}
-                  description={item.description}
-                />
-              }
-            />
-          ))}
+      <Route element={<GuestOnly />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
+
+      <Route element={<RequireAuth />}>
+        <Route element={<AppShell navigationItems={navigationItems} />}>
+          <Route
+            path="/"
+            element={<Navigate to="/overview" replace />}
+          />
+          <Route path="/overview" element={<OverviewPage />} />
+          {navigationItems
+            .filter((item) => item.path !== "/overview")
+            .map((item) => (
+              <Route
+                key={item.path}
+                path={item.path}
+                element={
+                  <PlaceholderPage
+                    title={item.label}
+                    description={item.description}
+                  />
+                }
+              />
+            ))}
+        </Route>
       </Route>
     </Routes>
-  );
+  )
 }
-
