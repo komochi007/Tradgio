@@ -7,6 +7,7 @@ import { RegisterPage } from "../modules/auth/pages/RegisterPage"
 import { RequireAuth, GuestOnly } from "../modules/auth/application/RouteGuards"
 import { ProductListPage, ProductFormPage } from "../modules/master-data/products"
 import { CounterpartyListPage, CounterpartyFormPage } from "../modules/master-data/counterparties"
+import { PurchaseListPage, PurchaseFormPage, PurchaseDetailPage } from "../modules/document-core"
 
 const navigationItems = [
   { path: "/overview", label: "总览", description: "最近记录、快捷入口和库存摘要" },
@@ -18,6 +19,8 @@ const navigationItems = [
   { path: "/contracts", label: "合同", description: "合同记录与附件管理" },
   { path: "/search", label: "查询", description: "跨模块统一搜索" },
 ]
+
+const PLACEHOLDER_ROUTES = ["/sales", "/quotes", "/contracts", "/search"]
 
 export default function App() {
   return (
@@ -43,20 +46,26 @@ export default function App() {
           <Route path="/counterparties/new" element={<CounterpartyFormPage />} />
           <Route path="/counterparties/:id" element={<CounterpartyFormPage />} />
 
-          {navigationItems
-            .filter((item) => item.path !== "/overview" && item.path !== "/products" && item.path !== "/counterparties")
-            .map((item) => (
+          <Route path="/purchases" element={<PurchaseListPage />} />
+          <Route path="/purchases/new" element={<PurchaseFormPage />} />
+          <Route path="/purchases/:id" element={<PurchaseDetailPage />} />
+          <Route path="/purchases/:id/edit" element={<PurchaseFormPage />} />
+
+          {PLACEHOLDER_ROUTES.map((path) => {
+            const item = navigationItems.find((n) => n.path === path)
+            return (
               <Route
-                key={item.path}
-                path={item.path}
+                key={path}
+                path={path}
                 element={
                   <PlaceholderPage
-                    title={item.label}
-                    description={item.description}
+                    title={item?.label ?? ""}
+                    description={item?.description ?? ""}
                   />
                 }
               />
-            ))}
+            )
+          })}
         </Route>
       </Route>
     </Routes>

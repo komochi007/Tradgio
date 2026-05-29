@@ -53,7 +53,7 @@
 | 06 | 货品管理页面 | 已完成 | 2026-05-29：Product 领域模型、列表页（搜索/筛选/启停）、表单页（新建/编辑/校验）、路由接入 |
 | 07 | 往来单位管理页面 | 已完成 | 2026-05-29：Counterparty 领域模型、列表页（搜索/类型筛选/启停）、表单页（新建/编辑/校验）、路由接入 |
 | 08 | Inventory Engine 数据模型与库存计算内核 | 已完成 | 2026-05-29：InventoryLedger / CurrentStockSnapshot 领域模型、纯函数计算内核、localStorage 仓储层、库存服务（apply/recalc/query/alert） |
-| 09 | 进货单创建与列表 | 未开始 | 无页面与单据保存逻辑 |
+| 09 | 进货单创建与列表 | 已完成 | 2026-05-29：PurchaseOrder 领域模型、localStorage 仓储、整单保存服务（库存联动+改单回算）、列表页（搜索/空状态）、表单页（明细行增删+金额计算）、详情页、路由接入 |
 | 10 | 进货库存联动与改单回算 | 未开始 | 依赖进货单与库存引擎 |
 | 11 | 出货单创建与库存不足警告 | 未开始 | 无页面与库存警告逻辑 |
 | 12 | 出货库存联动与改单回算 | 未开始 | 依赖出货单与库存引擎 |
@@ -224,6 +224,34 @@
   - [x] 所有库存变更只能通过 Inventory Engine，页面层无直接修改入口
   - [x] 库存引擎仅依赖 Shared Platform，不依赖其他业务模块
 
+### 已完成事项 M：进货单创建与列表（任务 09）
+- 状态：已完成
+- 完成时间：2026-05-29
+- 结果：
+  - **领域模型**（`src/modules/document-core/purchases/domain/types.ts`）：`PurchaseOrder` / `PurchaseLine` / `PurchaseFormData` / `PurchaseFormLine` 类型，`validatePurchaseForm` 校验（供应商必选、至少一条明细、数量>0、单价>=0）、`formDataToOrder` / `orderToFormData` 双向转换
+  - **仓储层**（`src/modules/document-core/purchases/infrastructure/purchaseRepository.ts`）：localStorage CRUD + `generateDocumentNo`（JH+年月+序号）
+  - **应用服务**（`src/modules/document-core/purchases/application/purchaseService.ts`）：`createPurchaseOrder`（整单保存+调用 InventoryEngine.applyPurchaseOrder 入库）、`updatePurchaseOrder`（改单+调用 InventoryEngine.recalculateOrderDelta 差额回算）、`getPurchaseOrder` / `listPurchaseOrders` / `deletePurchaseOrder`
+  - **列表页**（`src/modules/document-core/purchases/pages/PurchaseListPage.tsx`）：搜索（编号/供应商/货品）、表格、空状态、骨架屏、跳到详情/编辑
+  - **表单页**（`src/modules/document-core/purchases/pages/PurchaseFormPage.tsx`）：新建/编辑双模式、供应商 Select、日期、备注、动态明细行（选择货品自动带出规格/单位/默认采购价、数量/单价输入、金额自动计算、增删行）、底部 StickyActionBar 合计展示与保存/取消
+  - **详情页**（`src/modules/document-core/purchases/pages/PurchaseDetailPage.tsx`）：基本信息 + 明细表格 + 编辑入口
+  - **路由接入**：`/purchases` → 列表、`/purchases/new` → 新建、`/purchases/:id` → 详情、`/purchases/:id/edit` → 编辑
+  - **全局样式**：`.line-items-table` / `.sticky-action-bar` / `.detail-grid`
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] 可创建进货单（选择供应商、添加多条货品明细、保存）
+  - [x] 至少一条明细必填，校验覆盖供应商必选、数量>0、单价>=0
+  - [x] 选择货品后自动带出规格、单位、默认采购价
+  - [x] 明细行金额自动计算（数量×单价）
+  - [x] 合计金额自动汇总
+  - [x] 明细行支持增删（至少保留一行）
+  - [x] 保存后生成 JH+年月+序号 格式单据编号
+  - [x] 保存时联动 Inventory Engine 写入库存
+  - [x] 编辑进货单时按差额回算库存
+  - [x] 列表页支持搜索、空状态、骨架屏
+  - [x] 详情页展示完整单据信息
+  - [x] 页面状态覆盖加载/空/错误/正常四态
+  - [x] 表单错误就近展示在对应字段下方
+
 ## 4. 当前代码基线
 
 当前前端代码能力：
@@ -252,7 +280,7 @@
 
 按依赖顺序，建议优先推进：
 
-1. **任务 09**：Document Core - 进货单创建与列表（依赖任务 06、任务 07、任务 08 已完成）
+1. **任务 10**：Document Core + Inventory Engine - 进货库存联动与改单回算（任务 09 已完成，联动已随任务 09 一并实现）
 
 ---
 
