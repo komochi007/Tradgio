@@ -27,7 +27,9 @@
 - 登录页、注册页与受保护路由（任务 04）
 - 基础组件层第一批落地（任务 05）
 - 货品管理页面（任务 06）
+- 往来单位管理页面（任务 07）
 - 货品管理页面（任务 06）
+- 往来单位管理页面（任务 07）
 
 当前未完成：
 
@@ -51,7 +53,7 @@
 | 04 | 登录页、注册页与受保护路由 | 已完成 | 2026-05-29：LoginPage + RegisterPage + RequireAuth + GuestOnly 守卫，路由结构调整 
 | 05 | 基础组件层第一批落地 | 已完成 | 2026-05-29：Button、Input、Select、Tag、EmptyState、Skeleton、SectionCard 七个基础组件 |
 | 06 | 货品管理页面 | 已完成 | 2026-05-29：Product 领域模型、列表页（搜索/筛选/启停）、表单页（新建/编辑/校验）、路由接入 |
-| 07 | 往来单位管理页面 | 未开始 | 无业务数据与页面实现 |
+| 07 | 往来单位管理页面 | 已完成 | 2026-05-29：Counterparty 领域模型、列表页（搜索/类型筛选/启停）、表单页（新建/编辑/校验）、路由接入 |
 | 08 | Inventory Engine 数据模型与库存计算内核 | 未开始 | 尚无库存领域模型与计算逻辑 |
 | 09 | 进货单创建与列表 | 未开始 | 无页面与单据保存逻辑 |
 | 10 | 进货库存联动与改单回算 | 未开始 | 依赖进货单与库存引擎 |
@@ -213,7 +215,9 @@
 - Auth 登录态、登录页、注册页、路由守卫
 - 基础组件体系（Button / Input / Select / Tag / EmptyState / Skeleton / SectionCard）
 - 货品管理（Product 领域模型、列表页、表单页、localStorage 持久化）
+- 往来单位管理（Counterparty 领域模型、列表页、表单页、localStorage 持久化）
 - 货品管理（Product 领域模型、列表页、表单页、localStorage 持久化）
+- 往来单位管理（Counterparty 领域模型、列表页、表单页、localStorage 持久化）
 
 当前明显缺口：
 - 没有业务数据模型
@@ -225,7 +229,7 @@
 
 按依赖顺序，建议优先推进：
 
-1. **任务 07**：往来单位管理页面（依赖任务 02、任务 05 已完成）
+1. **任务 08**：Inventory Engine 数据模型与库存计算内核（依赖任务 02 已完成）
 
 ---
 
@@ -255,3 +259,23 @@
   - [x] 启用/停用操作含 Toast 反馈
   - [x] 页面具备加载/空/错误/正常四态
   - [x] 货品数据通过 localStorage 持久化，后续录单可直接引用
+
+### 已完成事项 K：往来单位管理页面（任务 07）
+- 状态：已完成
+- 完成时间：2026-05-29
+- 结果：
+  - **领域模型**（`src/modules/master-data/counterparties/domain/types.ts`）：`Counterparty` / `CounterpartyType`(customer/supplier) / `CounterpartyStatus` / `CounterpartyFormData` 类型，`validateCounterpartyForm` 校验函数
+  - **仓储层**（`src/modules/master-data/counterparties/infrastructure/counterpartyRepository.ts`）：基于 `createLocalStorageRepository` 的 localStorage 适配器
+  - **列表页**（`src/modules/master-data/counterparties/pages/CounterpartyListPage.tsx`）：搜索、类型筛选（全部/客户/供应商）、表格、启停操作
+  - **表单页**（`src/modules/master-data/counterparties/pages/CounterpartyFormPage.tsx`）：新建/编辑双模式、字段校验、类型 Select
+  - **路由接入**：`/counterparties` → 列表页、`/counterparties/new` → 新建页、`/counterparties/:id` → 编辑页
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] 列表页支持搜索、类型筛选（全部/客户/供应商）、空状态、骨架屏
+  - [x] 表单页支持新建与编辑双模式
+  - [x] 表单校验覆盖必填、长度限制
+  - [x] 类型使用 Select 下拉（客户/供应商）
+  - [x] 启用/停用操作含 Toast 反馈
+  - [x] 页面具备加载/空/错误/正常四态
+  - [x] 数据通过 localStorage 持久化，后续录单可直接引用
+  - [x] 客户用蓝色 Tag，供应商用橙色 Tag 区分

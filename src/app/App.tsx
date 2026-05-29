@@ -6,6 +6,7 @@ import { LoginPage } from "../modules/auth/pages/LoginPage"
 import { RegisterPage } from "../modules/auth/pages/RegisterPage"
 import { RequireAuth, GuestOnly } from "../modules/auth/application/RouteGuards"
 import { ProductListPage, ProductFormPage } from "../modules/master-data/products"
+import { CounterpartyListPage, CounterpartyFormPage } from "../modules/master-data/counterparties"
 
 const navigationItems = [
   { path: "/overview", label: "总览", description: "最近记录、快捷入口和库存摘要" },
@@ -38,8 +39,12 @@ export default function App() {
           <Route path="/products/new" element={<ProductFormPage />} />
           <Route path="/products/:id" element={<ProductFormPage />} />
 
+          <Route path="/counterparties" element={<CounterpartyListPage />} />
+          <Route path="/counterparties/new" element={<CounterpartyFormPage />} />
+          <Route path="/counterparties/:id" element={<CounterpartyFormPage />} />
+
           {navigationItems
-            .filter((item) => item.path !== "/overview" && item.path !== "/products")
+            .filter((item) => item.path !== "/overview" && item.path !== "/products" && item.path !== "/counterparties")
             .map((item) => (
               <Route
                 key={item.path}
