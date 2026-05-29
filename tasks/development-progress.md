@@ -14,6 +14,7 @@
 当前阶段：基础启动阶段
 
 当前已完成：
+- 库存引擎数据模型与计算内核（任务 08）
 - 项目文档体系建立
 - README 项目入口整理
 - AI 上下文与行为约束整理
@@ -28,14 +29,11 @@
 - 基础组件层第一批落地（任务 05）
 - 货品管理页面（任务 06）
 - 往来单位管理页面（任务 07）
-- 货品管理页面（任务 06）
-- 往来单位管理页面（任务 07）
 
 当前未完成：
 
 - Master Data
 - Document Core
-- Inventory Engine
 - Contract Center
 - Search
 - Export Service
@@ -54,7 +52,7 @@
 | 05 | 基础组件层第一批落地 | 已完成 | 2026-05-29：Button、Input、Select、Tag、EmptyState、Skeleton、SectionCard 七个基础组件 |
 | 06 | 货品管理页面 | 已完成 | 2026-05-29：Product 领域模型、列表页（搜索/筛选/启停）、表单页（新建/编辑/校验）、路由接入 |
 | 07 | 往来单位管理页面 | 已完成 | 2026-05-29：Counterparty 领域模型、列表页（搜索/类型筛选/启停）、表单页（新建/编辑/校验）、路由接入 |
-| 08 | Inventory Engine 数据模型与库存计算内核 | 未开始 | 尚无库存领域模型与计算逻辑 |
+| 08 | Inventory Engine 数据模型与库存计算内核 | 已完成 | 2026-05-29：InventoryLedger / CurrentStockSnapshot 领域模型、纯函数计算内核、localStorage 仓储层、库存服务（apply/recalc/query/alert） |
 | 09 | 进货单创建与列表 | 未开始 | 无页面与单据保存逻辑 |
 | 10 | 进货库存联动与改单回算 | 未开始 | 依赖进货单与库存引擎 |
 | 11 | 出货单创建与库存不足警告 | 未开始 | 无页面与库存警告逻辑 |
@@ -202,6 +200,30 @@
 
 ---
 
+### 已完成事项 L：Inventory Engine 数据模型与库存计算内核（任务 08）
+- 状态：已完成
+- 完成时间：2026-05-29
+- 结果：
+  - **领域模型**（`src/modules/inventory-engine/domain/types.ts`）：`InventoryLedger` / `CurrentStockSnapshot` / `InventoryOrderInput` / `OrderLineInput` / `LedgerWriteError` 类型
+  - **计算内核**（`src/modules/inventory-engine/domain/calculator.ts`）：6 个纯函数（`validateOrderInput` / `computeLedgerEntries` / `computeSnapshotUpdates` / `computeOrderLineDelta` / `computeRecalcOrder` / `reverseOrderSign`），无副作用，可独立单元测试
+  - **仓储层**（`src/modules/inventory-engine/infrastructure/inventoryRepository.ts`）：ledger + snapshot 两个 localStorage 仓储，含 `getAllSnapshots` / `upsertSnapshots` / `getLedgerByProductId` / `getLedgerByDocumentId` / `removeLedgerByDocumentId`
+  - **库存服务**（`src/modules/inventory-engine/application/inventoryService.ts`）：`applyPurchaseOrder` / `applySalesOrder` / `recalculateOrderDelta` / `getCurrentStock` / `getStockSnapshot` / `getStockHistory` / `getStockAlerts` / `removeDocumentLedger`
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] InventoryLedger 含完整字段（productId / documentType / documentId / quantityDelta / balanceAfter / happenedAt / createdAt）
+  - [x] CurrentStockSnapshot 含 id(==productId) / productId / quantity / updatedAt
+  - [x] 进货 applyPurchaseOrder 正数增量写入 ledger + 更新 snapshot
+  - [x] 出货 applySalesOrder 负数增量写入 ledger + 更新 snapshot
+  - [x] 改单 recalculateOrderDelta 基于 previousOrder / nextOrder 差额回算
+  - [x] 差额为 0 时不产生流水
+  - [x] getCurrentStock 返回单个货品当前库存
+  - [x] getStockSnapshot 返回所有货品库存快照
+  - [x] getStockHistory 按时间排序返回流水
+  - [x] getStockAlerts 检测库存不足并返回缺口数据
+  - [x] validateOrderInput 校验空明细 / 缺失货品 ID / 非法数量
+  - [x] 所有库存变更只能通过 Inventory Engine，页面层无直接修改入口
+  - [x] 库存引擎仅依赖 Shared Platform，不依赖其他业务模块
+
 ## 4. 当前代码基线
 
 当前前端代码能力：
@@ -216,12 +238,13 @@
 - 基础组件体系（Button / Input / Select / Tag / EmptyState / Skeleton / SectionCard）
 - 货品管理（Product 领域模型、列表页、表单页、localStorage 持久化）
 - 往来单位管理（Counterparty 领域模型、列表页、表单页、localStorage 持久化）
-- 货品管理（Product 领域模型、列表页、表单页、localStorage 持久化）
-- 往来单位管理（Counterparty 领域模型、列表页、表单页、localStorage 持久化）
+- 库存引擎（InventoryLedger / CurrentStockSnapshot 领域模型、纯函数计算内核、localStorage 仓储、库存服务）
 
 当前明显缺口：
-- 没有业务数据模型
-- 没有真实业务页面
+- Document Core 进货/出货/报价单页面
+- Contract Center 合同管理
+- Search 搜索页面
+- Export Service 导出功能
 
 ---
 
@@ -229,7 +252,7 @@
 
 按依赖顺序，建议优先推进：
 
-1. **任务 08**：Inventory Engine 数据模型与库存计算内核（依赖任务 02 已完成）
+1. **任务 09**：Document Core - 进货单创建与列表（依赖任务 06、任务 07、任务 08 已完成）
 
 ---
 
