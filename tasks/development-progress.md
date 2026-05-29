@@ -22,9 +22,9 @@
 - 模块级规格文件第一批
 - Git 仓库初始化
 - 工程目录与模块骨架重组（任务 01）
+- Shared Platform 基础能力初始化（任务 02）
 
 当前未完成：
-- Shared Platform 基础设施
 - Auth 与登录流程
 - Master Data
 - Document Core
@@ -41,7 +41,7 @@
 | 任务编号 | 任务名称 | 状态 | 说明 |
 |---|---|---|---|
 | 01 | 工程目录与模块骨架重组 | 已完成 | 2026-05-29：按 architecture.md 完成 10 模块目录骨架与文件迁移 |
-| 02 | Shared Platform 基础能力初始化 | 未开始 | 尚未接入 Query Client、错误映射、通知入口等 |
+| 02 | Shared Platform 基础能力初始化 | 已完成 | 2026-05-29：QueryClient、localStorage 适配器、错误映射、Toast 通知、格式化、校验占位 |
 | 03 | Auth 适配层与登录态模型 | 未开始 | 尚未实现 AuthService、session 恢复与账号上下文 |
 | 04 | 登录页、注册页与受保护路由 | 未开始 | 当前无 `/login`、`/register`，也无路由守卫 |
 | 05 | 基础组件层第一批落地 | 未开始 | 当前只有页面级样式，尚未抽离正式基础组件 |
@@ -83,11 +83,6 @@
   - `React + TypeScript + Vite` 工程可运行
   - 浏览器已验证本地页面可打开
   - Git 仓库已初始化
-- 主要文件：
-  - [`package.json`](../package.json)
-  - [`src/app/App.tsx`](../src/app/App.tsx)
-  - [`src/app/AppShell.tsx`](../src/app/AppShell.tsx)
-  - [`src/shared/styles/global.css`](../src/shared/styles/global.css)
 
 ### 已完成事项 D：模块级规格文件第一批
 - 状态：已完成
@@ -102,32 +97,51 @@
 ### 已完成事项 E：工程目录与模块骨架重组（任务 01）
 - 状态：已完成
 - 完成时间：2026-05-29
-- 结果：
-  - `src/` 按 architecture.md 的 10 个顶层模块重组
-  - 模块目录：`app/`、`modules/auth/`、`modules/overview/`、`modules/master-data/`、`modules/document-core/`、`modules/inventory-engine/`、`modules/contract-center/`、`modules/search/`、`modules/export-service/`、`shared/`
-  - 每个模块含 `index.ts` 占位导出
-  - 所有 import 路径已更新，`index.html` 入口已调整
+- 结果：按 architecture.md 的 10 个顶层模块重组 `src/` 目录
 - 验收检查清单：
   - [x] 10 个模块目录均存在且含 `index.ts`
   - [x] 6 个源码文件已迁移到新位置
-  - [x] `npm run build` 无错误（tsc + vite build 通过）
-  - [x] 旧目录 `src/components/`、`src/pages/`、`src/styles/` 已移除
+  - [x] `npm run build` 无错误
+  - [x] 旧目录已清理
   - [x] 路由、导航、样式与重组前行为一致
+
+### 已完成事项 F：Shared Platform 基础能力初始化（任务 02）
+- 状态：已完成
+- 完成时间：2026-05-29
+- 新增依赖：`@tanstack/react-query`、`zod`
+- 结果：
+  - **config**（`src/shared/config/`）：应用环境配置
+  - **query**（`src/shared/query/`）：`QueryClient` + `QueryProvider` + `localStorage` 通用仓储适配器
+  - **errors**（`src/shared/errors/`）：`AppError` 类型 + `mapError` + `getUserFacingMessage` 错误映射
+  - **notification**（`src/shared/notification/`）：`ToastProvider` + `useToast` + `ToastContainer` 通知系统
+  - **utils**（`src/shared/utils/`）：`formatCurrency` / `formatDate` / `formatDateTime` / `formatNumber` / `generateId`
+  - **validation**（`src/shared/validation/`）：`validate` 通用校验 + `paginationSchema` / `searchQuerySchema` 占位
+  - **统一导出**（`src/shared/index.ts`）：所有共享能力从单一入口导出
+  - **Provider 接入**：`main.tsx` 已接入 `QueryProvider` + `ToastProvider` + `ToastContainer`
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] 全局 Provider 已接入 `main.tsx`（QueryClient + Toast）
+  - [x] `src/shared/index.ts` 为统一导出入口
+  - [x] localStorage 适配器遵循 Repository 接口，可替换为真实 API
+  - [x] 错误映射区分 NOT_FOUND / VALIDATION_ERROR / UNAUTHORIZED / CONFLICT / NETWORK_ERROR / UNKNOWN
+  - [x] Toast 通知支持 success / error / warning / info 四种类型，含自动消失
+  - [x] 格式化工具覆盖金额、数字、日期、ID 生成
+  - [x] 校验模块基于 zod，含通用 validate 包装函数
 
 ---
 
 ## 4. 当前代码基线
 
 当前前端代码能力：
-- 有 Vite 启动能力
-- 有基础路由
-- 有 App Shell 占位结构
-- 有总览页占位内容
-- 有全局 token 与基础视觉基线
-- **新增**：目录已按模块和分层重组，后续功能可直接在对应模块目录内开发
+- Vite 启动 + 基础路由 + App Shell + 总览页占位
+- 全局 token 与基础视觉基线
+- 目录已按模块和分层重组
+- **新增**：QueryClient + localStorage 仓储层
+- **新增**：Toast 通知系统
+- **新增**：错误类型映射
+- **新增**：格式化 + 校验基础设施
 
 当前明显缺口：
-- 没有共享 provider
 - 没有 Auth
 - 没有业务数据模型
 - 没有真实业务页面
@@ -138,14 +152,9 @@
 
 按依赖顺序，建议优先推进：
 
-1. **任务 02**：Shared Platform 基础能力初始化（已完成前置任务 01）
-2. 任务 03：Auth 适配层与登录态模型
-3. 任务 04：登录页、注册页与受保护路由
-4. 任务 05：基础组件层第一批落地
-
-原因：
-- 任务 02 是其余所有业务模块的共同基础设施
-- 先完成 Shared Platform，后续模块可以直接接入统一的数据、校验和通知入口
+1. **任务 03**：Auth 适配层与登录态模型（依赖任务 02 已完成）
+2. 任务 04：登录页、注册页与受保护路由
+3. 任务 05：基础组件层第一批落地
 
 ---
 
