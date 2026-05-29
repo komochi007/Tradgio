@@ -26,6 +26,8 @@
 - Auth 适配层与登录态模型（任务 03）
 - 登录页、注册页与受保护路由（任务 04）
 - 基础组件层第一批落地（任务 05）
+- 货品管理页面（任务 06）
+- 货品管理页面（任务 06）
 
 当前未完成：
 
@@ -48,7 +50,7 @@
 | 03 | Auth 适配层与登录态模型 | 已完成 | 2026-05-29：AuthService 接口 + localStorage 适配器 + AuthContext + useAuth，已接入 Provider 链 |
 | 04 | 登录页、注册页与受保护路由 | 已完成 | 2026-05-29：LoginPage + RegisterPage + RequireAuth + GuestOnly 守卫，路由结构调整 
 | 05 | 基础组件层第一批落地 | 已完成 | 2026-05-29：Button、Input、Select、Tag、EmptyState、Skeleton、SectionCard 七个基础组件 |
-| 06 | 货品管理页面 | 未开始 | 无业务数据与页面实现 |
+| 06 | 货品管理页面 | 已完成 | 2026-05-29：Product 领域模型、列表页（搜索/筛选/启停）、表单页（新建/编辑/校验）、路由接入 |
 | 07 | 往来单位管理页面 | 未开始 | 无业务数据与页面实现 |
 | 08 | Inventory Engine 数据模型与库存计算内核 | 未开始 | 尚无库存领域模型与计算逻辑 |
 | 09 | 进货单创建与列表 | 未开始 | 无页面与单据保存逻辑 |
@@ -210,6 +212,8 @@
 - 格式化 + 校验基础设施
 - Auth 登录态、登录页、注册页、路由守卫
 - 基础组件体系（Button / Input / Select / Tag / EmptyState / Skeleton / SectionCard）
+- 货品管理（Product 领域模型、列表页、表单页、localStorage 持久化）
+- 货品管理（Product 领域模型、列表页、表单页、localStorage 持久化）
 
 当前明显缺口：
 - 没有业务数据模型
@@ -221,7 +225,7 @@
 
 按依赖顺序，建议优先推进：
 
-1. **任务 06**：货品管理页面（依赖任务 02、任务 05 已完成）
+1. **任务 07**：往来单位管理页面（依赖任务 02、任务 05 已完成）
 
 ---
 
@@ -231,3 +235,23 @@
 - 本文件中的"当前任务状态"
 - 若任务边界变化，更新 `tasks/development-tasks.md`
 - 若新增高复杂度模块规则，更新对应 `specs/*.md`
+
+### 已完成事项 J：货品管理页面（任务 06）
+- 状态：已完成
+- 完成时间：2026-05-29
+- 结果：
+  - **领域模型**（`src/modules/master-data/products/domain/types.ts`）：`Product` / `ProductUnit` / `ProductStatus` / `ProductFormData` 类型，`validateProductForm` 校验函数
+  - **仓储层**（`src/modules/master-data/products/infrastructure/productRepository.ts`）：基于 `createLocalStorageRepository` 的 localStorage 适配器
+  - **列表页**（`src/modules/master-data/products/pages/ProductListPage.tsx`）：搜索、状态筛选（全部/启用/停用）、表格、空状态、启停操作
+  - **表单页**（`src/modules/master-data/products/pages/ProductFormPage.tsx`）：新建/编辑双模式、字段校验、单位下拉选择、提交状态
+  - **路由接入**：`/products` → 列表页、`/products/new` → 新建页、`/products/:id` → 编辑页
+  - **全局样式**：新增 list-page、filter-toolbar、data-table、form-page、form-card、form-row 样式
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] 货品列表页支持搜索、状态筛选、空状态、骨架屏
+  - [x] 货品表单页支持新建与编辑双模式
+  - [x] 表单校验覆盖必填、长度、价格有效性
+  - [x] 单位使用 Select 下拉，含预定义列表（个/箱/盒/袋/kg 等 20 种）
+  - [x] 启用/停用操作含 Toast 反馈
+  - [x] 页面具备加载/空/错误/正常四态
+  - [x] 货品数据通过 localStorage 持久化，后续录单可直接引用

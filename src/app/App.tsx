@@ -5,6 +5,7 @@ import { PlaceholderPage } from "../shared/components/PlaceholderPage"
 import { LoginPage } from "../modules/auth/pages/LoginPage"
 import { RegisterPage } from "../modules/auth/pages/RegisterPage"
 import { RequireAuth, GuestOnly } from "../modules/auth/application/RouteGuards"
+import { ProductListPage, ProductFormPage } from "../modules/master-data/products"
 
 const navigationItems = [
   { path: "/overview", label: "总览", description: "最近记录、快捷入口和库存摘要" },
@@ -32,8 +33,13 @@ export default function App() {
             element={<Navigate to="/overview" replace />}
           />
           <Route path="/overview" element={<OverviewPage />} />
+
+          <Route path="/products" element={<ProductListPage />} />
+          <Route path="/products/new" element={<ProductFormPage />} />
+          <Route path="/products/:id" element={<ProductFormPage />} />
+
           {navigationItems
-            .filter((item) => item.path !== "/overview")
+            .filter((item) => item.path !== "/overview" && item.path !== "/products")
             .map((item) => (
               <Route
                 key={item.path}
