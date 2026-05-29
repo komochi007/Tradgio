@@ -21,9 +21,11 @@
 - 浏览器可运行的基础页面骨架
 - 模块级规格文件第一批
 - Git 仓库初始化
-- Auth 适配层与登录态模型（任务 03）
-- 登录页、注册页与受保护路由（任务 04）- 工程目录与模块骨架重组（任务 01）
+- 工程目录与模块骨架重组（任务 01）
 - Shared Platform 基础能力初始化（任务 02）
+- Auth 适配层与登录态模型（任务 03）
+- 登录页、注册页与受保护路由（任务 04）
+- 基础组件层第一批落地（任务 05）
 
 当前未完成：
 
@@ -45,7 +47,7 @@
 | 02 | Shared Platform 基础能力初始化 | 已完成 | 2026-05-29：QueryClient、localStorage 适配器、错误映射、Toast 通知、格式化、校验占位 |
 | 03 | Auth 适配层与登录态模型 | 已完成 | 2026-05-29：AuthService 接口 + localStorage 适配器 + AuthContext + useAuth，已接入 Provider 链 |
 | 04 | 登录页、注册页与受保护路由 | 已完成 | 2026-05-29：LoginPage + RegisterPage + RequireAuth + GuestOnly 守卫，路由结构调整 
-| 05 | 基础组件层第一批落地 | 未开始 | 当前只有页面级样式，尚未抽离正式基础组件 |
+| 05 | 基础组件层第一批落地 | 已完成 | 2026-05-29：Button、Input、Select、Tag、EmptyState、Skeleton、SectionCard 七个基础组件 |
 | 06 | 货品管理页面 | 未开始 | 无业务数据与页面实现 |
 | 07 | 往来单位管理页面 | 未开始 | 无业务数据与页面实现 |
 | 08 | Inventory Engine 数据模型与库存计算内核 | 未开始 | 尚无库存领域模型与计算逻辑 |
@@ -129,42 +131,6 @@
   - [x] 格式化工具覆盖金额、数字、日期、ID 生成
   - [x] 校验模块基于 zod，含通用 validate 包装函数
 
----
-
-## 4. 当前代码基线
-
-当前前端代码能力：
-- Vite 启动 + 基础路由 + App Shell + 总览页占位
-- 全局 token 与基础视觉基线
-- 目录已按模块和分层重组
-- **新增**：QueryClient + localStorage 仓储层
-- **新增**：Toast 通知系统
-- **新增**：错误类型映射
-- **新增**：格式化 + 校验基础设施
-
-当前明显缺口：
-- 没有 Auth
-- 没有业务数据模型
-- 没有真实业务页面
-
----
-
-## 5. 下一步建议
-
-按依赖顺序，建议优先推进：
-
-1. **任务 05**：基础组件层第一批落地（依赖任务 01 已完成）
-
-
----
-
-## 6. 维护建议
-
-后续每次开发完成后，至少同步更新：
-- 本文件中的"当前任务状态"
-- 若任务边界变化，更新 `tasks/development-tasks.md`
-- 若新增高复杂度模块规则，更新对应 `specs/*.md`
-
 ### 已完成事项 G：Auth 适配层与登录态模型（任务 03）
 - 状态：已完成
 - 完成时间：2026-05-29
@@ -199,3 +165,69 @@
   - [x] 退出登录后回到 `/login`，无法访问业务页
   - [x] 登录/注册表单具备：初始态、字段错误、提交中、提交失败 所有状态
   - [x] 登录页与注册页样式符合 `design.md`（居中卡片、简洁标题、蓝色主按钮）
+
+### 已完成事项 I：基础组件层第一批落地（任务 05）
+- 状态：已完成
+- 完成时间：2026-05-29
+- 结果：
+  - **Button**（`src/shared/components/Button.tsx`）：primary / secondary / ghost 三种 variant，small / default / large 三种 size，loading 状态
+  - **Input**（`src/shared/components/Input.tsx`）：label + helpText + error 三态，focus ring，aria 属性
+  - **Select**（`src/shared/components/Select.tsx`）：label + helpText + error 三态，placeholder 支持，自定义下拉箭头
+  - **Tag**（`src/shared/components/Tag.tsx`）：default / success / warning / error / info 五种 variant，small / default 两种 size
+  - **EmptyState**（`src/shared/components/EmptyState.tsx`）：icon + title + description + primaryAction 完整结构
+  - **Skeleton**（`src/shared/components/Skeleton.tsx`）：SkeletonText / SkeletonCard / SkeletonTable 三种变体，shimmer 动画
+  - **SectionCard**（`src/shared/components/SectionCard.tsx`）：eyebrow + title + description 结构化卡片，interactive / large 变体
+  - **统一导出**（`src/shared/components/index.ts`）：所有基础组件从单一入口导出
+  - **全局样式**（`src/shared/styles/global.css`）：新增 form-field、tag、empty-state、skeleton、button 尺寸/loading 样式
+  - **验证**：PlaceholderPage 已改用 SectionCard + Button 组件
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] Button 支持 primary / secondary / ghost variant
+  - [x] Button 支持 small / default / large size
+  - [x] Button 支持 loading 状态（spinner 动画 + disabled）
+  - [x] Input 支持 label + helpText + error 三态
+  - [x] Select 支持 label + helpText + error + placeholder
+  - [x] Tag 支持 default / success / warning / error / info variant
+  - [x] EmptyState 支持 icon + title + description + primaryAction
+  - [x] Skeleton 提供 Text / Card / Table 三种变体
+  - [x] SectionCard 提供 eyebrow + title + description 结构
+  - [x] 全局 CSS token 驱动，输入框高度统一 40px
+  - [x] 焦点态使用统一蓝色 focus ring
+  - [x] 组件已从页面样式抽离，后续业务页不再手写同类控件
+  - [x] shared/index.ts 统一导出所有基础组件
+
+---
+
+## 4. 当前代码基线
+
+当前前端代码能力：
+- Vite 启动 + 基础路由 + App Shell + 总览页占位
+- 全局 token 与基础视觉基线
+- 目录已按模块和分层重组
+- QueryClient + localStorage 仓储层
+- Toast 通知系统
+- 错误类型映射
+- 格式化 + 校验基础设施
+- Auth 登录态、登录页、注册页、路由守卫
+- 基础组件体系（Button / Input / Select / Tag / EmptyState / Skeleton / SectionCard）
+
+当前明显缺口：
+- 没有业务数据模型
+- 没有真实业务页面
+
+---
+
+## 5. 下一步建议
+
+按依赖顺序，建议优先推进：
+
+1. **任务 06**：货品管理页面（依赖任务 02、任务 05 已完成）
+
+---
+
+## 6. 维护建议
+
+后续每次开发完成后，至少同步更新：
+- 本文件中的"当前任务状态"
+- 若任务边界变化，更新 `tasks/development-tasks.md`
+- 若新增高复杂度模块规则，更新对应 `specs/*.md`
