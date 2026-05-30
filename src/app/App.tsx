@@ -7,7 +7,14 @@ import { RegisterPage } from "../modules/auth/pages/RegisterPage"
 import { RequireAuth, GuestOnly } from "../modules/auth/application/RouteGuards"
 import { ProductListPage, ProductFormPage } from "../modules/master-data/products"
 import { CounterpartyListPage, CounterpartyFormPage } from "../modules/master-data/counterparties"
-import { PurchaseListPage, PurchaseFormPage, PurchaseDetailPage } from "../modules/document-core"
+import {
+  PurchaseListPage,
+  PurchaseFormPage,
+  PurchaseDetailPage,
+  SalesListPage,
+  SalesFormPage,
+  SalesDetailPage,
+} from "../modules/document-core"
 
 const navigationItems = [
   { path: "/overview", label: "总览", description: "最近记录、快捷入口和库存摘要" },
@@ -20,7 +27,7 @@ const navigationItems = [
   { path: "/search", label: "查询", description: "跨模块统一搜索" },
 ]
 
-const PLACEHOLDER_ROUTES = ["/sales", "/quotes", "/contracts", "/search"]
+const PLACEHOLDER_ROUTES = ["/quotes", "/contracts", "/search"]
 
 export default function App() {
   return (
@@ -50,6 +57,11 @@ export default function App() {
           <Route path="/purchases/new" element={<PurchaseFormPage />} />
           <Route path="/purchases/:id" element={<PurchaseDetailPage />} />
           <Route path="/purchases/:id/edit" element={<PurchaseFormPage />} />
+
+          <Route path="/sales" element={<SalesListPage />} />
+          <Route path="/sales/new" element={<SalesFormPage />} />
+          <Route path="/sales/:id" element={<SalesDetailPage />} />
+          <Route path="/sales/:id/edit" element={<SalesFormPage />} />
 
           {PLACEHOLDER_ROUTES.map((path) => {
             const item = navigationItems.find((n) => n.path === path)

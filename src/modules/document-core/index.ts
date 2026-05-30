@@ -9,3 +9,15 @@ export type {
   PurchaseFormData,
   PurchaseFormLine,
 } from "./purchases"
+
+export {
+  SalesListPage,
+  SalesFormPage,
+  SalesDetailPage,
+} from "./sales"
+export type {
+  SalesOrder,
+  SalesLine,
+  SalesFormData,
+  SalesFormLine,
+} from "./sales"

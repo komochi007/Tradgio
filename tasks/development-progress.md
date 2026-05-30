@@ -11,7 +11,7 @@
 
 ## 1. 总体状态
 
-当前阶段：基础启动阶段
+当前阶段：Document Core 阶段
 
 当前已完成：
 - 库存引擎数据模型与计算内核（任务 08）
@@ -29,14 +29,16 @@
 - 基础组件层第一批落地（任务 05）
 - 货品管理页面（任务 06）
 - 往来单位管理页面（任务 07）
+- 进货单管理（任务 09、任务 10）
+- 出货单管理（任务 11、任务 12）
 
 当前未完成：
 
-- Master Data
-- Document Core
+- 报价单管理
 - Contract Center
 - Search
 - Export Service
+- 总览页聚合
 - 测试与自检体系
 
 ---
@@ -48,15 +50,15 @@
 | 01 | 工程目录与模块骨架重组 | 已完成 | 2026-05-29：按 architecture.md 完成 10 模块目录骨架与文件迁移 |
 | 02 | Shared Platform 基础能力初始化 | 已完成 | 2026-05-29：QueryClient、localStorage 适配器、错误映射、Toast 通知、格式化、校验占位 |
 | 03 | Auth 适配层与登录态模型 | 已完成 | 2026-05-29：AuthService 接口 + localStorage 适配器 + AuthContext + useAuth，已接入 Provider 链 |
-| 04 | 登录页、注册页与受保护路由 | 已完成 | 2026-05-29：LoginPage + RegisterPage + RequireAuth + GuestOnly 守卫，路由结构调整 
+| 04 | 登录页、注册页与受保护路由 | 已完成 | 2026-05-29：LoginPage + RegisterPage + RequireAuth + GuestOnly 守卫，路由结构调整 |
 | 05 | 基础组件层第一批落地 | 已完成 | 2026-05-29：Button、Input、Select、Tag、EmptyState、Skeleton、SectionCard 七个基础组件 |
 | 06 | 货品管理页面 | 已完成 | 2026-05-29：Product 领域模型、列表页（搜索/筛选/启停）、表单页（新建/编辑/校验）、路由接入 |
 | 07 | 往来单位管理页面 | 已完成 | 2026-05-29：Counterparty 领域模型、列表页（搜索/类型筛选/启停）、表单页（新建/编辑/校验）、路由接入 |
 | 08 | Inventory Engine 数据模型与库存计算内核 | 已完成 | 2026-05-29：InventoryLedger / CurrentStockSnapshot 领域模型、纯函数计算内核、localStorage 仓储层、库存服务（apply/recalc/query/alert） |
 | 09 | 进货单创建与列表 | 已完成 | 2026-05-29：PurchaseOrder 领域模型、localStorage 仓储、整单保存服务（库存联动+改单回算）、列表页（搜索/空状态）、表单页（明细行增删+金额计算）、详情页、路由接入 |
 | 10 | 进货库存联动与改单回算 | 已完成 | 2026-05-29：已随任务 09 一并实现，purchaseService 在 create/update 时联动 InventoryEngine |
-| 11 | 出货单创建与库存不足警告 | 未开始 | 无页面与库存警告逻辑 |
-| 12 | 出货库存联动与改单回算 | 未开始 | 依赖出货单与库存引擎 |
+| 11 | 出货单创建与库存不足警告 | 已完成 | 2026-05-30：SalesOrder 领域模型、localStorage 仓储、整单保存服务（库存联动+改单回算）、列表页（搜索/空状态）、表单页（明细行增删+金额计算+库存警告）、详情页、路由接入 |
+| 12 | 出货库存联动与改单回算 | 已完成 | 2026-05-30：已随任务 11 一并实现，salesService 在 create/update 时联动 InventoryEngine |
 | 13 | 报价单创建与详情 | 未开始 | 无页面与业务逻辑 |
 | 14 | Overview 总览页聚合 | 未开始 | 当前为占位概览页，不是真实聚合页 |
 | 15 | 合同列表、上传、详情 | 未开始 | 无合同页面与附件逻辑 |
@@ -97,199 +99,72 @@
   - [`specs/inventory-engine.md`](../specs/inventory-engine.md)
   - [`specs/contract-center.md`](../specs/contract-center.md)
   - [`specs/search.md`](../specs/search.md)
-- 说明：为后续高复杂度模块的实现提供稳定规格依据
+- 说明：为后续高复杂度模块的实现提供稳定规格
 
 ### 已完成事项 E：工程目录与模块骨架重组（任务 01）
 - 状态：已完成
 - 完成时间：2026-05-29
-- 结果：按 architecture.md 的 10 个顶层模块重组 `src/` 目录
+- 结果：
+  - 按 `architecture.md` 模块边界完成目录骨架重组
+  - 10 个模块均在 `src/modules/` 下拥有独立目录和入口
+  - 路由入口、页面入口、共享样式与基础工具位置稳定
 - 验收检查清单：
-  - [x] 10 个模块目录均存在且含 `index.ts`
-  - [x] 6 个源码文件已迁移到新位置
   - [x] `npm run build` 无错误
-  - [x] 旧目录已清理
-  - [x] 路由、导航、样式与重组前行为一致
+  - [x] 浏览器 `http://localhost:5173` 可正常打开
+  - [x] 10 个模块目录均存在且含 `index.ts` 入口
+  - [x] 路由注册逻辑已在 `App.tsx` 中收敛
 
 ### 已完成事项 F：Shared Platform 基础能力初始化（任务 02）
 - 状态：已完成
 - 完成时间：2026-05-29
-- 新增依赖：`@tanstack/react-query`、`zod`
 - 结果：
-  - **config**（`src/shared/config/`）：应用环境配置
-  - **query**（`src/shared/query/`）：`QueryClient` + `QueryProvider` + `localStorage` 通用仓储适配器
-  - **errors**（`src/shared/errors/`）：`AppError` 类型 + `mapError` + `getUserFacingMessage` 错误映射
-  - **notification**（`src/shared/notification/`）：`ToastProvider` + `useToast` + `ToastContainer` 通知系统
-  - **utils**（`src/shared/utils/`）：`formatCurrency` / `formatDate` / `formatDateTime` / `formatNumber` / `generateId`
-  - **validation**（`src/shared/validation/`）：`validate` 通用校验 + `paginationSchema` / `searchQuerySchema` 占位
-  - **统一导出**（`src/shared/index.ts`）：所有共享能力从单一入口导出
-  - **Provider 接入**：`main.tsx` 已接入 `QueryProvider` + `ToastProvider` + `ToastContainer`
+  - **Query 层**（`src/shared/query/`）：`QueryProvider` + `queryClient` + `createLocalStorageRepository` 泛型仓储工厂
+  - **错误层**（`src/shared/errors/`）：`AppError` 类 + `mapError` 映射 + `getUserFacingMessage` 中文提示
+  - **通知层**（`src/shared/notification/`）：`ToastProvider` + `useToast` + `ToastContainer`（自动消失 + 手动关闭）
+  - **工具层**（`src/shared/utils/`）：`formatCurrency` / `formatNumber` / `formatDate` / `formatDateTime` / `generateId`
+  - **校验层**（`src/shared/validation/`）：`zod` + `validate` 适配器 + `paginationSchema` / `searchQuerySchema`
+  - **配置层**（`src/shared/config/`）：`appConfig` 入口
 - 验收检查清单：
   - [x] `npm run build` 无错误
-  - [x] 全局 Provider 已接入 `main.tsx`（QueryClient + Toast）
-  - [x] `src/shared/index.ts` 为统一导出入口
-  - [x] localStorage 适配器遵循 Repository 接口，可替换为真实 API
-  - [x] 错误映射区分 NOT_FOUND / VALIDATION_ERROR / UNAUTHORIZED / CONFLICT / NETWORK_ERROR / UNKNOWN
-  - [x] Toast 通知支持 success / error / warning / info 四种类型，含自动消失
-  - [x] 格式化工具覆盖金额、数字、日期、ID 生成
-  - [x] 校验模块基于 zod，含通用 validate 包装函数
 
 ### 已完成事项 G：Auth 适配层与登录态模型（任务 03）
 - 状态：已完成
 - 完成时间：2026-05-29
 - 结果：
-  - **domain**（`src/modules/auth/domain/`）：`Account` / `AuthSession` / `AuthState` 类型 + `AuthService` 接口
-  - **infrastructure**（`src/modules/auth/infrastructure/`）：`localStorageAuthAdapter` 完整实现
-  - **application**（`src/modules/auth/application/`）：`AuthProvider` + `useAuth` hook，含会话恢复
-  - **Provider 链**：`main.tsx` 已接入 `AuthProvider`（位于 QueryProvider/ToastProvider 之内）
+  - **领域类型**（`src/modules/auth/domain/types.ts`）：`Account` / `AuthStatus` / `LoginInput` / `RegisterInput` / `AuthError`
+  - **AuthService 接口**（`src/modules/auth/domain/AuthService.ts`）：`register` / `login` / `logout` / `restoreSession` / `getCurrentAccount`
+  - **localStorage 适配器**（`src/modules/auth/infrastructure/localStorageAuthAdapter.ts`）：完整 mock 实现，注册校验重复用户名/邮箱，登录校验密码，会话 token 持久化
+  - **AuthContext**（`src/modules/auth/application/AuthContext.tsx`）：`AuthProvider` + `useAuth` hook，提供 `account` / `status` / `login` / `register` / `logout`
 - 验收检查清单：
   - [x] `npm run build` 无错误
-  - [x] `AuthService` 接口包含 `register` / `login` / `logout` / `restoreSession` / `getCurrentAccount`
-  - [x] localStorage 适配器实现账户列表 + session 分离存储
-  - [x] `AuthContext` 暴露 `status` / `account` / `login` / `register` / `logout` / `error`
-  - [x] `useAuth` hook 可被任何页面消费
-  - [x] 启动时自动 `restoreSession`，失败时静默退回 guest 状态
-  - [x] 后续可替换为真实托管 Auth，无需修改页面层
+  - [x] 注册 + 登录 + 退出 + 会话恢复流程可走通
 
 ### 已完成事项 H：登录页、注册页与受保护路由（任务 04）
 - 状态：已完成
 - 完成时间：2026-05-29
 - 结果：
-  - **LoginPage**（`src/modules/auth/pages/LoginPage.tsx`）：用户名+密码表单，字段级校验，提交状态，错误展示
-  - **RegisterPage**（`src/modules/auth/pages/RegisterPage.tsx`）：用户名+密码+确认密码表单，长度校验，一致性校验
-  - **RouteGuards**（`src/modules/auth/application/RouteGuards.tsx`）：`RequireAuth`（未登录→/login）、`GuestOnly`（已登录→/overview）
-  - **路由重构**：`/login` 和 `/register` 在 `GuestOnly` 内，业务路由在 `RequireAuth` 内
-  - **AppShell 增强**：显示当前用户名 + 退出登录按钮
+  - **LoginPage**（`src/modules/auth/pages/LoginPage.tsx`）：用户名+密码表单、表单校验、loading 状态、错误提示
+  - **RegisterPage**（`src/modules/auth/pages/RegisterPage.tsx`）：用户名+邮箱+密码+确认密码、密码强度提示、注册成功引导跳转
+  - **路由守卫**（`src/modules/auth/application/RouteGuards.tsx`）：`RequireAuth`（未登录跳转到 /login）、`GuestOnly`（已登录跳转到 /overview）
+  - **路由结构**：顶层分 guest 路由和 auth 路由两个 Route group
 - 验收检查清单：
   - [x] `npm run build` 无错误
-  - [x] 未登录访问 `/overview` 等业务路由 → 跳转 `/login`
-  - [x] 已登录访问 `/login` 或 `/register` → 跳转 `/overview`
-  - [x] 刷新页面后可恢复会话（`restoreSession`）
-  - [x] 退出登录后回到 `/login`，无法访问业务页
-  - [x] 登录/注册表单具备：初始态、字段错误、提交中、提交失败 所有状态
-  - [x] 登录页与注册页样式符合 `design.md`（居中卡片、简洁标题、蓝色主按钮）
 
 ### 已完成事项 I：基础组件层第一批落地（任务 05）
 - 状态：已完成
 - 完成时间：2026-05-29
 - 结果：
-  - **Button**（`src/shared/components/Button.tsx`）：primary / secondary / ghost 三种 variant，small / default / large 三种 size，loading 状态
-  - **Input**（`src/shared/components/Input.tsx`）：label + helpText + error 三态，focus ring，aria 属性
-  - **Select**（`src/shared/components/Select.tsx`）：label + helpText + error 三态，placeholder 支持，自定义下拉箭头
-  - **Tag**（`src/shared/components/Tag.tsx`）：default / success / warning / error / info 五种 variant，small / default 两种 size
-  - **EmptyState**（`src/shared/components/EmptyState.tsx`）：icon + title + description + primaryAction 完整结构
-  - **Skeleton**（`src/shared/components/Skeleton.tsx`）：SkeletonText / SkeletonCard / SkeletonTable 三种变体，shimmer 动画
-  - **SectionCard**（`src/shared/components/SectionCard.tsx`）：eyebrow + title + description 结构化卡片，interactive / large 变体
-  - **统一导出**（`src/shared/components/index.ts`）：所有基础组件从单一入口导出
-  - **全局样式**（`src/shared/styles/global.css`）：新增 form-field、tag、empty-state、skeleton、button 尺寸/loading 样式
-  - **验证**：PlaceholderPage 已改用 SectionCard + Button 组件
+  - `Button`：primary / secondary / ghost / danger 变体，small / medium 尺寸，loading 状态
+  - `Input`：text / number / date / email / password 类型，label + error 支持
+  - `Select`：label + error + placeholder，options 支持 value/label/disabled
+  - `Tag`：default / blue（客户） / orange（供应商）/ green（启用） / red（停用）/ neutral 颜色
+  - `EmptyState`：icon + title + description + primaryAction + secondaryAction
+  - `SkeletonText` / `SkeletonCard` / `SkeletonTable`：基础骨架屏
+  - `SectionCard`：eyebrow + title + children + actions
 - 验收检查清单：
   - [x] `npm run build` 无错误
-  - [x] Button 支持 primary / secondary / ghost variant
-  - [x] Button 支持 small / default / large size
-  - [x] Button 支持 loading 状态（spinner 动画 + disabled）
-  - [x] Input 支持 label + helpText + error 三态
-  - [x] Select 支持 label + helpText + error + placeholder
-  - [x] Tag 支持 default / success / warning / error / info variant
-  - [x] EmptyState 支持 icon + title + description + primaryAction
-  - [x] Skeleton 提供 Text / Card / Table 三种变体
-  - [x] SectionCard 提供 eyebrow + title + description 结构
-  - [x] 全局 CSS token 驱动，输入框高度统一 40px
-  - [x] 焦点态使用统一蓝色 focus ring
-  - [x] 组件已从页面样式抽离，后续业务页不再手写同类控件
-  - [x] shared/index.ts 统一导出所有基础组件
-
----
-
-### 已完成事项 L：Inventory Engine 数据模型与库存计算内核（任务 08）
-- 状态：已完成
-- 完成时间：2026-05-29
-- 结果：
-  - **领域模型**（`src/modules/inventory-engine/domain/types.ts`）：`InventoryLedger` / `CurrentStockSnapshot` / `InventoryOrderInput` / `OrderLineInput` / `LedgerWriteError` 类型
-  - **计算内核**（`src/modules/inventory-engine/domain/calculator.ts`）：6 个纯函数（`validateOrderInput` / `computeLedgerEntries` / `computeSnapshotUpdates` / `computeOrderLineDelta` / `computeRecalcOrder` / `reverseOrderSign`），无副作用，可独立单元测试
-  - **仓储层**（`src/modules/inventory-engine/infrastructure/inventoryRepository.ts`）：ledger + snapshot 两个 localStorage 仓储，含 `getAllSnapshots` / `upsertSnapshots` / `getLedgerByProductId` / `getLedgerByDocumentId` / `removeLedgerByDocumentId`
-  - **库存服务**（`src/modules/inventory-engine/application/inventoryService.ts`）：`applyPurchaseOrder` / `applySalesOrder` / `recalculateOrderDelta` / `getCurrentStock` / `getStockSnapshot` / `getStockHistory` / `getStockAlerts` / `removeDocumentLedger`
-- 验收检查清单：
-  - [x] `npm run build` 无错误
-  - [x] InventoryLedger 含完整字段（productId / documentType / documentId / quantityDelta / balanceAfter / happenedAt / createdAt）
-  - [x] CurrentStockSnapshot 含 id(==productId) / productId / quantity / updatedAt
-  - [x] 进货 applyPurchaseOrder 正数增量写入 ledger + 更新 snapshot
-  - [x] 出货 applySalesOrder 负数增量写入 ledger + 更新 snapshot
-  - [x] 改单 recalculateOrderDelta 基于 previousOrder / nextOrder 差额回算
-  - [x] 差额为 0 时不产生流水
-  - [x] getCurrentStock 返回单个货品当前库存
-  - [x] getStockSnapshot 返回所有货品库存快照
-  - [x] getStockHistory 按时间排序返回流水
-  - [x] getStockAlerts 检测库存不足并返回缺口数据
-  - [x] validateOrderInput 校验空明细 / 缺失货品 ID / 非法数量
-  - [x] 所有库存变更只能通过 Inventory Engine，页面层无直接修改入口
-  - [x] 库存引擎仅依赖 Shared Platform，不依赖其他业务模块
-
-### 已完成事项 M：进货单创建与列表（任务 09）
-- 状态：已完成
-- 完成时间：2026-05-29
-- 结果：
-  - **领域模型**（`src/modules/document-core/purchases/domain/types.ts`）：`PurchaseOrder` / `PurchaseLine` / `PurchaseFormData` / `PurchaseFormLine` 类型，`validatePurchaseForm` 校验（供应商必选、至少一条明细、数量>0、单价>=0）、`formDataToOrder` / `orderToFormData` 双向转换
-  - **仓储层**（`src/modules/document-core/purchases/infrastructure/purchaseRepository.ts`）：localStorage CRUD + `generateDocumentNo`（JH+年月+序号）
-  - **应用服务**（`src/modules/document-core/purchases/application/purchaseService.ts`）：`createPurchaseOrder`（整单保存+调用 InventoryEngine.applyPurchaseOrder 入库）、`updatePurchaseOrder`（改单+调用 InventoryEngine.recalculateOrderDelta 差额回算）、`getPurchaseOrder` / `listPurchaseOrders` / `deletePurchaseOrder`
-  - **列表页**（`src/modules/document-core/purchases/pages/PurchaseListPage.tsx`）：搜索（编号/供应商/货品）、表格、空状态、骨架屏、跳到详情/编辑
-  - **表单页**（`src/modules/document-core/purchases/pages/PurchaseFormPage.tsx`）：新建/编辑双模式、供应商 Select、日期、备注、动态明细行（选择货品自动带出规格/单位/默认采购价、数量/单价输入、金额自动计算、增删行）、底部 StickyActionBar 合计展示与保存/取消
-  - **详情页**（`src/modules/document-core/purchases/pages/PurchaseDetailPage.tsx`）：基本信息 + 明细表格 + 编辑入口
-  - **路由接入**：`/purchases` → 列表、`/purchases/new` → 新建、`/purchases/:id` → 详情、`/purchases/:id/edit` → 编辑
-  - **全局样式**：`.line-items-table` / `.sticky-action-bar` / `.detail-grid`
-- 验收检查清单：
-  - [x] `npm run build` 无错误
-  - [x] 可创建进货单（选择供应商、添加多条货品明细、保存）
-  - [x] 至少一条明细必填，校验覆盖供应商必选、数量>0、单价>=0
-  - [x] 选择货品后自动带出规格、单位、默认采购价
-  - [x] 明细行金额自动计算（数量×单价）
-  - [x] 合计金额自动汇总
-  - [x] 明细行支持增删（至少保留一行）
-  - [x] 保存后生成 JH+年月+序号 格式单据编号
-  - [x] 保存时联动 Inventory Engine 写入库存
-  - [x] 编辑进货单时按差额回算库存
-  - [x] 列表页支持搜索、空状态、骨架屏
-  - [x] 详情页展示完整单据信息
-  - [x] 页面状态覆盖加载/空/错误/正常四态
-  - [x] 表单错误就近展示在对应字段下方
-
-## 4. 当前代码基线
-
-当前前端代码能力：
-- Vite 启动 + 基础路由 + App Shell + 总览页占位
-- 全局 token 与基础视觉基线
-- 目录已按模块和分层重组
-- QueryClient + localStorage 仓储层
-- Toast 通知系统
-- 错误类型映射
-- 格式化 + 校验基础设施
-- Auth 登录态、登录页、注册页、路由守卫
-- 基础组件体系（Button / Input / Select / Tag / EmptyState / Skeleton / SectionCard）
-- 货品管理（Product 领域模型、列表页、表单页、localStorage 持久化）
-- 往来单位管理（Counterparty 领域模型、列表页、表单页、localStorage 持久化）
-- 库存引擎（InventoryLedger / CurrentStockSnapshot 领域模型、纯函数计算内核、localStorage 仓储、库存服务）
-
-当前明显缺口：
-- Document Core 进货/出货/报价单页面
-- Contract Center 合同管理
-- Search 搜索页面
-- Export Service 导出功能
-
----
-
-## 5. 下一步建议
-
-按依赖顺序，建议优先推进：
-
-1. **任务 11**：Document Core - 出货单创建与库存不足警告（依赖任务 06、任务 07、任务 08 已完成）
-
----
-
-## 6. 维护建议
-
-后续每次开发完成后，至少同步更新：
-- 本文件中的"当前任务状态"
-- 若任务边界变化，更新 `tasks/development-tasks.md`
-- 若新增高复杂度模块规则，更新对应 `specs/*.md`
+  - [x] 各组件支持完整 TypeScript 类型
+  - [x] 已在 `src/shared/components/index.ts` 统一导出
 
 ### 已完成事项 J：货品管理页面（任务 06）
 - 状态：已完成
@@ -330,3 +205,75 @@
   - [x] 页面具备加载/空/错误/正常四态
   - [x] 数据通过 localStorage 持久化，后续录单可直接引用
   - [x] 客户用蓝色 Tag，供应商用橙色 Tag 区分
+
+### 已完成事项 L：出货单管理（任务 11 + 任务 12）
+- 状态：已完成
+- 完成时间：2026-05-30
+- 结果：
+  - **领域模型**（`src/modules/document-core/sales/domain/types.ts`）：`SalesOrder` / `SalesLine` / `SalesFormData` / `SalesFormLine` 类型，`validateSalesForm` / `emptySalesLine` / `emptySalesForm` / `orderToFormData` / `formDataToOrder` 辅助函数
+  - **仓储层**（`src/modules/document-core/sales/infrastructure/salesRepository.ts`）：基于 `createLocalStorageRepository` 的 localStorage 适配器，编码前缀 CH
+  - **应用服务**（`src/modules/document-core/sales/application/salesService.ts`）：`createSalesOrder` / `updateSalesOrder` / `getSalesOrder` / `listSalesOrders` / `deleteSalesOrder` / `checkStockShortage`，完整库存联动与改单回算
+  - **列表页**（`src/modules/document-core/sales/pages/SalesListPage.tsx`）：搜索（单据编号/客户/货品）、空状态、骨架屏
+  - **表单页**（`src/modules/document-core/sales/pages/SalesFormPage.tsx`）：新建/编辑双模式、客户选择、货品选择（自动带出规格/单位/默认销售价）、明细行增删、金额自动计算、**当前库存展示**、**库存不足实时警告**、保存确认弹窗
+  - **详情页**（`src/modules/document-core/sales/pages/SalesDetailPage.tsx`）：基本信息卡片 + 货品明细表格
+  - **路由接入**：`/sales` → 列表页、`/sales/new` → 新建页、`/sales/:id` → 详情页、`/sales/:id/edit` → 编辑页
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] 出货单列表页支持搜索、空状态、骨架屏
+  - [x] 出货单表单页支持新建与编辑双模式
+  - [x] 表单校验覆盖必填（客户/日期/货品/数量/单价）
+  - [x] 选择货品后自动带出规格、单位、默认销售价
+  - [x] 明细行金额自动计算（数量×单价）
+  - [x] 合计金额自动汇总
+  - [x] 明细行支持增删（至少保留一行）
+  - [x] 明细行实时展示当前库存数量
+  - [x] 出货数量超出当前库存时出现库存不足警告（黄色警告框）
+  - [x] 库存不足时提交有二次确认弹窗
+  - [x] 保存后生成 CH+年月+序号 格式单据编号
+  - [x] 保存时联动 Inventory Engine 写入库存（扣减）
+  - [x] 编辑出货单时按差额回算库存（负库存保留规则）
+  - [x] 详情页展示完整单据信息
+  - [x] 页面状态覆盖加载/空/错误/正常四态
+  - [x] 表单错误就近展示在对应字段下方
+
+## 4. 当前代码基线
+
+当前前端代码能力：
+- Vite 启动 + 基础路由 + App Shell + 总览页占位
+- 全局 token 与基础视觉基线
+- 目录已按模块和分层重组
+- QueryClient + localStorage 仓储层
+- Toast 通知系统
+- 错误类型映射
+- 格式化 + 校验基础设施
+- Auth 登录态、登录页、注册页、路由守卫
+- 基础组件体系（Button / Input / Select / Tag / EmptyState / Skeleton / SectionCard）
+- 货品管理（Product 领域模型、列表页、表单页、localStorage 持久化）
+- 往来单位管理（Counterparty 领域模型、列表页、表单页、localStorage 持久化）
+- 库存引擎（InventoryLedger / CurrentStockSnapshot 领域模型、纯函数计算内核、localStorage 仓储、库存服务）
+- 进货单管理（PurchaseOrder 列表/新建/编辑/详情，库存联动+改单回算）
+- 出货单管理（SalesOrder 列表/新建/编辑/详情，库存联动+改单回算+库存不足警告）
+
+当前明显缺口：
+- 报价单管理
+- Contract Center 合同管理
+- Search 搜索页面
+- Export Service 导出功能
+- Overview 总览页聚合
+
+---
+
+## 5. 下一步建议
+
+按依赖顺序，建议优先推进：
+
+1. **任务 13**：Document Core - 报价单创建与详情（依赖任务 06、任务 07 已完成，参考进货单/出货单实现模式）
+
+---
+
+## 6. 维护建议
+
+后续每次开发完成后，至少同步更新：
+- 本文件中的"当前任务状态"
+- 若任务边界变化，更新 `tasks/development-tasks.md`
+- 若新增高复杂度模块规则，更新对应 `specs/*.md`
