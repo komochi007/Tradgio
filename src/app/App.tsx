@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { AppShell } from "./AppShell"
 import { OverviewPage } from "../modules/overview/pages/OverviewPage"
+import { SearchPage } from "../modules/search"
 import { PlaceholderPage } from "../shared/components/PlaceholderPage"
 import { LoginPage } from "../modules/auth/pages/LoginPage"
 import { RegisterPage } from "../modules/auth/pages/RegisterPage"
@@ -35,7 +36,7 @@ const navigationItems = [
   { path: "/search", label: "查询", description: "跨模块统一搜索" },
 ]
 
-const PLACEHOLDER_ROUTES = ["/search"]
+const PLACEHOLDER_ROUTES: string[] = []
 
 export default function App() {
   return (
@@ -80,6 +81,8 @@ export default function App() {
           <Route path="/contracts/new" element={<ContractFormPage />} />
           <Route path="/contracts/:id" element={<ContractDetailPage />} />
           <Route path="/contracts/:id/edit" element={<ContractFormPage />} />
+
+          <Route path="/search" element={<SearchPage />} />
 
           {PLACEHOLDER_ROUTES.map((path) => {
             const item = navigationItems.find((n) => n.path === path)

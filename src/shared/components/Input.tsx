@@ -1,4 +1,4 @@
-import { type InputHTMLAttributes, useId } from "react"
+import { forwardRef, type InputHTMLAttributes, useId } from "react"
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string
@@ -6,14 +6,10 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   error?: string
 }
 
-export function Input({
-  label,
-  helpText,
-  error,
-  id,
-  className = "",
-  ...rest
-}: InputProps) {
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  { label, helpText, error, id, className = "", ...rest },
+  ref
+) {
   const generatedId = useId()
   const inputId = id ?? generatedId
 
@@ -25,6 +21,7 @@ export function Input({
         </label>
       )}
       <input
+        ref={ref}
         id={inputId}
         className={[
           "form-field__input",
@@ -55,4 +52,4 @@ export function Input({
       )}
     </div>
   )
-}
+})
