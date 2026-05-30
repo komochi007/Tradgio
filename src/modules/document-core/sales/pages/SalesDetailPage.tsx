@@ -1,16 +1,21 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Button, SectionCard, EmptyState, SkeletonCard } from "../../../../shared"
 import { formatCurrency, formatDate } from "../../../../shared"
+import { useToast } from "../../../../shared"
 import { getSalesOrder } from "../application/salesService"
 import type { SalesOrder } from "../domain/types"
+import { buildSalesExportPayload } from "../../../export-service/application/buildExportPayload"
+import { exportPrint, exportSheet } from "../../../export-service/application/exportService"
 
 export function SalesDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { addToast } = useToast()
   const [order, setOrder] = useState<SalesOrder | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [exporting, setExporting] = useState<"print" | "sheet" | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -30,6 +35,30 @@ export function SalesDetailPage() {
     }
     load()
   }, [id])
+
+  const handleExport = useCallback(
+    async (format: "print" | "sheet") => {
+      if (!order) return
+      setExporting(format)
+      try {
+        const payload = buildSalesExportPayload(order)
+        const result =
+          format === "print"
+            ? await exportPrint(payload)
+            : await exportSheet(payload)
+        if (result.success) {
+          addToast("success", result.message)
+        } else {
+          addToast("error", result.message)
+        }
+      } catch {
+        addToast("error", "导出失败，请重试")
+      } finally {
+        setExporting(null)
+      }
+    },
+    [order, addToast]
+  )
 
   if (loading) {
     return (
@@ -67,6 +96,20 @@ export function SalesDetailPage() {
         <div className="topbar__actions">
           <Button variant="ghost" onClick={() => navigate("/sales")}>
             返回列表
+          </Button>
+          <Button
+            variant="ghost"
+            loading={exporting === "print"}
+            onClick={() => handleExport("print")}
+          >
+            导出打印版
+          </Button>
+          <Button
+            variant="ghost"
+            loading={exporting === "sheet"}
+            onClick={() => handleExport("sheet")}
+          >
+            导出表格版
           </Button>
           <Button variant="primary" onClick={() => navigate(`/sales/${order.id}/edit`)}>
             编辑

@@ -1,0 +1,44 @@
+export type ExportLineItem = {
+  productName: string
+  spec: string
+  unit: string
+  quantity: number
+  unitPrice: number
+  lineAmount: number
+}
+
+export type ExportHeader = {
+  documentNo: string
+  date: string
+  counterpartyLabel: string
+  counterpartyName: string
+  remark?: string
+}
+
+export type ExportTotals = {
+  totalAmount: number
+  lineCount: number
+}
+
+export type ExportMeta = {
+  exportedAt: string
+  exportedBy: string
+}
+
+export type ExportPayload = {
+  documentType: "purchase" | "sales" | "quote"
+  documentNo: string
+  header: ExportHeader
+  lineItems: ExportLineItem[]
+  totals: ExportTotals
+  meta: ExportMeta
+}
+
+export type ExportFormat = "print" | "sheet"
+
+export type ExportResult = {
+  success: boolean
+  message: string
+  format: ExportFormat
+  filename: string
+}
