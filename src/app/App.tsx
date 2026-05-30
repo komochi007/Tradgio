@@ -14,6 +14,9 @@ import {
   SalesListPage,
   SalesFormPage,
   SalesDetailPage,
+  QuoteListPage,
+  QuoteFormPage,
+  QuoteDetailPage,
 } from "../modules/document-core"
 
 const navigationItems = [
@@ -27,7 +30,7 @@ const navigationItems = [
   { path: "/search", label: "查询", description: "跨模块统一搜索" },
 ]
 
-const PLACEHOLDER_ROUTES = ["/quotes", "/contracts", "/search"]
+const PLACEHOLDER_ROUTES = ["/contracts", "/search"]
 
 export default function App() {
   return (
@@ -62,6 +65,11 @@ export default function App() {
           <Route path="/sales/new" element={<SalesFormPage />} />
           <Route path="/sales/:id" element={<SalesDetailPage />} />
           <Route path="/sales/:id/edit" element={<SalesFormPage />} />
+
+          <Route path="/quotes" element={<QuoteListPage />} />
+          <Route path="/quotes/new" element={<QuoteFormPage />} />
+          <Route path="/quotes/:id" element={<QuoteDetailPage />} />
+          <Route path="/quotes/:id/edit" element={<QuoteFormPage />} />
 
           {PLACEHOLDER_ROUTES.map((path) => {
             const item = navigationItems.find((n) => n.path === path)

@@ -31,14 +31,14 @@
 - 往来单位管理页面（任务 07）
 - 进货单管理（任务 09、任务 10）
 - 出货单管理（任务 11、任务 12）
+- 报价单管理（任务 13）
 
 当前未完成：
 
-- 报价单管理
-- Contract Center
-- Search
-- Export Service
-- 总览页聚合
+- Contract Center（合同管理）
+- Search（统一搜索）
+- Export Service（导出服务）
+- Overview（总览页聚合）
 - 测试与自检体系
 
 ---
@@ -59,7 +59,7 @@
 | 10 | 进货库存联动与改单回算 | 已完成 | 2026-05-29：已随任务 09 一并实现，purchaseService 在 create/update 时联动 InventoryEngine |
 | 11 | 出货单创建与库存不足警告 | 已完成 | 2026-05-30：SalesOrder 领域模型、localStorage 仓储、整单保存服务（库存联动+改单回算）、列表页（搜索/空状态）、表单页（明细行增删+金额计算+库存警告）、详情页、路由接入 |
 | 12 | 出货库存联动与改单回算 | 已完成 | 2026-05-30：已随任务 11 一并实现，salesService 在 create/update 时联动 InventoryEngine |
-| 13 | 报价单创建与详情 | 未开始 | 无页面与业务逻辑 |
+| 13 | 报价单创建与详情 | 已完成 | 2026-05-30：QuoteOrder 领域模型、localStorage 仓储、整单保存服务（不影响库存）、列表页（搜索/空状态）、表单页（明细行增删+金额计算+默认销售价带出+手动改价）、详情页、路由接入 |
 | 14 | Overview 总览页聚合 | 未开始 | 当前为占位概览页，不是真实聚合页 |
 | 15 | 合同列表、上传、详情 | 未开始 | 无合同页面与附件逻辑 |
 | 16 | Search 统一搜索结果模型与查询页 | 未开始 | 无统一搜索结构与查询页 |
@@ -210,31 +210,44 @@
 - 状态：已完成
 - 完成时间：2026-05-30
 - 结果：
-  - **领域模型**（`src/modules/document-core/sales/domain/types.ts`）：`SalesOrder` / `SalesLine` / `SalesFormData` / `SalesFormLine` 类型，`validateSalesForm` / `emptySalesLine` / `emptySalesForm` / `orderToFormData` / `formDataToOrder` 辅助函数
-  - **仓储层**（`src/modules/document-core/sales/infrastructure/salesRepository.ts`）：基于 `createLocalStorageRepository` 的 localStorage 适配器，编码前缀 CH
-  - **应用服务**（`src/modules/document-core/sales/application/salesService.ts`）：`createSalesOrder` / `updateSalesOrder` / `getSalesOrder` / `listSalesOrders` / `deleteSalesOrder` / `checkStockShortage`，完整库存联动与改单回算
-  - **列表页**（`src/modules/document-core/sales/pages/SalesListPage.tsx`）：搜索（单据编号/客户/货品）、空状态、骨架屏
-  - **表单页**（`src/modules/document-core/sales/pages/SalesFormPage.tsx`）：新建/编辑双模式、客户选择、货品选择（自动带出规格/单位/默认销售价）、明细行增删、金额自动计算、**当前库存展示**、**库存不足实时警告**、保存确认弹窗
+  - **领域模型**（`src/modules/document-core/sales/domain/types.ts`）：`SalesOrder` / `SalesLine` / `SalesFormData` / `SalesFormLine` 类型及校验/转换函数
+  - **仓储层**（`src/modules/document-core/sales/infrastructure/salesRepository.ts`）：编码前缀 CH
+  - **应用服务**（`src/modules/document-core/sales/application/salesService.ts`）：完整库存联动与改单回算 + `checkStockShortage`
+  - **列表页**（`src/modules/document-core/sales/pages/SalesListPage.tsx`）：搜索、骨架屏、空状态
+  - **表单页**（`src/modules/document-core/sales/pages/SalesFormPage.tsx`）：新建/编辑双模式、客户选择、货品选择自动带出规格/单位/默认销售价、明细行当前库存展示、库存不足实时警告（黄色警告框+二次确认弹窗）
   - **详情页**（`src/modules/document-core/sales/pages/SalesDetailPage.tsx`）：基本信息卡片 + 货品明细表格
-  - **路由接入**：`/sales` → 列表页、`/sales/new` → 新建页、`/sales/:id` → 详情页、`/sales/:id/edit` → 编辑页
+  - **路由接入**：`/sales` / `/sales/new` / `/sales/:id` / `/sales/:id/edit`
 - 验收检查清单：
   - [x] `npm run build` 无错误
-  - [x] 出货单列表页支持搜索、空状态、骨架屏
-  - [x] 出货单表单页支持新建与编辑双模式
-  - [x] 表单校验覆盖必填（客户/日期/货品/数量/单价）
-  - [x] 选择货品后自动带出规格、单位、默认销售价
-  - [x] 明细行金额自动计算（数量×单价）
-  - [x] 合计金额自动汇总
-  - [x] 明细行支持增删（至少保留一行）
-  - [x] 明细行实时展示当前库存数量
-  - [x] 出货数量超出当前库存时出现库存不足警告（黄色警告框）
-  - [x] 库存不足时提交有二次确认弹窗
-  - [x] 保存后生成 CH+年月+序号 格式单据编号
-  - [x] 保存时联动 Inventory Engine 写入库存（扣减）
-  - [x] 编辑出货单时按差额回算库存（负库存保留规则）
-  - [x] 详情页展示完整单据信息
-  - [x] 页面状态覆盖加载/空/错误/正常四态
-  - [x] 表单错误就近展示在对应字段下方
+  - [x] 列表/表单/详情页四态完整
+  - [x] 表单校验覆盖必填项
+  - [x] 货品选择后自动带出规格、单位、默认销售价
+  - [x] 明细行实时展示当前库存
+  - [x] 库存不足时黄色警告框 + 二次确认
+  - [x] 保存联动 Inventory Engine 扣减库存
+  - [x] 编辑按差额回算库存
+
+### 已完成事项 M：报价单管理（任务 13）
+- 状态：已完成
+- 完成时间：2026-05-30
+- 结果：
+  - **领域模型**（`src/modules/document-core/quotes/domain/types.ts`）：`QuoteOrder` / `QuoteLine` / `QuoteFormData` / `QuoteFormLine` 类型及校验/转换函数
+  - **仓储层**（`src/modules/document-core/quotes/infrastructure/quoteRepository.ts`）：编码前缀 BJ
+  - **应用服务**（`src/modules/document-core/quotes/application/quoteService.ts`）：create / update / get / list / delete，**不影响库存**
+  - **列表页**（`src/modules/document-core/quotes/pages/QuoteListPage.tsx`）：搜索、骨架屏、空状态
+  - **表单页**（`src/modules/document-core/quotes/pages/QuoteFormPage.tsx`）：新建/编辑双模式、客户选择、货品选择自动带出规格/单位/默认销售价、支持手动改价、明细行增删、金额自动计算
+  - **详情页**（`src/modules/document-core/quotes/pages/QuoteDetailPage.tsx`）：基本信息卡片 + 货品明细表格
+  - **路由接入**：`/quotes` / `/quotes/new` / `/quotes/:id` / `/quotes/:id/edit`
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] 列表/表单/详情页四态完整
+  - [x] 表单校验覆盖必填项
+  - [x] 货品选择后自动带出规格、单位、默认销售价
+  - [x] 单价支持手动修改
+  - [x] 明细行金额自动计算、合计自动汇总
+  - [x] 保存后生成 BJ+年月+序号 格式单据编号
+  - [x] 保存不影响库存（未调用 Inventory Engine）
+  - [x] 编辑报价单不触发库存变更
 
 ## 4. 当前代码基线
 
@@ -251,14 +264,14 @@
 - 货品管理（Product 领域模型、列表页、表单页、localStorage 持久化）
 - 往来单位管理（Counterparty 领域模型、列表页、表单页、localStorage 持久化）
 - 库存引擎（InventoryLedger / CurrentStockSnapshot 领域模型、纯函数计算内核、localStorage 仓储、库存服务）
-- 进货单管理（PurchaseOrder 列表/新建/编辑/详情，库存联动+改单回算）
-- 出货单管理（SalesOrder 列表/新建/编辑/详情，库存联动+改单回算+库存不足警告）
+- 进货单管理（PurchaseOrder 列表/新建/编辑/详情，库存联动+改单回算，编码 JH）
+- 出货单管理（SalesOrder 列表/新建/编辑/详情，库存联动+改单回算+库存不足警告，编码 CH）
+- 报价单管理（QuoteOrder 列表/新建/编辑/详情，不影响库存，支持手动改价，编码 BJ）
 
 当前明显缺口：
-- 报价单管理
 - Contract Center 合同管理
-- Search 搜索页面
-- Export Service 导出功能
+- Search 统一搜索
+- Export Service 导出服务
 - Overview 总览页聚合
 
 ---
@@ -267,7 +280,9 @@
 
 按依赖顺序，建议优先推进：
 
-1. **任务 13**：Document Core - 报价单创建与详情（依赖任务 06、任务 07 已完成，参考进货单/出货单实现模式）
+1. **任务 14**：Overview 总览页聚合（进货/出货/报价均已就绪，可消费已有数据做聚合展示）
+2. **任务 15**：Contract Center 合同列表、上传、详情
+3. 或 **任务 16**：Search 统一搜索
 
 ---
 
