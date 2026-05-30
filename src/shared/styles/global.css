@@ -1385,3 +1385,71 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Page Error ── */
+.page-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-8);
+  text-align: center;
+  min-height: 320px;
+}
+
+.page-error__icon--default {
+  color: var(--state-error);
+  opacity: 0.72;
+}
+
+.page-error__title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.page-error__message {
+  margin: 0;
+  max-width: 400px;
+  color: var(--text-secondary);
+  line-height: 22px;
+}
+
+.page-error__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+/* ── Form Error Summary ── */
+.form-error-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(220, 38, 38, 0.24);
+  border-radius: var(--radius-md);
+  background: rgba(220, 38, 38, 0.04);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.form-error-summary__icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* ── Empty State Error Variant ── */
+.empty-state--error .empty-state__title {
+  color: var(--state-error);
+}
+
+.empty-state--error .empty-state__description {
+  color: var(--text-secondary);
+}

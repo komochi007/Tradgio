@@ -9,6 +9,7 @@ type EmptyStateProps = {
     label: string
     onClick: () => void
   }
+  variant?: "empty" | "error"
 }
 
 export function EmptyState({
@@ -16,9 +17,10 @@ export function EmptyState({
   title,
   description,
   primaryAction,
+  variant = "empty",
 }: EmptyStateProps) {
   return (
-    <div className="empty-state">
+    <div className={`empty-state empty-state--${variant}`}>
       {icon && <div className="empty-state__icon">{icon}</div>}
       <h3 className="empty-state__title">{title}</h3>
       {description && (

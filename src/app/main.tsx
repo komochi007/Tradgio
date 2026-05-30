@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryProvider } from "../shared/query";
 import { ToastProvider } from "../shared/notification";
 import { ToastContainer } from "../shared/notification";
+import { ErrorBoundary } from "../shared/components/ErrorBoundary";
 import { AuthProvider } from "../modules/auth";
 import App from "./App";
 import "../shared/styles/global.css";
@@ -14,8 +15,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <QueryProvider>
         <ToastProvider>
           <AuthProvider>
-            <App />
-            <ToastContainer />
+            <ErrorBoundary>
+              <App />
+              <ToastContainer />
+            </ErrorBoundary>
           </AuthProvider>
         </ToastProvider>
       </QueryProvider>

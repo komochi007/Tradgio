@@ -21,6 +21,7 @@ export type ContractRecord = {
 }
 
 export type ContractFormData = {
+  contractNo: string
   title: string
   customerId: string
   customerName: string
@@ -35,6 +36,10 @@ export type ContractFileEntry = {
 
 export function validateContractForm(data: ContractFormData): Record<string, string> {
   const errors: Record<string, string> = {}
+
+  if (!data.contractNo.trim()) {
+    errors.contractNo = "请输入合同编号"
+  }
 
   if (!data.title.trim()) {
     errors.title = "请输入合同标题"
@@ -82,6 +87,7 @@ export function validateFile(file: File): string | null {
 
 export function emptyContractForm(): ContractFormData {
   return {
+    contractNo: "",
     title: "",
     customerId: "",
     customerName: "",
@@ -92,6 +98,7 @@ export function emptyContractForm(): ContractFormData {
 
 export function contractToFormData(record: ContractRecord): ContractFormData {
   return {
+    contractNo: record.contractNo,
     title: record.title,
     customerId: record.customerId,
     customerName: record.customerName,

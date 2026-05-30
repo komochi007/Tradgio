@@ -79,6 +79,7 @@ export function QuoteDetailPage() {
         </div>
         <EmptyState
           title="加载失败"
+          variant="error"
           description={error ?? "报价单不存在"}
           primaryAction={{ label: "返回列表", onClick: () => navigate("/quotes") }}
         />

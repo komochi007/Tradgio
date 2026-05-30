@@ -79,6 +79,7 @@ export function PurchaseDetailPage() {
         </div>
         <EmptyState
           title="加载失败"
+          variant="error"
           description={error ?? "进货单不存在"}
           primaryAction={{ label: "返回列表", onClick: () => navigate("/purchases") }}
         />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Button, Input, Select, SkeletonCard, EmptyState, useToast, generateId } from "../../../../shared"
+import { Button, Input, Select, SkeletonCard, EmptyState, FormErrorSummary, useToast, generateId } from "../../../../shared"
 import { counterpartyRepository } from "../infrastructure/counterpartyRepository"
 import {
   validateCounterpartyForm,
@@ -129,6 +129,7 @@ export function CounterpartyFormPage() {
       <div className="form-page">
         <EmptyState
           title="加载失败"
+          variant="error"
           description={loadError}
           primaryAction={{ label: "返回列表", onClick: () => navigate("/counterparties", { replace: true }) }}
         />
@@ -149,6 +150,8 @@ export function CounterpartyFormPage() {
 
       <form onSubmit={handleSubmit} className="form-card">
         <div className="form-card__body">
+          <FormErrorSummary errors={errors} />
+
           <div className="form-row">
             <Input
               label="单位名称"

@@ -8,6 +8,7 @@ import {
   EmptyState,
   SkeletonTable,
   formatDate,
+  useToast,
 } from "../../../shared"
 import type { SelectOption } from "../../../shared"
 import { listContractRecords, deleteContractRecord } from "../application/contractService"
@@ -16,6 +17,7 @@ import { counterpartyRepository } from "../../master-data/counterparties/infrast
 
 export function ContractListPage() {
   const navigate = useNavigate()
+  const toast = useToast()
   const [records, setRecords] = useState<ContractRecord[]>([])
   const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([])
   const [search, setSearch] = useState("")
@@ -69,8 +71,9 @@ export function ContractListPage() {
     try {
       await deleteContractRecord(id)
       setRecords((prev) => prev.filter((r) => r.id !== id))
+      toast.success("合同已删除")
     } catch (e) {
-      alert(e instanceof Error ? e.message : "删除失败")
+      toast.error(e instanceof Error ? e.message : "删除失败")
     }
   }
 
@@ -80,6 +83,7 @@ export function ContractListPage() {
         <section className="section-card">
           <EmptyState
             title="加载失败"
+            variant="error"
             description={error}
             primaryAction={{ label: "重新加载", onClick: fetchData }}
           />

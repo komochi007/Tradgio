@@ -7,7 +7,9 @@ import {
   EmptyState,
   SkeletonCard,
   Tag,
+  FormErrorSummary,
   formatFileSize,
+  useToast,
 } from "../../../shared"
 import type { SelectOption } from "../../../shared"
 import {
@@ -29,6 +31,7 @@ import { counterpartyRepository } from "../../master-data/counterparties/infrast
 export function ContractFormPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const toast = useToast()
   const isEdit = Boolean(id)
 
   const [formData, setFormData] = useState<ContractFormData>(emptyContractForm())
@@ -96,8 +99,9 @@ export function ContractFormPage() {
     try {
       const updated = await removeAttachment(id, attachmentId)
       setExistingAttachments(updated.attachments)
+      toast.success("附件已删除")
     } catch (e) {
-      alert(e instanceof Error ? e.message : "删除附件失败")
+      toast.error(e instanceof Error ? e.message : "删除附件失败")
     }
   }
 
@@ -110,8 +114,10 @@ export function ContractFormPage() {
     try {
       if (isEdit && id) {
         await updateContractRecord(id, formData, selectedFiles)
+        toast.success("合同已更新")
       } else {
         await createContractRecord(formData, selectedFiles)
+        toast.success("合同已保存")
       }
       navigate("/contracts")
     } catch (e: unknown) {
@@ -119,7 +125,7 @@ export function ContractFormPage() {
       if (err.code === "VALIDATION_ERROR" && err.details) {
         setErrors(err.details)
       } else {
-        alert(err.message ?? "保存失败")
+        toast.error(err.message ?? "保存失败")
       }
     } finally {
       setSubmitting(false)
@@ -141,6 +147,7 @@ export function ContractFormPage() {
         <section className="section-card">
           <EmptyState
             title="加载失败"
+            variant="error"
             description={loadError}
             primaryAction={{ label: "返回列表", onClick: () => navigate("/contracts") }}
           />
@@ -165,71 +172,79 @@ export function ContractFormPage() {
         </div>
       </div>
 
+      <FormErrorSummary errors={errors} />
+
       <div className="form-card">
         <div className="form-card__body">
           <div className="form-row">
-            <div className="form-field">
-              <label className="form-field__label">合同标题 *</label>
-              <Input
-                placeholder="请输入合同标题"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    title: (e.target as HTMLInputElement).value,
-                  }))
-                }
-                error={errors.title}
-              />
-            </div>
-            <div className="form-field">
-              <label className="form-field__label">客户 *</label>
-              <Select
-                value={formData.customerId}
-                onChange={(e) => {
-                  const cId = e.target.value
-                  const option = customerOptions.find((o) => o.value === cId)
-                  setFormData((prev) => ({
-                    ...prev,
-                    customerId: cId,
-                    customerName: option?.label ?? "",
-                  }))
-                }}
-                options={[{ value: "", label: "请选择客户" }, ...customerOptions]}
-              />
-              {errors.customerId && (
-                <p className="form-error-text">{errors.customerId}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-field">
-              <label className="form-field__label">签订日期 *</label>
-              <Input
-                type="date"
-                value={formData.signDate}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    signDate: (e.target as HTMLInputElement).value,
-                  }))
-                }
-                error={errors.signDate}
-              />
-            </div>
-            <div className="form-field" />
-          </div>
-
-          <div className="form-field">
-            <label className="form-field__label">备注</label>
             <Input
-              placeholder="备注信息（选填）"
+              label="合同编号"
+              placeholder="请输入合同编号"
+              value={formData.contractNo}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  contractNo: e.target.value,
+                }))
+              }
+              error={errors.contractNo}
+            />
+            <Select
+              label="客户"
+              placeholder="选择客户"
+              options={customerOptions}
+              value={formData.customerId}
+              onChange={(e) => {
+                const selected = customerOptions.find((o) => o.value === e.target.value)
+                setFormData((prev) => ({
+                  ...prev,
+                  customerId: e.target.value,
+                  customerName: selected?.label ?? "",
+                }))
+              }}
+              error={errors.customerId}
+            />
+          </div>
+
+          <div style={{ marginTop: "var(--space-4)" }}>
+            <Input
+              label="合同标题"
+              placeholder="请输入合同标题"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  title: e.target.value,
+                }))
+              }
+              error={errors.title}
+            />
+          </div>
+
+          <div style={{ marginTop: "var(--space-4)" }}>
+            <Input
+              label="签订日期"
+              type="date"
+              value={formData.signDate}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  signDate: e.target.value,
+                }))
+              }
+              error={errors.signDate}
+            />
+          </div>
+
+          <div style={{ marginTop: "var(--space-4)" }}>
+            <Input
+              label="备注"
+              placeholder="选填"
               value={formData.remark}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  remark: (e.target as HTMLInputElement).value,
+                  remark: e.target.value,
                 }))
               }
               error={errors.remark}

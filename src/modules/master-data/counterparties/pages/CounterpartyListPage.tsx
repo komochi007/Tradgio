@@ -71,6 +71,7 @@ export function CounterpartyListPage() {
         </div>
         <EmptyState
           title="加载失败"
+          variant="error"
           description={error}
           primaryAction={{ label: "重新加载", onClick: load }}
         />

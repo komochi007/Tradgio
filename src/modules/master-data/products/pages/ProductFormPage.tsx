@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Button, Input, Select, SkeletonCard, EmptyState, useToast, generateId } from "../../../../shared"
+import { Button, Input, Select, SkeletonCard, EmptyState, FormErrorSummary, useToast, generateId } from "../../../../shared"
 import { productRepository } from "../infrastructure/productRepository"
 import {
   ProductUnits,
@@ -125,6 +125,7 @@ export function ProductFormPage() {
       <div className="form-page">
         <EmptyState
           title="加载失败"
+          variant="error"
           description={loadError}
           primaryAction={{ label: "返回列表", onClick: () => navigate("/products", { replace: true }) }}
         />
@@ -147,6 +148,8 @@ export function ProductFormPage() {
 
       <form onSubmit={handleSubmit} className="form-card">
         <div className="form-card__body">
+          <FormErrorSummary errors={errors} />
+
           <Input
             label="货品名称"
             placeholder="请输入货品名称"

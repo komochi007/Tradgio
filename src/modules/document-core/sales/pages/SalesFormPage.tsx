@@ -5,7 +5,7 @@ import {
   Input,
   Select,
   SectionCard,
-  EmptyState,
+  EmptyState, FormErrorSummary,
   useToast,
 } from "../../../../shared"
 import { formatCurrency } from "../../../../shared"
@@ -233,6 +233,7 @@ export function SalesFormPage() {
         </div>
         <EmptyState
           title="加载失败"
+          variant="error"
           description={loadError}
           primaryAction={{ label: "返回列表", onClick: () => navigate("/sales") }}
         />
@@ -262,6 +263,8 @@ export function SalesFormPage() {
         </Button>
       </div>
 
+
+      <FormErrorSummary errors={errors} />
       <SectionCard eyebrow="基本信息" title="客户与日期">
         <div className="form-row">
           <Select
