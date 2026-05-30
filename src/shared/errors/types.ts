@@ -5,6 +5,7 @@ export type AppErrorCode =
   | "CONFLICT"
   | "NETWORK_ERROR"
   | "UNKNOWN"
+  | "UPLOAD_ERROR"
 
 export class AppError extends Error {
   code: AppErrorCode
@@ -36,6 +37,8 @@ function errorCodeToStatus(code: AppErrorCode): number {
       return 409
     case "NETWORK_ERROR":
       return 0
+    case "UPLOAD_ERROR":
+      return 500
     default:
       return 500
   }

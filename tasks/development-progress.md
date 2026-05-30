@@ -11,7 +11,7 @@
 
 ## 1. 总体状态
 
-当前阶段：Overview & Contract Center 阶段
+当前阶段：Contract Center & Search 阶段
 
 当前已完成：
 - 库存引擎数据模型与计算内核（任务 08）
@@ -35,7 +35,6 @@
 
 当前未完成：
 
-- Contract Center（合同管理）
 - Search（统一搜索）
 - Export Service（导出服务）
 - 测试与自检体系
@@ -60,7 +59,7 @@
 | 12 | 出货库存联动与改单回算 | 已完成 | 2026-05-30：已随任务 11 一并实现，salesService 在 create/update 时联动 InventoryEngine |
 | 13 | 报价单创建与详情 | 已完成 | 2026-05-30：QuoteOrder 领域模型、localStorage 仓储、整单保存服务（不影响库存）、列表页（搜索/空状态）、表单页（明细行增删+金额计算+默认销售价带出+手动改价）、详情页、路由接入 |
 | 14 | Overview 总览页聚合 | 已完成 | 2026-05-30：overviewService 聚合层 + Bento Grid 布局总览页，含库存摘要、最近单据、快捷入口 |
-| 15 | 合同列表、上传、详情 | 未开始 | 无合同页面与附件逻辑 |
+| 15 | 合同列表、上传、详情 | 已完成 | 2026-05-30：ContractRecord/ContractAttachment 领域模型、contractService（CRUD+文件上传）、列表/表单/详情页、路由接入 |
 | 16 | Search 统一搜索结果模型与查询页 | 未开始 | 无统一搜索结构与查询页 |
 | 17 | Export Service 接口边界与导出占位实现 | 未开始 | 尚未实现导出 payload 与导出服务边界 |
 | 18 | 全局状态完善与异常反馈收口 | 未开始 | 缺少统一空态、错误态、通知和骨架屏体系 |
@@ -271,6 +270,31 @@
   - [x] 保存不影响库存（未调用 Inventory Engine）
   - [x] 编辑报价单不触发库存变更
 
+
+### 已完成事项 O：合同管理（任务 15）
+- 状态：已完成
+- 完成时间：2026-05-30
+- 结果：
+  - **领域模型**（`src/modules/contract-center/domain/types.ts`）：`ContractRecord` / `ContractAttachment` / `ContractFormData` 类型，校验函数（表单字段 + 文件格式/大小），`formatFileSize` 工具
+  - **仓储层**（`src/modules/contract-center/infrastructure/contractRepository.ts`）：localStorage 持久化，编码前缀 HT+年月+序号
+  - **应用服务**（`src/modules/contract-center/application/contractService.ts`）：create（整单保存：先校验→读文件→生成附件→写记录） / update（追加附件） / removeAttachment（单独删除附件） / get / list（搜索+客户筛选） / delete
+  - **列表页**（`src/modules/contract-center/pages/ContractListPage.tsx`）：搜索框 + 客户下拉筛选、附件数量 Tag、查看/删除操作
+  - **表单页**（`src/modules/contract-center/pages/ContractFormPage.tsx`）：元数据表单（标题/客户/日期/备注）、文件选择（多文件+格式/大小校验）、已有附件管理（下载/删除）、待上传文件列表（移除）、上传失败提示
+  - **详情页**（`src/modules/contract-center/pages/ContractDetailPage.tsx`）：基本信息卡片 + 附件列表（文件名/类型Tag/大小/时间/下载按钮）、编辑入口
+  - **路由接入**：`/contracts` / `/contracts/new` / `/contracts/:id` / `/contracts/:id/edit`
+  - **共享层补充**：`AppErrorCode` 新增 `UPLOAD_ERROR`，`formatFileSize` 新增到共享工具
+- 验收检查清单：
+  - [x] `npm run build` 无错误
+  - [x] 列表/表单/详情页四态完整
+  - [x] 表单校验覆盖必填项
+  - [x] 文件格式和大小校验生效
+  - [x] 客户从往来单位中引用
+  - [x] 附件支持多文件上传
+  - [x] 上传失败不留下半成品记录
+  - [x] 合同编号自动生成 HT+年月+序号
+  - [x] 详情页可查看和下载附件
+  - [x] 编辑页可追加新附件、可删除已有附件
+
 ## 4. 当前代码基线
 
 当前前端代码能力：
@@ -289,9 +313,9 @@
 - 进货单管理（PurchaseOrder 列表/新建/编辑/详情，库存联动+改单回算，编码 JH）
 - 出货单管理（SalesOrder 列表/新建/编辑/详情，库存联动+改单回算+库存不足警告，编码 CH）
 - 报价单管理（QuoteOrder 列表/新建/编辑/详情，不影响库存，支持手动改价，编码 BJ）
+- 合同管理（ContractRecord 列表/上传/编辑/详情，附件 base64 本地存储，编码 HT）
 
 当前明显缺口：
-- Contract Center 合同管理
 - Search 统一搜索
 - Export Service 导出服务
 
@@ -301,9 +325,9 @@
 
 按依赖顺序，建议优先推进：
 
-1. **任务 15**：Contract Center 合同列表、上传、详情
-2. **任务 16**：Search 统一搜索结果模型与查询页
-3. **任务 17**：Export Service 接口边界与导出占位实现
+1. **任务 16**：Search 统一搜索结果模型与查询页
+2. **任务 17**：Export Service 接口边界与导出占位实现
+3. **任务 18**：全局状态完善与异常反馈收口
 
 ---
 

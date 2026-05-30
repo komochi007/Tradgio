@@ -9,7 +9,7 @@ export type { AppErrorCode } from "./errors"
 export { ToastProvider, useToast, ToastContainer } from "./notification"
 export type { ToastType } from "./notification"
 
-export { formatCurrency, formatNumber, formatDate, formatDateTime, generateId } from "./utils"
+export { formatCurrency, formatNumber, formatDate, formatDateTime, generateId, formatFileSize } from "./utils"
 
 export { paginationSchema, searchQuerySchema, validate } from "./validation"
 export type { z } from "./validation"

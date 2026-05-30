@@ -18,6 +18,11 @@ import {
   QuoteFormPage,
   QuoteDetailPage,
 } from "../modules/document-core"
+import {
+  ContractListPage,
+  ContractFormPage,
+  ContractDetailPage,
+} from "../modules/contract-center"
 
 const navigationItems = [
   { path: "/overview", label: "总览", description: "最近记录、快捷入口和库存摘要" },
@@ -30,7 +35,7 @@ const navigationItems = [
   { path: "/search", label: "查询", description: "跨模块统一搜索" },
 ]
 
-const PLACEHOLDER_ROUTES = ["/contracts", "/search"]
+const PLACEHOLDER_ROUTES = ["/search"]
 
 export default function App() {
   return (
@@ -70,6 +75,11 @@ export default function App() {
           <Route path="/quotes/new" element={<QuoteFormPage />} />
           <Route path="/quotes/:id" element={<QuoteDetailPage />} />
           <Route path="/quotes/:id/edit" element={<QuoteFormPage />} />
+
+          <Route path="/contracts" element={<ContractListPage />} />
+          <Route path="/contracts/new" element={<ContractFormPage />} />
+          <Route path="/contracts/:id" element={<ContractDetailPage />} />
+          <Route path="/contracts/:id/edit" element={<ContractFormPage />} />
 
           {PLACEHOLDER_ROUTES.map((path) => {
             const item = navigationItems.find((n) => n.path === path)
