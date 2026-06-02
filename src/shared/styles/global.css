@@ -1497,3 +1497,34 @@ a {
   background: var(--border-strong);
   color: var(--text-primary);
 }
+
+/* ── Form Page & Card ── */
+.form-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.form-card {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--surface-base);
+  overflow: hidden;
+}
+
+.form-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+}
+
+.form-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-default);
+  background: var(--surface-subtle);
+}

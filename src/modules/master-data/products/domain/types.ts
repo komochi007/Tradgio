@@ -1,4 +1,4 @@
-export const ProductUnits = ["个", "箱", "盒", "袋", "瓶", "包", "件", "套", "kg", "g", "L", "mL", "m", "cm", "吨", "台", "卷", "桶", "双", "对"] as const
+export const ProductUnits = ["个", "件", "箱", "卷", "码"] as const
 export type ProductUnit = (typeof ProductUnits)[number]
 
 export type ProductStatus = "active" | "inactive"
@@ -8,6 +8,7 @@ export type Product = {
   name: string
   spec: string
   unit: ProductUnit
+  productType: string
   defaultPurchasePrice: number | null
   defaultSalesPrice: number | null
   notes: string
@@ -20,6 +21,7 @@ export type ProductFormData = {
   name: string
   spec: string
   unit: ProductUnit
+  productType: string
   defaultPurchasePrice: string
   defaultSalesPrice: string
   notes: string
@@ -40,6 +42,10 @@ export function validateProductForm(data: ProductFormData): Record<string, strin
 
   if (!data.unit) {
     errors.unit = "请选择单位"
+  }
+
+  if (data.productType.length > 30) {
+    errors.productType = "产品类型不能超过 30 个字"
   }
 
   if (data.defaultPurchasePrice !== "") {
@@ -68,6 +74,7 @@ export function emptyProductForm(): ProductFormData {
     name: "",
     spec: "",
     unit: "" as ProductUnit,
+    productType: "",
     defaultPurchasePrice: "",
     defaultSalesPrice: "",
     notes: "",
@@ -79,6 +86,7 @@ export function productToFormData(product: Product): ProductFormData {
     name: product.name,
     spec: product.spec,
     unit: product.unit,
+    productType: product.productType,
     defaultPurchasePrice: product.defaultPurchasePrice?.toString() ?? "",
     defaultSalesPrice: product.defaultSalesPrice?.toString() ?? "",
     notes: product.notes,

@@ -11,6 +11,6 @@ export async function generateDocumentNo(): Promise<string> {
 
   const all = await contractRepository.getAll()
   const sameMonth = all.filter((r) => r.contractNo.startsWith(prefix))
-  const seq = String(sameMonth.length + 1).padStart(3, "0")
+  const seq = String(sameMonth.length + 1).padStart(2, "0")
   return `${prefix}${seq}`
 }

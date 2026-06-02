@@ -145,6 +145,7 @@ export function ProductListPage() {
               <tr>
                 <th>货品名称</th>
                 <th>规格型号</th>
+                <th>产品类型</th>
                 <th>单位</th>
                 <th className="data-table__num">默认进价</th>
                 <th className="data-table__num">默认售价</th>
@@ -157,6 +158,7 @@ export function ProductListPage() {
                 <tr key={p.id}>
                   <td className="data-table__name">{p.name}</td>
                   <td className="data-table__muted">{p.spec || "-"}</td>
+                  <td className="data-table__muted">{p.productType || "-"}</td>
                   <td>{p.unit}</td>
                   <td className="data-table__num">
                     {p.defaultPurchasePrice != null ? formatCurrency(p.defaultPurchasePrice) : "-"}

@@ -67,6 +67,7 @@ export function ProductFormPage() {
           name: form.name.trim(),
           spec: form.spec.trim(),
           unit: form.unit,
+          productType: form.productType.trim(),
           defaultPurchasePrice: form.defaultPurchasePrice ? Number(form.defaultPurchasePrice) : null,
           defaultSalesPrice: form.defaultSalesPrice ? Number(form.defaultSalesPrice) : null,
           notes: form.notes.trim(),
@@ -80,6 +81,7 @@ export function ProductFormPage() {
           name: form.name.trim(),
           spec: form.spec.trim(),
           unit: form.unit,
+          productType: form.productType.trim(),
           defaultPurchasePrice: form.defaultPurchasePrice ? Number(form.defaultPurchasePrice) : null,
           defaultSalesPrice: form.defaultSalesPrice ? Number(form.defaultSalesPrice) : null,
           notes: form.notes.trim(),
@@ -175,6 +177,14 @@ export function ProductFormPage() {
               error={errors.unit}
             />
           </div>
+
+          <Input
+            label="产品类型"
+            placeholder="选填，如：面料、辅料、成品"
+            value={form.productType}
+            onChange={(e) => updateField("productType", e.target.value)}
+            error={errors.productType}
+          />
 
           <div className="form-row">
             <Input
