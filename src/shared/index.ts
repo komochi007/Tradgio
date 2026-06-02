@@ -13,6 +13,21 @@ export { formatCurrency, formatNumber, formatDate, formatDateTime, generateId, f
 
 export { paginationSchema, searchQuerySchema, validate } from "./validation"
 export type { z } from "./validation"
+export {
+  AppIcon,
+  OverviewIcon,
+  ProductIcon,
+  CounterpartyIcon,
+  PurchaseIcon,
+  SalesIcon,
+  QuoteIcon,
+  ContractIcon,
+  SearchIcon,
+  AccountIcon,
+  LogoutIcon,
+  CalendarIcon,
+  WeatherIcon,
+} from "./icons"
 
 export {
   Button,

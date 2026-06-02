@@ -1,10 +1,12 @@
+import type { ReactNode } from "react"
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../modules/auth"
+import { AppIcon, AccountIcon, LogoutIcon } from "../shared/icons"
 
 type NavigationItem = {
   path: string
   label: string
-  description: string
+  icon: ReactNode
 }
 
 type AppShellProps = {
@@ -40,17 +42,14 @@ const pageMeta: Record<string, { title: string; description: string }> = {
     title: "合同",
     description: "合同记录、附件上传与按客户查询的统一入口。",
   },
-  "/search": {
-    title: "查询",
-    description: "跨进货、出货、报价、合同的统一搜索入口。",
-  },
 }
 
 export function AppShell({ navigationItems }: AppShellProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const { account, logout } = useAuth()
-  const meta = pageMeta[location.pathname] ?? pageMeta["/overview"]
+  const meta = pageMeta[location.pathname]
+  const isOverview = location.pathname === "/overview"
 
   async function handleLogout() {
     await logout()
@@ -61,7 +60,7 @@ export function AppShell({ navigationItems }: AppShellProps) {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="sidebar__brand">
-          <div className="sidebar__brand-mark">T</div>
+          <AppIcon width={40} height={40} />
           <div>
             <p className="sidebar__brand-name">Tradgio</p>
             <p className="sidebar__brand-subtitle">库存管理平台</p>
@@ -76,31 +75,41 @@ export function AppShell({ navigationItems }: AppShellProps) {
                 isActive ? "sidebar__link sidebar__link--active" : "sidebar__link"
               }
             >
+              <span className="sidebar__link-icon">{item.icon}</span>
               <span className="sidebar__link-label">{item.label}</span>
-              <span className="sidebar__link-description">{item.description}</span>
             </NavLink>
           ))}
         </nav>
         <div className="sidebar__footer">
-          <p className="sidebar__footer-label">当前账号</p>
-          <p className="sidebar__footer-value">{account?.username ?? "未知"}</p>
+          <div className="sidebar__footer-account">
+            <AccountIcon size={18} />
+            <span className="sidebar__footer-username">{account?.username ?? "未知"}</span>
+          </div>
+          <button className="sidebar__footer-logout" type="button" onClick={handleLogout}>
+            <LogoutIcon size={16} />
+            <span>退出登录</span>
+          </button>
         </div>
       </aside>
 
       <div className="app-shell__main">
-        <header className="topbar">
-          <div>
-            <p className="topbar__eyebrow">Tradgio</p>
-            <h1 className="topbar__title">{meta.title}</h1>
-            <p className="topbar__description">{meta.description}</p>
-          </div>
-          <div className="topbar__actions">
-            <button className="button button--ghost" type="button" onClick={handleLogout}>
-              退出登录
-            </button>
-            <span className="topbar__user">{account?.username}</span>
-          </div>
-        </header>
+        {isOverview && meta ? (
+          <header className="topbar">
+            <div>
+              <p className="topbar__eyebrow">Tradgio</p>
+              <h1 className="topbar__title">{meta.title}</h1>
+              <p className="topbar__description">{meta.description}</p>
+            </div>
+          </header>
+        ) : meta ? (
+          <header className="topbar topbar--compact">
+            <h1 className="topbar__title topbar__title--compact">{meta.title}</h1>
+          </header>
+        ) : (
+          <header className="topbar topbar--compact">
+            <h1 className="topbar__title topbar__title--compact">Tradgio</h1>
+          </header>
+        )}
         <main className="page-container">
           <Outlet />
         </main>

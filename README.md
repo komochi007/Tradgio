@@ -7,7 +7,7 @@
 - 提供上下文导航入口
 - 降低首次接手成本
 
-注意：当前仓库仍处于“文档驱动初始化阶段”，不是已可运行应用。
+注意：当前仓库已完成 MVP 前端实现，可本地启动并进行验收；部分能力仍为本地适配或占位实现。
 
 ## 1. Project Overview
 Tradgio 是一个面向国内贸易个体经营者和小公司老板的单人业务系统，统一管理：
@@ -55,7 +55,7 @@ MVP 核心能力：
 - 导出必须经过 `Export Service`
 
 ## 3. Tech Stack
-当前仓库尚未落地实际代码，以下为目标技术方向：
+当前仓库已落地前端代码，以下为当前采用或预留的技术方向：
 
 | 层级 | 计划方案 |
 |---|---|
@@ -99,15 +99,13 @@ MVP 核心能力：
 - `specs/`: 预留给细化规格、接口契约、数据结构
 - `tasks/`: 预留给任务拆解、迭代计划、验收清单
 
-未来建议新增代码目录：
+当前代码目录：
 
 ```text
-apps/web
-packages/ui
-packages/domain
-packages/application
-packages/infrastructure
-packages/shared
+src/
+├── app
+├── modules
+└── shared
 ```
 
 ## 5. Architecture Overview
@@ -164,6 +162,7 @@ Presentation -> Application -> Domain -> Infrastructure
 4. `docs/USER-FLOW.md`
 5. `docs/frontend-spec.md`
 6. `docs/design.md`
+7. `tasks/development-tasks.md`
 
 推荐实现顺序：
 1. 工程脚手架 + 路由骨架
@@ -182,28 +181,29 @@ AI Agent 约束：
 - [ ] 不把导出逻辑散落到页面
 - [ ] 不把整张单据放入全局 store 作为唯一真相
 
-## 7. Local Development Setup
-当前不可直接本地启动，原因：
-- 没有 `package.json`
-- 没有应用代码
-- 没有依赖清单
-- 没有启动脚本
+第二阶段优化入口：
+- 视觉与交互优化方案：`docs/frontend-spec.md` §16
+- 优化开发任务：`tasks/development-tasks.md`（任务 21-25）
+- 优化阶段状态：`tasks/development-progress.md` §6
 
-首次初始化建议补齐：
-- [ ] `package.json`
-- [ ] 应用目录
-- [ ] lint / format / typecheck 命令
+## 7. Local Development Setup
+当前可直接本地启动，当前脚本：
+- `npm run dev`
+- `npm run build`
+- `npm run preview`
+
+当前仍建议后续补齐：
+- [ ] `lint` / `format` / `test` 命令
 - [ ] `.env.example`
-- [ ] `dev` / `build` / `test` 脚本
+- [ ] CI 配置
 
 推荐目标命令：
 
 ```bash
-pnpm install
-pnpm dev
-pnpm build
-pnpm lint
-pnpm test
+npm install
+npm run dev
+npm run build
+npm run preview
 ```
 
 ## 8. Environment Variables
@@ -255,7 +255,7 @@ pnpm test
 
 ## 11. Build & Deployment
 当前状态：
-- [ ] 无构建脚本
+- [x] 已有构建脚本（`npm run build`）
 - [ ] 无 CI 配置
 - [ ] 无容器配置
 - [ ] 无部署平台配置
@@ -268,14 +268,14 @@ pnpm test
 - Export Service：Serverless / 轻量服务端
 
 部署前最低验收：
-- [ ] 登录后可恢复会话
-- [ ] 新建进货单后库存正确增加
-- [ ] 编辑单据能按差额回算库存
-- [ ] 出货库存不足有提醒但允许保存
-- [ ] 报价单不影响库存
-- [ ] 合同上传后可查看附件
-- [ ] 综合搜索返回统一结果
-- [ ] 导出失败不影响已保存单据
+- [x] 登录后可恢复会话
+- [x] 新建进货单后库存正确增加
+- [x] 编辑单据能按差额回算库存
+- [x] 出货库存不足有提醒但允许保存
+- [x] 报价单不影响库存
+- [x] 合同上传后可查看附件
+- [x] 综合搜索返回统一结果
+- [x] 导出失败不影响已保存单据
 
 ## 12. Coding Principles
 核心原则：
@@ -307,62 +307,63 @@ pnpm test
 - [x] 用户流程文档
 - [x] 设计规范
 - [x] 前端落地规范
+- [x] 前端工程初始化
+- [x] UI / 页面实现
+- [x] Auth 本地适配
+- [x] 库存引擎实现
+- [x] 合同上传链路（本地持久化）
+- [x] 导出服务占位实现
+- [x] 搜索聚合层
 
-未开始：
-- [ ] 工程初始化
-- [ ] UI / 页面实现
-- [ ] 数据模型与 schema
-- [ ] Auth 接入
-- [ ] 库存引擎实现
-- [ ] 合同上传链路
-- [ ] 导出服务
-- [ ] 搜索聚合层
-- [ ] 测试体系
+未完成：
+- [ ] 自动化测试体系
 - [ ] 部署配置
+- [ ] 真实后端 / 对象存储 / 导出服务接入
 
 注意事项：
-- 当前没有现成单据模板资产进入仓库
-- 当前没有现成代码可直接迭代
-- 任何实现都应区分“规划”与“已落地”
+- 当前导出仍为 TXT / CSV 占位实现
+- 当前认证、数据和附件基于本地 `localStorage`
+- 任何后续交付都应区分“本地 MVP 已落地”与“生产能力已接入”
+- 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
-- [ ] 初始化前端工程
-- [ ] 建立 App Shell、路由、状态管理基础设施
-- [ ] 建立 Auth / DB / Storage / Export adapter 层
+- [x] 初始化前端工程
+- [x] 建立 App Shell、路由、状态管理基础设施
+- [x] 建立 Auth / DB / Storage / Export adapter 层
 
 ### Phase 1: Master Data
-- [ ] 货品管理
-- [ ] 往来单位管理
-- [ ] 基础资料可在录单中被引用
+- [x] 货品管理
+- [x] 往来单位管理
+- [x] 基础资料可在录单中被引用
 
 ### Phase 2: Document Core
-- [ ] 进货单
-- [ ] 出货单
-- [ ] 报价单
-- [ ] 列表 / 详情 / 编辑 / 导出入口
+- [x] 进货单
+- [x] 出货单
+- [x] 报价单
+- [x] 列表 / 详情 / 编辑 / 导出入口
 
 ### Phase 3: Inventory & Contract
-- [ ] Inventory Ledger
-- [ ] Current Stock Snapshot
-- [ ] 合同记录与附件上传下载
+- [x] Inventory Ledger
+- [x] Current Stock Snapshot
+- [x] 合同记录与附件上传下载
 
 ### Phase 4: Search & Export
-- [ ] 统一搜索聚合层
+- [x] 统一搜索聚合层
 - [ ] 固定模板导出服务
 
 ### Phase 5: Hardening
-- [ ] 测试与验收覆盖
-- [ ] 空状态 / 错误状态补齐
+- [ ] 自动化测试体系
+- [x] 空状态 / 错误状态补齐
 - [ ] 部署与运行文档
 
 ## Quick Start For Agents
 开始任何实现前，先完成这份 checklist：
-- [ ] 确认仓库当前仍处于文档阶段还是已新增代码
+- [x] 确认仓库当前已进入可运行代码阶段
 - [ ] 先读 `docs/brief.md`、`docs/PRD.md`、`docs/architecture.md`
 - [ ] 判断需求属于哪个顶层模块
 - [ ] 判断代码应落在哪个技术分层
 - [ ] 检查是否涉及库存、导出、附件、搜索等跨模块规则
 - [ ] 若要突破架构约束，先更新文档再修改实现
 
-如果你是第一个开始写代码的 Agent，优先做“工程脚手架 + App Shell + Auth 骨架”，不要直接从业务页面散点实现。
+如果你接手后续迭代，优先补自动化测试、生产适配器和部署链路，不要再把仓库按“纯文档项目”处理。
