@@ -1528,3 +1528,72 @@ a {
   border-top: 1px solid var(--border-default);
   background: var(--surface-subtle);
 }
+
+/* ── Export Dropdown ── */
+.export-dropdown {
+  position: relative;
+  display: inline-flex;
+}
+
+.export-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 50;
+  min-width: 110px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.export-dropdown__item {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--motion-default);
+  margin: 2px;
+  width: calc(100% - 4px);
+}
+
+.export-dropdown__item:hover {
+  background: var(--surface-subtle);
+}
+
+/* ── Missing Button Variants ── */
+.button--secondary {
+  background: var(--surface-subtle);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.button--secondary:hover {
+  background: var(--border-default);
+  border-color: var(--border-strong);
+}
+
+.button--small {
+  height: 36px;
+  font-size: 13px;
+  padding: 0 var(--space-3);
+}
+
+.button--large {
+  height: 44px;
+  padding: 0 var(--space-6);
+  font-size: 15px;
+}
+
+.button--loading {
+  pointer-events: none;
+  opacity: 0.72;
+}

@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { Button, Input, EmptyState, SkeletonTable } from "../../../../shared"
+import { Button, Input, EmptyState, SkeletonTable, ExportDropdown, useToast } from "../../../../shared"
 import { formatCurrency, formatDate } from "../../../../shared"
-import { listQuoteOrders } from "../application/quoteService"
+import { listQuoteOrders, getQuoteOrder } from "../application/quoteService"
+import { buildQuoteExportPayload } from "../../../export-service/application/buildExportPayload"
+import { exportPrint, exportSheet } from "../../../export-service/application/exportService"
 import type { QuoteOrder } from "../domain/types"
 
 export function QuoteListPage() {
   const navigate = useNavigate()
+  const toast = useToast()
   const [items, setItems] = useState<QuoteOrder[]>([])
   const [search, setSearch] = useState("")
   const [appliedSearch, setAppliedSearch] = useState("")
@@ -38,6 +41,25 @@ export function QuoteListPage() {
     setSearch("")
     setAppliedSearch("")
   }
+
+  const handleExport = useCallback(async (id: string, format: "print" | "sheet") => {
+    try {
+      const order = await getQuoteOrder(id)
+      if (!order) {
+        toast.error("报价单不存在")
+        return
+      }
+      const payload = buildQuoteExportPayload(order)
+      const result = format === "print" ? await exportPrint(payload) : await exportSheet(payload)
+      if (result.success) {
+        toast.success(result.message)
+      } else {
+        toast.error(result.message)
+      }
+    } catch {
+      toast.error("导出失败，请重试")
+    }
+  }, [toast])
 
   const filtered = items.filter((o) => {
     if (!appliedSearch) return true
@@ -138,6 +160,7 @@ export function QuoteListPage() {
                     <Button variant="ghost" size="small" onClick={() => navigate(`/quotes/${o.id}/edit`)}>
                       编辑
                     </Button>
+                    <ExportDropdown onExport={(f) => handleExport(o.id, f)} />
                   </td>
                 </tr>
               ))}
