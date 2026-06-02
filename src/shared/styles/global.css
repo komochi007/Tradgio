@@ -1011,3 +1011,167 @@ a {
   font-size: 18px;
   flex-shrink: 0;
 }
+
+/* ── Overview Welcome Card ── */
+.overview__welcome {
+  padding: var(--space-8);
+  background:
+    linear-gradient(145deg, rgba(37, 99, 235, 0.04), rgba(147, 197, 253, 0.08)),
+    var(--surface-base);
+}
+
+.overview__greeting {
+  margin: 0;
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.overview__welcome-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.overview__date {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.overview__weather {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.overview__weather--loading {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* ── Bento Equal Height ── */
+.overview__bento-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+}
+
+.overview__bento-card .section-card__title {
+  flex-shrink: 0;
+}
+
+.overview__bento-card .overview__stock-list,
+.overview__bento-card .overview__recent-table,
+.overview__bento-card .section-card__description,
+.overview__bento-card .empty-state {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Inline Search Card ── */
+.overview__search-card {
+  margin-top: 0;
+}
+
+.overview__search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.overview__search-bar .input {
+  flex: 1;
+  max-width: 560px;
+}
+
+.overview__search-status {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.overview__search-status--error {
+  color: var(--state-error);
+  background: rgba(220, 38, 38, 0.04);
+  border: 1px solid rgba(220, 38, 38, 0.16);
+}
+
+.overview__search-results {
+  margin-top: var(--space-4);
+}
+
+.overview__search-summary {
+  margin-bottom: var(--space-3);
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.overview__search-results .data-table {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* ── Interactive Card ── */
+.section-card--interactive {
+  cursor: pointer;
+  transition:
+    border-color var(--motion-default),
+    box-shadow var(--motion-default),
+    transform var(--motion-default);
+}
+
+.section-card--interactive:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ── Data Table Utilities ── */
+.data-table__name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.data-table__muted {
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.data-table__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Page Header (internal page titles) ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.page-header__title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+}

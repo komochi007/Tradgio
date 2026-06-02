@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { AppShell } from "./AppShell"
 import { OverviewPage } from "../modules/overview/pages/OverviewPage"
-import { SearchPage } from "../modules/search"
 import { LoginPage } from "../modules/auth/pages/LoginPage"
 import { RegisterPage } from "../modules/auth/pages/RegisterPage"
 import { RequireAuth, GuestOnly } from "../modules/auth/application/RouteGuards"
@@ -31,7 +30,6 @@ import {
   SalesIcon,
   QuoteIcon,
   ContractIcon,
-  SearchIcon,
 } from "../shared/icons"
 
 const navigationItems = [
@@ -42,7 +40,6 @@ const navigationItems = [
   { path: "/sales", label: "出货", icon: <SalesIcon size={20} /> },
   { path: "/quotes", label: "报价", icon: <QuoteIcon size={20} /> },
   { path: "/contracts", label: "合同", icon: <ContractIcon size={20} /> },
-  { path: "/search", label: "查询", icon: <SearchIcon size={20} /> },
 ]
 
 export default function App() {
@@ -88,8 +85,6 @@ export default function App() {
           <Route path="/contracts/new" element={<ContractFormPage />} />
           <Route path="/contracts/:id" element={<ContractDetailPage />} />
           <Route path="/contracts/:id/edit" element={<ContractFormPage />} />
-
-          <Route path="/search" element={<SearchPage />} />
         </Route>
       </Route>
     </Routes>

@@ -1,3 +1,5 @@
 export { OverviewPage } from "./pages/OverviewPage"
 export { fetchOverviewData } from "./application/overviewService"
+export { getWeather } from "./application/weatherService"
 export type { OverviewData, RecentRecord, StockItem } from "./application/overviewService"
+export type { WeatherInfo } from "./application/weatherService"
