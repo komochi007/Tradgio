@@ -3,25 +3,21 @@ import { useNavigate } from "react-router-dom"
 import {
   Button,
   Input,
-  Select,
   Tag,
   EmptyState,
   SkeletonTable,
   formatDate,
   useToast,
 } from "../../../shared"
-import type { SelectOption } from "../../../shared"
 import { listContractRecords, deleteContractRecord } from "../application/contractService"
 import type { ContractRecord } from "../domain/types"
-import { counterpartyRepository } from "../../master-data/counterparties/infrastructure/counterpartyRepository"
 
 export function ContractListPage() {
   const navigate = useNavigate()
   const toast = useToast()
   const [records, setRecords] = useState<ContractRecord[]>([])
-  const [customerOptions, setCustomerOptions] = useState<SelectOption[]>([])
   const [search, setSearch] = useState("")
-  const [customerFilter, setCustomerFilter] = useState("")
+  const [appliedSearch, setAppliedSearch] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -29,16 +25,8 @@ export function ContractListPage() {
     setLoading(true)
     setError(null)
     try {
-      const [allRecords, allCounterparties] = await Promise.all([
-        listContractRecords(),
-        counterpartyRepository.getAll(),
-      ])
+      const allRecords = await listContractRecords()
       setRecords(allRecords)
-      setCustomerOptions(
-        allCounterparties
-          .filter((c) => c.type === "customer" && c.status === "active")
-          .map((c) => ({ value: c.id, label: c.name }))
-      )
     } catch (e) {
       setError(e instanceof Error ? e.message : "加载失败")
     } finally {
@@ -50,20 +38,25 @@ export function ContractListPage() {
     fetchData()
   }, [fetchData])
 
-  async function handleSearch() {
+  function handleSearch() {
+    setAppliedSearch(search.trim())
     setLoading(true)
     setError(null)
-    try {
-      const result = await listContractRecords({
-        search: search || undefined,
-        customerId: customerFilter || undefined,
+    listContractRecords({ search: search.trim() || undefined })
+      .then((result) => {
+        setRecords(result)
+        setLoading(false)
       })
-      setRecords(result)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "搜索失败")
-    } finally {
-      setLoading(false)
-    }
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : "搜索失败")
+        setLoading(false)
+      })
+  }
+
+  function handleClearSearch() {
+    setSearch("")
+    setAppliedSearch("")
+    fetchData()
   }
 
   async function handleDelete(id: string) {
@@ -77,7 +70,7 @@ export function ContractListPage() {
     }
   }
 
-  if (error) {
+  if (error && !loading) {
     return (
       <div className="list-page">
         <section className="section-card">
@@ -111,16 +104,7 @@ export function ContractListPage() {
             onChange={(e) => setSearch((e.target as HTMLInputElement).value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-        </div>
-        <div className="filter-toolbar__select">
-          <Select
-            value={customerFilter}
-            onChange={(e) => {
-              setCustomerFilter(e.target.value)
-              setTimeout(() => handleSearch(), 0)
-            }}
-            options={[{ value: "", label: "全部客户" }, ...customerOptions]}
-          />
+          <Button onClick={handleSearch}>搜索</Button>
         </div>
       </div>
 
@@ -129,12 +113,17 @@ export function ContractListPage() {
       ) : records.length === 0 ? (
         <section className="section-card">
           <EmptyState
-            title="还没有合同记录"
-            description="上传第一份合同，开始集中管理合同信息和附件。"
-            primaryAction={{
-              label: "上传合同",
-              onClick: () => navigate("/contracts/new"),
-            }}
+            title={appliedSearch ? "未找到匹配的合同" : "还没有合同记录"}
+            description={
+              appliedSearch
+                ? "请尝试其他关键词"
+                : "上传第一份合同，开始集中管理合同信息和附件。"
+            }
+            primaryAction={
+              appliedSearch
+                ? { label: "清除搜索", onClick: handleClearSearch }
+                : { label: "上传合同", onClick: () => navigate("/contracts/new") }
+            }
           />
         </section>
       ) : (

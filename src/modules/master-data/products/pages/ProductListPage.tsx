@@ -9,6 +9,7 @@ export function ProductListPage() {
   const toast = useToast()
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState("")
+  const [appliedSearch, setAppliedSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -43,9 +44,18 @@ export function ProductListPage() {
     }
   }
 
+  function handleSearch() {
+    setAppliedSearch(search.trim())
+  }
+
+  function handleClearSearch() {
+    setSearch("")
+    setAppliedSearch("")
+  }
+
   const filtered = products.filter((p) => {
     const matchSearch =
-      !search || p.name.toLowerCase().includes(search.toLowerCase())
+      !appliedSearch || p.name.toLowerCase().includes(appliedSearch.toLowerCase())
     const matchStatus =
       statusFilter === "all" || p.status === statusFilter
     return matchSearch && matchStatus
@@ -96,7 +106,9 @@ export function ProductListPage() {
             placeholder="搜索货品名称"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
+          <Button onClick={handleSearch}>搜索</Button>
         </div>
         <div className="filter-toolbar__tabs">
           {(["all", "active", "inactive"] as const).map((s) => (
@@ -123,7 +135,7 @@ export function ProductListPage() {
           primaryAction={
             products.length === 0
               ? { label: "新建货品", onClick: () => navigate("/products/new") }
-              : undefined
+              : appliedSearch ? { label: "清除搜索", onClick: handleClearSearch } : undefined
           }
         />
       ) : (

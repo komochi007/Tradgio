@@ -14,6 +14,7 @@ export function CounterpartyListPage() {
   const toast = useToast()
   const [items, setItems] = useState<Counterparty[]>([])
   const [search, setSearch] = useState("")
+  const [appliedSearch, setAppliedSearch] = useState("")
   const [typeFilter, setTypeFilter] = useState<"all" | CounterpartyType>("all")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -46,8 +47,17 @@ export function CounterpartyListPage() {
     }
   }
 
+  function handleSearch() {
+    setAppliedSearch(search.trim())
+  }
+
+  function handleClearSearch() {
+    setSearch("")
+    setAppliedSearch("")
+  }
+
   const filtered = items.filter((c) => {
-    const matchSearch = !search || c.name.toLowerCase().includes(search.toLowerCase())
+    const matchSearch = !appliedSearch || c.name.toLowerCase().includes(appliedSearch.toLowerCase())
     const matchType = typeFilter === "all" || c.type === typeFilter
     return matchSearch && matchType
   })
@@ -97,7 +107,9 @@ export function CounterpartyListPage() {
             placeholder="搜索单位名称"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
+          <Button onClick={handleSearch}>搜索</Button>
         </div>
         <div className="filter-toolbar__tabs">
           {(["all", "customer", "supplier"] as const).map((t) => (
@@ -124,7 +136,7 @@ export function CounterpartyListPage() {
           primaryAction={
             items.length === 0
               ? { label: "新建单位", onClick: () => navigate("/counterparties/new") }
-              : undefined
+              : appliedSearch ? { label: "清除搜索", onClick: handleClearSearch } : undefined
           }
         />
       ) : (

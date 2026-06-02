@@ -4,6 +4,7 @@ import {
   Button,
   Input,
   Select,
+  ProductSearchSelect,
   SectionCard,
   EmptyState, FormErrorSummary,
   useToast,
@@ -246,10 +247,6 @@ export function SalesFormPage() {
     label: c.name,
   }))
 
-  const productOptions = products.map((p) => ({
-    value: p.id,
-    label: p.name,
-  }))
 
   return (
     <div className="form-page">
@@ -326,11 +323,11 @@ export function SalesFormPage() {
                 return (
                   <tr key={line.key}>
                     <td>
-                      <Select
-                        placeholder="选择货品"
-                        options={productOptions}
+                      <ProductSearchSelect
+                        products={products}
                         value={line.productId}
-                        onChange={(e: ChangeEvent<HTMLSelectElement>) => updateLine(i, "productId", e.target.value)}
+                        placeholder="搜索或选择货品"
+                        onChange={(productId: string) => updateLine(i, "productId", productId)}
                         error={errors[`line_${i}_productId`]}
                       />
                     </td>

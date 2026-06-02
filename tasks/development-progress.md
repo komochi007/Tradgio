@@ -2,18 +2,13 @@
 
 本文件用于维护当前实际开发状态。
 
-更新规则：
-- 每完成一个任务，更新状态、完成时间和结果摘要
-- 若任务被拆分或重排，同步引用 `tasks/development-tasks.md`
-- 只记录"已发生事实"，不要写成计划
-
 ---
 
 ## 1. 总体状态
 
 当前阶段：第二阶段优化进行中 🔧
 
-当前已完成（MVP 20 个 + 优化 2 个）：
+当前已完成（MVP 20 个 + 优化 3 个）：
 - 工程目录与模块骨架重组（任务 01）
 - Shared Platform 基础能力初始化（任务 02）
 - Auth 适配层与登录态模型（任务 03）
@@ -34,8 +29,9 @@
 - MVP 验证用例与交付自检（任务 20）
 - App Shell 视觉重构与导航收紧（任务 21）
 - Overview 重做与查询并入（任务 22）
+- 表单控件与搜索交互统一升级（任务 23）
 
-当前未完成：任务 23-25
+当前未完成：任务 24-25
 
 ---
 
@@ -43,72 +39,44 @@
 
 | 任务编号 | 任务名称 | 状态 | 说明 |
 |---|---|---|---|
-| 01 | 工程目录与模块骨架重组 | 已完成 | 2026-05-29 |
-| 02 | Shared Platform 基础能力初始化 | 已完成 | 2026-05-29 |
-| 03 | Auth 适配层与登录态模型 | 已完成 | 2026-05-29 |
-| 04 | 登录页、注册页与受保护路由 | 已完成 | 2026-05-29 |
-| 05 | 基础组件层第一批落地 | 已完成 | 2026-05-29 |
-| 06 | 货品管理页面 | 已完成 | 2026-05-29 |
-| 07 | 往来单位管理页面 | 已完成 | 2026-05-29 |
-| 08 | Inventory Engine 数据模型与库存计算内核 | 已完成 | 2026-05-29 |
-| 09 | 进货单创建与列表 | 已完成 | 2026-05-29 |
-| 10 | 进货库存联动与改单回算 | 已完成 | 2026-05-29 |
-| 11 | 出货单创建与库存不足警告 | 已完成 | 2026-05-30 |
-| 12 | 出货库存联动与改单回算 | 已完成 | 2026-05-30 |
-| 13 | 报价单创建与详情 | 已完成 | 2026-05-30 |
-| 14 | Overview 总览页聚合 | 已完成 | 2026-05-30 |
-| 15 | 合同列表、上传、详情 | 已完成 | 2026-05-30 |
-| 16 | Search 统一搜索结果模型与查询页 | 已完成 | 2026-05-30 |
-| 17 | Export Service 接口边界与导出占位实现 | 已完成 | 2026-05-30 |
-| 18 | 全局状态完善与异常反馈收口 | 已完成 | 2026-05-30 |
-| 19 | 本地数据持久化适配点整理 | 已完成 | 2026-05-30 |
-| 20 | MVP 验证用例与交付自检 | 已完成 | 2026-05-30 |
+| 01-20 | MVP 全部任务 | 已完成 | 2026-05-29 ~ 2026-05-30 |
 | 21 | App Shell 视觉重构与导航收紧 | 已完成 | 2026-06-02 |
 | 22 | Overview 重做与查询并入 | 已完成 | 2026-06-02 |
+| 23 | 表单控件与搜索交互统一升级 | 已完成 | 2026-06-02 |
 
 ---
 
-## 3. 维护建议
-
-后续每次开发完成后，至少同步更新：
-- 本文件中的"当前任务状态"
-- 若任务边界变化，更新 `tasks/development-tasks.md`
-- 若新增高复杂度模块规则，更新对应 `specs/*.md`
-
----
-
-## 4. 第二阶段优化任务验收记录
+## 3. 第二阶段优化任务验收记录
 
 ### 任务 21：App Shell 视觉重构与导航收紧
-
 - 完成时间：2026-06-02
 - 改动文件：`src/app/App.tsx`、`src/app/AppShell.tsx`、`src/shared/styles/global.css`、`src/shared/icons/AppIcons.tsx`
-- 验收结果：
-  - ✅ 品牌区使用 AppIcon 矢量图标替代 `T` 字符
-  - ✅ 导航项仅显示图标+标题，移除说明文字
-  - ✅ 导航选中态为主蓝色背景+白色文字+无边框
-  - ✅ 顶部不再显示账号与退出按钮
-  - ✅ 总览页保留欢迎卡片
-  - ✅ 非总览页使用紧凑底部边框式页头
-  - ✅ 底部帐号卡片显示用户名与退出登录按钮
-  - ✅ `npm run build` 通过
+- ✅ 品牌区使用 AppIcon 矢量图标 | ✅ 图标+标题导航 | ✅ 蓝底白字激活态 | ✅ 紧凑页头 | ✅ 帐号卡片退出
 
 ### 任务 22：Overview 重做与查询并入
+- 完成时间：2026-06-02
+- 改动文件：`OverviewPage.tsx`、`weatherService.ts`（新）、`App.tsx`、`global.css`
+- ✅ 英文欢迎语+日期+天气 | ✅ 矢量快捷入口 | ✅ Bento 等高 | ✅ 内联搜索 | ✅ 移除查询导航和路由
 
+### 任务 23：表单控件与搜索交互统一升级
 - 完成时间：2026-06-02
 - 改动文件：
-  - `src/modules/overview/pages/OverviewPage.tsx` — 英文欢迎语+日期+天气、矢量快捷入口、Bento对齐、内联搜索
-  - `src/modules/overview/application/weatherService.ts` — 新建天气服务（浏览器定位→Open-Meteo，回退上海）
-  - `src/modules/overview/index.ts` — 导出天气服务
-  - `src/app/App.tsx` — 移除搜索路由和查询导航项
-  - `src/shared/styles/global.css` — 欢迎卡片、Bento等高度、内联搜索、交互卡片、data-table辅助类、page-header
+  - `src/shared/styles/global.css` — 补齐 form-field、filter-tab、page-header、data-table-card、product-search-select 全套样式
+  - `src/shared/components/ProductSearchSelect.tsx` — 新建可搜索货品选择组件
+  - `src/shared/components/index.ts` — 注册导出
+  - `src/shared/index.ts` — 注册到共享层
+  - `src/modules/master-data/products/pages/ProductListPage.tsx` — 搜索按钮触发
+  - `src/modules/master-data/counterparties/pages/CounterpartyListPage.tsx` — 搜索按钮触发
+  - `src/modules/document-core/purchases/pages/PurchaseListPage.tsx` — 搜索按钮触发
+  - `src/modules/document-core/sales/pages/SalesListPage.tsx` — 搜索按钮触发
+  - `src/modules/document-core/quotes/pages/QuoteListPage.tsx` — 搜索按钮触发
+  - `src/modules/contract-center/pages/ContractListPage.tsx` — 搜索按钮触发+移除客户筛选
+  - `src/modules/document-core/purchases/pages/PurchaseFormPage.tsx` — ProductSearchSelect
+  - `src/modules/document-core/sales/pages/SalesFormPage.tsx` — ProductSearchSelect
+  - `src/modules/document-core/quotes/pages/QuoteFormPage.tsx` — ProductSearchSelect
 - 验收结果：
-  - ✅ 总览页展示英文欢迎语（Good morning/afternoon/evening, {username}）
-  - ✅ 欢迎卡片展示日期与天气信息
-  - ✅ 天气优先浏览器定位城市，失败回退上海（Open-Meteo 免费 API）
-  - ✅ 快捷入口图标由 emoji 替换为矢量图标（PurchaseIcon/SalesIcon/QuoteIcon）
-  - ✅ 库存概览与最近单据卡片视觉尺寸对齐（min-height: 320px）
-  - ✅ 总览页内联跨模块搜索卡片（输入→搜索按钮→内联结果展示，支持跳转）
-  - ✅ 左侧导航不再出现"查询"入口
-  - ✅ `/search` 路由已移除
+  - ✅ 下拉框统一为圆角白底 + 自定义下拉箭头
+  - ✅ 所有列表页改为点击"搜索"按钮触发搜索，Enter 键支持
+  - ✅ 合同列表页移除「全部客户」筛选组件
+  - ✅ 进货/出货/报价录单页货品字段支持搜索选择，选择后自动回填规格、单位、价格
   - ✅ `npm run build` 通过

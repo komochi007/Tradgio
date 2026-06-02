@@ -42,8 +42,9 @@ export {
   PageError,
   ErrorBoundary,
   FormErrorSummary,
+  ProductSearchSelect,
 } from "./components"
-export type { SelectOption } from "./components"
+export type { SelectOption, ProductOption } from "./components"
 
 export { persistenceConfig, STORAGE_KEYS, MIGRATION_POINTS, getAllStorageKeys } from "./persistence"
 export type { PersistenceConfig, AuthAdapter, DataAdapter, FileAdapter, ExportAdapter, PersistenceRegistry } from "./persistence"

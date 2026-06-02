@@ -9,6 +9,7 @@ export function QuoteListPage() {
   const navigate = useNavigate()
   const [items, setItems] = useState<QuoteOrder[]>([])
   const [search, setSearch] = useState("")
+  const [appliedSearch, setAppliedSearch] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -29,9 +30,18 @@ export function QuoteListPage() {
     load()
   }, [])
 
+  function handleSearch() {
+    setAppliedSearch(search.trim())
+  }
+
+  function handleClearSearch() {
+    setSearch("")
+    setAppliedSearch("")
+  }
+
   const filtered = items.filter((o) => {
-    if (!search) return true
-    const q = search.toLowerCase()
+    if (!appliedSearch) return true
+    const q = appliedSearch.toLowerCase()
     return (
       o.documentNo.toLowerCase().includes(q) ||
       o.customerName.toLowerCase().includes(q) ||
@@ -84,17 +94,19 @@ export function QuoteListPage() {
             placeholder="搜索单据编号、客户或货品名称"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
+          <Button onClick={handleSearch}>搜索</Button>
         </div>
       </div>
 
       {filtered.length === 0 ? (
         <EmptyState
-          title={search ? "未找到匹配的报价单" : "还没有报价单"}
-          description={search ? "请尝试其他关键词" : "创建第一张报价单"}
+          title={appliedSearch ? "未找到匹配的报价单" : "还没有报价单"}
+          description={appliedSearch ? "请尝试其他关键词" : "创建第一张报价单，开始管理报价"}
           primaryAction={
-            search
-              ? { label: "清除搜索", onClick: () => setSearch("") }
+            appliedSearch
+              ? { label: "清除搜索", onClick: handleClearSearch }
               : { label: "新建报价单", onClick: () => navigate("/quotes/new") }
           }
         />

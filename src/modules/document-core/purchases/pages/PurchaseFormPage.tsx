@@ -7,6 +7,7 @@ import {
   SectionCard,
   EmptyState, FormErrorSummary,
   useToast,
+  ProductSearchSelect,
 } from "../../../../shared"
 import { formatCurrency } from "../../../../shared"
 import { productRepository } from "../../../master-data/products"
@@ -166,9 +167,13 @@ export function PurchaseFormPage() {
         <div className="page-header">
           <h1 className="page-title">{isEdit ? "编辑进货单" : "新建进货单"}</h1>
         </div>
-        <div className="form-card">
-          <div className="form-card__body" style={{ minHeight: 300 }} />
-        </div>
+        <SectionCard>
+          <div style={{ padding: "var(--space-8)", textAlign: "center" }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: 14, lineHeight: "22px" }}>
+              加载中...
+            </p>
+          </div>
+        </SectionCard>
       </div>
     )
   }
@@ -194,22 +199,19 @@ export function PurchaseFormPage() {
     label: s.name,
   }))
 
-  const productOptions = products.map((p) => ({
-    value: p.id,
-    label: `${p.name}${p.spec ? ` (${p.spec})` : ""}`,
-  }))
-
   return (
-    <div className="form-page">
+    <div className="list-page">
       <div className="page-header">
-        <div>
-          <h1 className="page-title">{isEdit ? "编辑进货单" : "新建进货单"}</h1>
-          <p className="page-subtitle">填写供应商和货品明细，保存后自动入库</p>
-        </div>
+        <h1 className="page-title">{isEdit ? "编辑进货单" : "新建进货单"}</h1>
+        <Button variant="ghost" onClick={() => navigate("/purchases")}>
+          返回列表
+        </Button>
       </div>
 
+      {Object.keys(errors).length > 0 && (
+        <FormErrorSummary errors={errors} />
+      )}
 
-      <FormErrorSummary errors={errors} />
       <SectionCard eyebrow="基本信息" title="供应商与日期">
         <div className="form-row">
           <Select
@@ -266,11 +268,11 @@ export function PurchaseFormPage() {
               {form.lines.map((line, i) => (
                 <tr key={line.key}>
                   <td>
-                    <Select
-                      placeholder="选择货品"
-                      options={productOptions}
+                    <ProductSearchSelect
+                      products={products}
                       value={line.productId}
-                      onChange={(e: ChangeEvent<HTMLSelectElement>) => updateLine(i, "productId", e.target.value)}
+                      placeholder="搜索或选择货品"
+                      onChange={(productId: string) => updateLine(i, "productId", productId)}
                       error={errors[`line_${i}_productId`]}
                     />
                   </td>
