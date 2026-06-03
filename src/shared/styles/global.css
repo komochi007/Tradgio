@@ -926,7 +926,7 @@ a {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
-  align-items: start;
+  align-items: stretch;
 }
 
 .overview__stock-list,
@@ -1155,14 +1155,14 @@ a {
   height: 42px;
   min-width: 76px;
   border-radius: 999px;
-  background: #1f2937;
-  border-color: #1f2937;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: #f9fafb;
 }
 
 .overview__search-control .button:hover {
-  background: #111827;
-  border-color: #111827;
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
 }
 
 .overview__search-dropdown {
