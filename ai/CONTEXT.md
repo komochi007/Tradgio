@@ -30,27 +30,25 @@
 
 ## 2. 当前仓库状态
 
-当前仓库仍处于文档驱动初始化阶段。
+当前仓库已完成 MVP 前端实现，可通过 Vite 本地启动和验收。
 
 已存在：
-- 产品文档
-- 架构文档
-- 用户流程文档
-- 设计规范
-- 前端落地规范
-- README 入口文档
+- React / Vite 前端应用代码
+- App Shell、Auth、本地 repository、库存引擎、搜索聚合、导出服务占位实现
+- 产品文档、架构文档、用户流程文档、设计规范、前端落地规范
+- 用户提供的出货单、报价单模板原件
+- 已转换的标准 `.xlsx` 模板资产：`public/templates/`
 
-当前不存在：
-- 前端应用代码
-- 后端 / Serverless 代码
-- 数据库 schema
-- 构建脚本
+当前仍未完成：
+- 自动化测试体系
 - 部署配置
-- 环境变量样例
+- 真实后端 / 对象存储 / 服务端导出运行时
+- 固定模板 Excel 导出的字段映射与填充实现
 
 结论：
-- 不要把当前仓库当成已运行项目维护
-- 大部分任务会是“从文档落地到实现”
+- 不要把当前仓库当成空项目
+- 代码实现应优先沿用 `src/modules` 与 `src/shared` 的现有分层
+- 文档中如仍出现“没有代码/没有模板资产”的旧描述，应以当前代码和本文件为准
 
 ## 3. 业务范围
 
@@ -228,15 +226,15 @@ Presentation -> Application -> Domain -> Infrastructure
 
 ## 9. 目标技术方向
 
-当前没有实际脚手架，以下是默认实现方向：
-- 前端：`React` SPA
-- 路由：客户端路由
-- 服务端状态：`Query`
-- 表单：结构化表单 + Schema 校验
-- 全局状态：轻量 store
-- 平台能力：托管 Auth / PostgreSQL / Object Storage / Serverless Function
+当前实际实现：
+- 前端：`React` + `Vite` SPA
+- 路由：`react-router-dom`
+- 数据：当前通过 localStorage adapter 模拟 repository
+- 表单：结构化表单 + 领域层校验函数
+- 认证：本地 localStorage auth adapter
+- 导出：`Export Service` 占位实现，后续升级模板 Excel 导出
 
-这不是已落地事实，只是默认技术方向。
+未来生产方向仍保留托管 Auth / PostgreSQL / Object Storage / Serverless Function。
 
 ## 10. 当前目录结构
 
@@ -252,13 +250,22 @@ Presentation -> Application -> Domain -> Infrastructure
 │   ├── architecture.md
 │   ├── brief.md
 │   ├── design.md
+│   ├── optimization-plan.md
 │   └── frontend-spec.md
+├── public/
+│   └── templates/
+├── src/
+│   ├── app/
+│   ├── modules/
+│   └── shared/
 ├── specs/
 └── tasks/
 ```
 
 目录职责：
 - `docs/`: 权威业务与架构来源
+- `public/templates/`: 固定导出模板资产
+- `src/`: 当前前端应用代码
 - `ai/`: AI 入口层与执行约束
 - `specs/`: 细化规格与契约
 - `tasks/`: 任务拆解与执行记录
@@ -309,6 +316,7 @@ AI 首次进入项目时，建议阅读顺序：
 - 做页面流程：`docs/USER-FLOW.md`
 - 做前端结构：`docs/frontend-spec.md`
 - 做视觉实现：`docs/design.md`
+- 做本轮优化：`docs/optimization-plan.md`
 
 各文档用途：
 - `docs/brief.md`: 最短项目边界说明
@@ -317,14 +325,15 @@ AI 首次进入项目时，建议阅读顺序：
 - `docs/USER-FLOW.md`: 用户从入口到结果的流程
 - `docs/frontend-spec.md`: 路由、页面模板、组件落地
 - `docs/design.md`: token、布局、视觉方向
+- `docs/optimization-plan.md`: 本轮 UI、草稿、看板、模板导出的任务边界
 
 ## 14. 实施风险与注意事项
 
 当前实现风险：
-- 没有现成模板资产进入仓库
-- 没有数据库结构可直接复用
-- 没有代码框架可直接延续
-- 若 AI 不先读文档，容易产生架构漂移
+- 当前数据仍是本地 localStorage，尚未接入真实数据库
+- 当前附件仍是本地持久化，尚未接入对象存储
+- 模板 Excel 导出尚未完成字段映射与填充实现
+- 若 AI 不先读文档和现有代码，容易产生架构漂移
 
 实现时要明确区分：
 - 已存在事实：仓库内文件、明确文档约束

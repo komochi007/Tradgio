@@ -88,13 +88,17 @@ MVP 核心能力：
 │   ├── architecture.md
 │   ├── brief.md
 │   ├── design.md
+│   ├── optimization-plan.md
 │   └── frontend-spec.md
+├── public/
+│   └── templates/
 ├── specs/
 └── tasks/
 ```
 
 目录职责：
 - `docs/`: 当前最核心的上下文来源
+- `public/templates/`: 固定导出模板资产，当前包含出货单和报价单 `.xlsx` 标准模板
 - `ai/`: 预留给 AI 执行记录、上下文索引、草稿
 - `specs/`: 预留给细化规格、接口契约、数据结构
 - `tasks/`: 预留给任务拆解、迭代计划、验收清单
@@ -322,6 +326,7 @@ npm run preview
 
 注意事项：
 - 当前导出仍为 TXT / CSV 占位实现
+- 出货单、报价单模板原件已转换为 `public/templates/*.xlsx`，模板字段映射与填充导出仍待实现
 - 当前认证、数据和附件基于本地 `localStorage`
 - 任何后续交付都应区分“本地 MVP 已落地”与“生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
