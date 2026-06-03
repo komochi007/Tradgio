@@ -47,6 +47,29 @@ function getFormattedDate(): string {
   return `${y}-${m}-${d} ${weekdays[now.getDay()]}`
 }
 
+function WeatherGlyph({ description }: { description?: string }) {
+  const isRain = description?.includes("雨")
+  const isCloud = description?.includes("云") || description?.includes("阴")
+
+  return (
+    <svg className="overview__weather-glyph" viewBox="0 0 24 24" aria-hidden="true">
+      {isRain ? (
+        <>
+          <path d="M7.4 15.2h8.9a4.1 4.1 0 0 0 .4-8.1 5.4 5.4 0 0 0-10.2 1.7 3.2 3.2 0 0 0 .9 6.4Z" />
+          <path d="M8 19.4l1-1.8M12 20.2l1-1.8M16 19.4l1-1.8" />
+        </>
+      ) : isCloud ? (
+        <path d="M7.4 16h9.1a4.2 4.2 0 0 0 .5-8.4 5.6 5.6 0 0 0-10.7 1.8A3.4 3.4 0 0 0 7.4 16Z" />
+      ) : (
+        <>
+          <path d="M12 7.4a4.6 4.6 0 1 1 0 9.2 4.6 4.6 0 0 1 0-9.2Z" />
+          <path d="M12 2.8v2M12 19.2v2M4.8 4.8l1.4 1.4M17.8 17.8l1.4 1.4M2.8 12h2M19.2 12h2M4.8 19.2l1.4-1.4M17.8 6.2l1.4-1.4" />
+        </>
+      )}
+    </svg>
+  )
+}
+
 export function OverviewPage() {
   const navigate = useNavigate()
   const { account } = useAuth()
@@ -76,7 +99,11 @@ export function OverviewPage() {
 
   const handleSearch = useCallback(async () => {
     const trimmed = searchKeyword.trim()
-    if (!trimmed) return
+    if (!trimmed) {
+      setSearchResults([])
+      setSearchState("idle")
+      return
+    }
     setSearchState("loading")
     setSearchError("")
     try {
@@ -88,6 +115,13 @@ export function OverviewPage() {
       setSearchState("error")
     }
   }, [searchKeyword])
+
+  function handleResultClick(item: SearchResult) {
+    navigate(item.targetRoute)
+    setSearchKeyword("")
+    setSearchResults([])
+    setSearchState("idle")
+  }
 
   if (error) {
     return (
@@ -115,7 +149,9 @@ export function OverviewPage() {
   if (loading) {
     return (
       <div className="overview-page">
-        <SkeletonCard />
+        <section className="overview__page-header overview__page-header--loading">
+          <SkeletonCard />
+        </section>
         <div className="overview__quick-grid">
           <SkeletonCard />
           <SkeletonCard />
@@ -136,19 +172,89 @@ export function OverviewPage() {
 
   return (
     <div className="overview-page">
-      {/* Welcome Card */}
-      <section className="hero-card overview__welcome">
-        <p className="overview__greeting">
-          {getGreeting()}, {account?.username ?? "User"}
-        </p>
-        <div className="overview__welcome-meta">
-          <span className="overview__date">{getFormattedDate()}</span>
-          {weather && (
-            <span className="overview__weather">
-              {weather.icon} {weather.city} {weather.temperature}°C {weather.description}
-            </span>
+      <section className="overview__page-header">
+        <div className="overview__header-copy">
+          <h1 className="overview__greeting">
+            {getGreeting()}, {account?.username ?? "User"}!
+          </h1>
+          <div className="overview__welcome-meta">
+            <span className="overview__date">{getFormattedDate()}</span>
+            {weather ? (
+              <span className="overview__weather">
+                <WeatherGlyph description={weather.description} />
+                {weather.city} {weather.temperature}°C {weather.description}
+              </span>
+            ) : (
+              <span className="overview__weather overview__weather--loading">
+                <WeatherGlyph />
+                天气加载中
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="overview__header-search">
+          <div className="overview__search-control">
+            <SearchIcon size={18} />
+            <Input
+              ref={searchInputRef}
+              placeholder="搜索进货、出货、报价、合同"
+              value={searchKeyword}
+              disabled={searchState === "loading"}
+              onChange={(e) => setSearchKeyword((e.target as HTMLInputElement).value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+            <Button
+              variant="secondary"
+              loading={searchState === "loading"}
+              onClick={handleSearch}
+            >
+              搜索
+            </Button>
+          </div>
+
+          {searchState !== "idle" && (
+            <div className="overview__search-dropdown">
+              {searchState === "loading" && (
+                <div className="overview__search-message">正在搜索...</div>
+              )}
+              {searchState === "empty" && (
+                <div className="overview__search-message">
+                  未找到与「{searchKeyword}」相关的记录
+                </div>
+              )}
+              {searchState === "error" && (
+                <div className="overview__search-message overview__search-message--error">
+                  {searchError}
+                </div>
+              )}
+              {searchState === "results" && (
+                <div className="overview__search-list">
+                  {searchResults.slice(0, 8).map((item) => (
+                    <button
+                      key={`${item.type}-${item.id}`}
+                      className="overview__search-item"
+                      type="button"
+                      onClick={() => handleResultClick(item)}
+                    >
+                      <Tag variant={typeVariant[item.type]}>
+                        {typeLabel[item.type]}
+                      </Tag>
+                      <span className="overview__search-item-main">
+                        <span className="overview__search-item-title">{item.title}</span>
+                        <span className="overview__search-item-subtitle">
+                          {item.subtitle} · {item.matchedField}
+                        </span>
+                      </span>
+                      <span className="overview__search-item-date">
+                        {formatDate(item.happenedAt)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
-          {!weather && <span className="overview__weather overview__weather--loading">加载天气中...</span>}
         </div>
       </section>
 
@@ -273,84 +379,6 @@ export function OverviewPage() {
           />
         </section>
       )}
-
-      {/* Inline Search Card */}
-      <section className="section-card overview__search-card">
-        <p className="section-eyebrow">跨模块搜索</p>
-        <h3 className="section-card__title">查找单据与合同</h3>
-        <div className="overview__search-bar">
-          <Input
-            ref={searchInputRef}
-            placeholder="搜索货品、客户、供应商、单据编号、合同标题"
-            value={searchKeyword}
-            disabled={searchState === "loading"}
-            onChange={(e) => setSearchKeyword((e.target as HTMLInputElement).value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          />
-          <Button
-            variant="primary"
-            loading={searchState === "loading"}
-            onClick={handleSearch}
-          >
-            <SearchIcon size={18} />
-            搜索
-          </Button>
-        </div>
-
-        {searchState === "loading" && (
-          <div className="overview__search-status">正在搜索...</div>
-        )}
-
-        {searchState === "empty" && (
-          <div className="overview__search-status">
-            未找到与「{searchKeyword}」相关的记录，请尝试其他关键词。
-          </div>
-        )}
-
-        {searchState === "error" && (
-          <div className="overview__search-status overview__search-status--error">
-            {searchError}
-          </div>
-        )}
-
-        {searchState === "results" && (
-          <div className="overview__search-results">
-            <div className="overview__search-summary">
-              找到 {searchResults.length} 条与「{searchKeyword}」相关的结果
-            </div>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th style={{ width: 100 }}>类型</th>
-                  <th>编号 / 标题</th>
-                  <th>关联方</th>
-                  <th>匹配字段</th>
-                  <th style={{ width: 120 }}>日期</th>
-                </tr>
-              </thead>
-              <tbody>
-                {searchResults.map((item) => (
-                  <tr
-                    key={`${item.type}-${item.id}`}
-                    className="overview__recent-row"
-                    onClick={() => navigate(item.targetRoute)}
-                  >
-                    <td>
-                      <Tag variant={typeVariant[item.type]}>
-                        {typeLabel[item.type]}
-                      </Tag>
-                    </td>
-                    <td className="data-table__name">{item.title}</td>
-                    <td>{item.subtitle}</td>
-                    <td className="data-table__muted">{item.matchedField}</td>
-                    <td className="data-table__muted">{formatDate(item.happenedAt)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
     </div>
   )
 }
