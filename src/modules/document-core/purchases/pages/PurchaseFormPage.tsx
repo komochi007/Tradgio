@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import {
   Button,
@@ -219,9 +219,9 @@ export function PurchaseFormPage() {
             placeholder="选择供应商"
             options={supplierOptions}
             value={form.supplierId}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              updateField("supplierId", e.target.value)
-              const supplier = suppliers.find((s) => s.id === e.target.value)
+            onValueChange={(value) => {
+              updateField("supplierId", value)
+              const supplier = suppliers.find((s) => s.id === value)
               updateField("supplierName", supplier?.name ?? "")
             }}
             error={errors.supplierId}

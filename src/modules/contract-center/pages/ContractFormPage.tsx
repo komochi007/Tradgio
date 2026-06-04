@@ -194,11 +194,11 @@ export function ContractFormPage() {
               placeholder="选择客户"
               options={customerOptions}
               value={formData.customerId}
-              onChange={(e) => {
-                const selected = customerOptions.find((o) => o.value === e.target.value)
+              onValueChange={(value) => {
+                const selected = customerOptions.find((o) => o.value === value)
                 setFormData((prev) => ({
                   ...prev,
-                  customerId: e.target.value,
+                  customerId: value,
                   customerName: selected?.label ?? "",
                 }))
               }}

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import {
   Button,
@@ -219,9 +219,9 @@ export function QuoteFormPage() {
             placeholder="选择客户"
             options={customerOptions}
             value={form.customerId}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              updateField("customerId", e.target.value)
-              const customer = customers.find((s) => s.id === e.target.value)
+            onValueChange={(value) => {
+              updateField("customerId", value)
+              const customer = customers.find((s) => s.id === value)
               updateField("customerName", customer?.name ?? "")
             }}
             error={errors.customerId}

@@ -173,7 +173,7 @@ export function ProductFormPage() {
               options={unitOptions}
               placeholder="请选择单位"
               value={form.unit}
-              onChange={(e) => updateField("unit", e.target.value)}
+              onValueChange={(value) => updateField("unit", value)}
               error={errors.unit}
             />
           </div>

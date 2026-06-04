@@ -165,7 +165,7 @@ export function CounterpartyFormPage() {
               options={typeOptions}
               placeholder="请选择类型"
               value={form.type}
-              onChange={(e) => updateField("type", e.target.value)}
+              onValueChange={(value) => updateField("type", value)}
               error={errors.type}
             />
           </div>
