@@ -88,12 +88,13 @@ export function ContractListPage() {
   return (
     <div className="list-page">
       <div className="page-header">
-        <h2 className="page-header__title">合同</h2>
-        <div className="page-header__actions">
-          <Button variant="primary" onClick={() => navigate("/contracts/new")}>
-            上传合同
-          </Button>
+        <div>
+          <h1 className="page-title">合同</h1>
+          <p className="page-subtitle">管理合同记录和附件，集中查看客户合同资料</p>
         </div>
+        <Button variant="primary" onClick={() => navigate("/contracts/new")}>
+          上传合同
+        </Button>
       </div>
 
       <div className="filter-toolbar">
