@@ -1416,9 +1416,9 @@ a {
   align-items: center;
   gap: var(--space-2);
   flex: 1;
-  flex-basis: min(100%, 560px);
+  flex-basis: min(100%, 380px);
   min-width: min(100%, 360px);
-  max-width: 560px;
+  max-width: 380px;
 }
 
 .filter-toolbar__search .form-field {
