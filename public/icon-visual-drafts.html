@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>任务 3 图标视觉稿</title>
+    <script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"></script>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #172033;
+        --muted: #667085;
+        --soft: #eef2f7;
+        --line: #d8dee8;
+        --blue: #2563eb;
+        --blue-deep: #1d4ed8;
+        --green: #0f9f6e;
+        --amber: #b7791f;
+        --paper: #ffffff;
+        --page: #f5f7fb;
+        --shadow: 0 20px 50px rgba(20, 32, 52, 0.10);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(245, 247, 251, 0)),
+          var(--page);
+        color: var(--ink);
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .page {
+        width: min(1440px, calc(100vw - 48px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 22px;
+      }
+
+      .eyebrow {
+        margin: 0 0 7px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 36px;
+        letter-spacing: 0;
+      }
+
+      .header p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        line-height: 24px;
+      }
+
+      .compare {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+        align-items: start;
+      }
+
+      .logo-compare {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+        margin-bottom: 22px;
+      }
+
+      .logo-draft {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .logo-stage {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 210px;
+        gap: 22px;
+        padding: 24px;
+        background:
+          linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(255, 255, 255, 0) 44%),
+          #ffffff;
+      }
+
+      .logo-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .logo-title h2 {
+        margin: 0;
+        font-size: 22px;
+        line-height: 30px;
+        letter-spacing: 0;
+      }
+
+      .logo-title p {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 20px;
+      }
+
+      .logo-mark {
+        width: 72px;
+        height: 72px;
+        flex: 0 0 auto;
+      }
+
+      .logo-wordmark {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: fit-content;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .logo-wordmark svg {
+        width: 44px;
+        height: 44px;
+      }
+
+      .wordmark-name {
+        display: block;
+        font-size: 19px;
+        line-height: 25px;
+        font-weight: 750;
+        letter-spacing: 0;
+      }
+
+      .wordmark-subtitle {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .logo-usage {
+        display: grid;
+        gap: 12px;
+      }
+
+      .usage-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 12px;
+      }
+
+      .usage-card.dark {
+        border-color: #1d4ed8;
+        background: #1d4ed8;
+        color: #fff;
+      }
+
+      .usage-card-title {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+        font-weight: 700;
+      }
+
+      .usage-card.dark .usage-card-title {
+        color: rgba(255, 255, 255, 0.74);
+      }
+
+      .usage-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .usage-row svg:nth-child(1) {
+        width: 40px;
+        height: 40px;
+      }
+
+      .usage-row svg:nth-child(2) {
+        width: 28px;
+        height: 28px;
+      }
+
+      .usage-row svg:nth-child(3) {
+        width: 18px;
+        height: 18px;
+      }
+
+      .logo-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1px;
+        border-top: 1px solid var(--line);
+        background: var(--line);
+      }
+
+      .logo-summary div {
+        min-height: 86px;
+        padding: 14px;
+        background: #fbfcfe;
+      }
+
+      .logo-summary strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 13px;
+        line-height: 18px;
+      }
+
+      .logo-summary span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .logo-draft--wide {
+        grid-column: 1 / -1;
+      }
+
+      .logo-draft--wide .logo-stage {
+        grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+      }
+
+      .reference-logo {
+        display: grid;
+        place-items: center;
+        min-height: 220px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 50% 30%, rgba(37, 99, 235, 0.11), rgba(255,255,255,0) 48%),
+          #fff;
+      }
+
+      .reference-logo svg {
+        width: min(260px, 76%);
+        height: auto;
+      }
+
+      .draft {
+        display: grid;
+        grid-template-columns: 214px minmax(0, 1fr);
+        min-height: 720px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding: 18px 14px;
+        border-right: 1px solid var(--line);
+        background: #fbfcfe;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 4px 8px;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--blue);
+        font-weight: 800;
+        background: #ffffff;
+      }
+
+      .brand strong,
+      .panel-title strong {
+        display: block;
+        font-size: 16px;
+        line-height: 22px;
+      }
+
+      .brand span,
+      .panel-title span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .nav {
+        display: grid;
+        gap: 6px;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 42px;
+        padding: 0 11px;
+        border-radius: 8px;
+        color: #4b5b73;
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .nav-item iconify-icon {
+        font-size: 20px;
+      }
+
+      .nav-item.active {
+        color: #fff;
+        background: var(--blue);
+      }
+
+      .account {
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .account-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .account button {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border: 0;
+        border-radius: 7px;
+        color: var(--muted);
+        background: #f2f5f9;
+      }
+
+      .main {
+        padding: 22px;
+        background: #f8fafc;
+      }
+
+      .draft-label {
+        display: inline-flex;
+        align-items: center;
+        height: 28px;
+        padding: 0 10px;
+        margin-bottom: 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        background: #fff;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+
+      .hero,
+      .search,
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .hero {
+        padding: 18px;
+      }
+
+      .hero h2 {
+        margin: 0 0 9px;
+        font-size: 24px;
+        line-height: 32px;
+        letter-spacing: 0;
+      }
+
+      .meta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .search {
+        position: relative;
+        padding: 12px;
+      }
+
+      .search-control {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        height: 40px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--muted);
+      }
+
+      .search-text {
+        flex: 1;
+        min-width: 0;
+        color: #98a2b3;
+        font-size: 13px;
+      }
+
+      .search-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 30px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 7px;
+        color: #fff;
+        background: var(--blue);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .quick {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+
+      .quick .card {
+        padding: 16px;
+      }
+
+      .quick-icon {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+      }
+
+      .quick h3,
+      .panel h3 {
+        margin: 0;
+        font-size: 16px;
+        line-height: 24px;
+        letter-spacing: 0;
+      }
+
+      .quick p,
+      .panel p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 20px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .panel {
+        padding: 16px;
+        min-height: 250px;
+      }
+
+      .panel-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        height: 42px;
+        margin-top: 12px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: #344054;
+        font-size: 13px;
+      }
+
+      .panel-row span {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .lucide {
+        --accent-soft: #eaf1ff;
+      }
+
+      .phosphor {
+        --accent-soft: #eef8f2;
+        --blue: #147d64;
+        --blue-deep: #0f6b56;
+      }
+
+      .lucide .quick-icon {
+        color: #1d4ed8;
+        background: #eaf1ff;
+      }
+
+      .phosphor .quick-icon {
+        color: #0f7a5c;
+        background: #e8f7ef;
+      }
+
+      .lucide iconify-icon {
+        stroke-width: 1.9px;
+      }
+
+      .phosphor .nav-item iconify-icon,
+      .phosphor .quick-icon iconify-icon {
+        font-size: 22px;
+      }
+
+      .note {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .note-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 14px 16px;
+        color: var(--muted);
+        line-height: 23px;
+        font-size: 13px;
+      }
+
+      .note-card strong {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--ink);
+        font-size: 14px;
+      }
+
+      @media (max-width: 1180px) {
+        .compare,
+        .logo-compare {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="header">
+        <div>
+          <p class="eyebrow">Tradgio · 任务 3 图标视觉稿</p>
+          <h1>Lucide 与 Phosphor Icons 初选对比</h1>
+          <p>品牌 Logo 暂不调整，本稿只比较侧栏导航、总览快捷入口、搜索、账号与业务状态图标。</p>
+        </div>
+      </header>
+
+      <section class="logo-compare" aria-label="品牌 Logo 视觉稿">
+        <article class="logo-draft">
+          <div class="logo-stage">
+            <div>
+              <div class="logo-title">
+                <svg class="logo-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                  <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                  <path d="M19 20h26" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M25 31h14" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M39 17h7l6 6v17a5 5 0 0 1-5 5h-8a5 5 0 0 1-5-5V22a5 5 0 0 1 5-5Z" fill="#fff" fill-opacity="0.18" />
+                  <path d="M46 17v7h7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div>
+                  <p class="eyebrow">方案 A · 字母 T + 单据折角</p>
+                  <h2>偏单据、合同、报价的业务识别</h2>
+                  <p>更强调“文档流转”和“经营记录”，适合平台后续继续加强报价、合同、导出模板等能力。</p>
+                </div>
+              </div>
+              <div class="logo-wordmark">
+                <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                  <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                  <path d="M19 20h26" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M25 31h14" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M39 17h7l6 6v17a5 5 0 0 1-5 5h-8a5 5 0 0 1-5-5V22a5 5 0 0 1 5-5Z" fill="#fff" fill-opacity="0.18" />
+                  <path d="M46 17v7h7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>
+                  <span class="wordmark-name">Tradgio</span>
+                  <span class="wordmark-subtitle">库存管理平台</span>
+                </span>
+              </div>
+            </div>
+            <div class="logo-usage">
+              <div class="usage-card">
+                <p class="usage-card-title">侧栏 / 小尺寸</p>
+                <div class="usage-row">
+                  <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                    <path d="M19 20h26" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 31h14" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M46 17v7h7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                    <path d="M19 20h26" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 31h14" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M46 17v7h7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                    <path d="M19 20h26" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 31h14" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  </svg>
+                </div>
+              </div>
+              <div class="usage-card dark">
+                <p class="usage-card-title">反白应用</p>
+                <div class="usage-row">
+                  <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <rect x="7" y="7" width="50" height="50" rx="15" fill="#fff" fill-opacity="0.16" />
+                    <path d="M19 20h26" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 31h14" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M46 17v7h7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span>
+                    <span class="wordmark-name">Tradgio</span>
+                    <span class="wordmark-subtitle" style="color: rgba(255,255,255,.72)">库存管理平台</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="logo-summary">
+            <div><strong>气质</strong><span>清晰、正式、偏单据管理。</span></div>
+            <div><strong>优点</strong><span>和报价、合同、导出场景关联强。</span></div>
+            <div><strong>风险</strong><span>库存平台的“货品”记忆点略弱。</span></div>
+          </div>
+        </article>
+
+        <article class="logo-draft">
+          <div class="logo-stage">
+            <div>
+              <div class="logo-title">
+                <svg class="logo-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                  <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                  <path d="M18 20h28" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M25 31h12" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M42 18l9 5v10l-9 5-9-5V23l9-5Z" fill="#fff" fill-opacity="0.95" />
+                  <path d="M42 18v10m0 0 9-5m-9 5-9-5" stroke="#1D4ED8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div>
+                  <p class="eyebrow">方案 B · 字母 T + 货箱结构</p>
+                  <h2>偏库存、货品、进出库的产品识别</h2>
+                  <p>更直接传达“库存管理”的核心场景，也和现有 AppIcon 的方向延续性更强。</p>
+                </div>
+              </div>
+              <div class="logo-wordmark">
+                <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                  <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                  <path d="M18 20h28" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M25 31h12" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                  <path d="M42 18l9 5v10l-9 5-9-5V23l9-5Z" fill="#fff" fill-opacity="0.95" />
+                  <path d="M42 18v10m0 0 9-5m-9 5-9-5" stroke="#1D4ED8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>
+                  <span class="wordmark-name">Tradgio</span>
+                  <span class="wordmark-subtitle">库存管理平台</span>
+                </span>
+              </div>
+            </div>
+            <div class="logo-usage">
+              <div class="usage-card">
+                <p class="usage-card-title">侧栏 / 小尺寸</p>
+                <div class="usage-row">
+                  <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                    <path d="M18 20h28" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 31h12" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M42 18l9 5v10l-9 5-9-5V23l9-5Z" fill="#fff" fill-opacity="0.95" />
+                    <path d="M42 18v10m0 0 9-5m-9 5-9-5" stroke="#1D4ED8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                    <path d="M18 20h28" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 31h12" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M42 18l9 5v10l-9 5-9-5V23l9-5Z" fill="#fff" fill-opacity="0.95" />
+                    <path d="M42 18v10m0 0 9-5m-9 5-9-5" stroke="#1D4ED8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <rect x="7" y="7" width="50" height="50" rx="15" fill="#2563EB" />
+                    <path d="M18 20h28" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M42 18l9 5v10l-9 5-9-5V23l9-5Z" fill="#fff" fill-opacity="0.95" />
+                  </svg>
+                </div>
+              </div>
+              <div class="usage-card dark">
+                <p class="usage-card-title">反白应用</p>
+                <div class="usage-row">
+                  <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                    <rect x="7" y="7" width="50" height="50" rx="15" fill="#fff" fill-opacity="0.16" />
+                    <path d="M18 20h28" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 20v24" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M25 31h12" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+                    <path d="M42 18l9 5v10l-9 5-9-5V23l9-5Z" fill="#fff" fill-opacity="0.22" />
+                    <path d="M42 18v10m0 0 9-5m-9 5-9-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span>
+                    <span class="wordmark-name">Tradgio</span>
+                    <span class="wordmark-subtitle" style="color: rgba(255,255,255,.72)">库存管理平台</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="logo-summary">
+            <div><strong>气质</strong><span>稳定、具体、偏库存工具。</span></div>
+            <div><strong>优点</strong><span>业务辨识度更强，和平台名称匹配。</span></div>
+            <div><strong>风险</strong><span>需要控制货箱细节，避免小尺寸发糊。</span></div>
+          </div>
+        </article>
+
+        <article class="logo-draft logo-draft--wide">
+          <div class="logo-stage">
+            <div>
+              <div class="logo-title">
+                <svg class="logo-mark" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="ref-blue-main" x1="21" y1="14" x2="78" y2="82" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#1677FF" />
+                      <stop offset="1" stop-color="#1D4ED8" />
+                    </linearGradient>
+                    <linearGradient id="ref-cube-front" x1="66" y1="59" x2="83" y2="81" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#FFFFFF" />
+                      <stop offset="1" stop-color="#DDEBFF" />
+                    </linearGradient>
+                    <linearGradient id="ref-cube-side" x1="79" y1="62" x2="89" y2="78" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#2F8CFF" />
+                      <stop offset="1" stop-color="#1857CF" />
+                    </linearGradient>
+                    <filter id="ref-soft-shadow" x="8" y="8" width="86" height="86" filterUnits="userSpaceOnUse">
+                      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#1D4ED8" flood-opacity="0.18" />
+                    </filter>
+                  </defs>
+                  <path filter="url(#ref-soft-shadow)" d="M47.8 7.5c5.8-3.2 12.8-3.2 18.6 0l22.3 12.4c5.8 3.2 9.4 9.4 9.4 16v24.8c0 6.7-3.6 12.8-9.4 16L66.4 89.3c-5.8 3.2-12.8 3.2-18.6 0L25.5 76.8c-5.8-3.2-9.4-9.4-9.4-16V35.9c0-6.7 3.6-12.8 9.4-16L47.8 7.5Z" transform="translate(-8 0)" fill="url(#ref-blue-main)" />
+                  <path d="M23 35.8c0-5.9 4.8-10.7 10.7-10.7h43.5L71.8 41H55.5v35.8L39.8 67V41H23V35.8Z" fill="white" />
+                  <path d="M68 58.8 81.6 51l13.7 7.8-13.7 7.9L68 58.8Z" fill="#FFFFFF" />
+                  <path d="M68 58.8 81.6 66.7v17.2L68 76.1V58.8Z" fill="url(#ref-cube-front)" />
+                  <path d="M95.3 58.8 81.6 66.7v17.2l13.7-7.8V58.8Z" fill="url(#ref-cube-side)" />
+                </svg>
+                <div>
+                  <p class="eyebrow">方案 C · 参考图方向复刻</p>
+                  <h2>圆角六边形 T 标 + 立体货箱</h2>
+                  <p>保留参考图的强品牌感：蓝色科技底、白色 T 字母、右下角货箱。比 A/B 更像完整品牌标识，也更适合登录页和应用图标。</p>
+                </div>
+              </div>
+              <div class="logo-wordmark">
+                <svg viewBox="0 0 96 96" fill="none" aria-hidden="true">
+                  <path d="M47.8 7.5c5.8-3.2 12.8-3.2 18.6 0l22.3 12.4c5.8 3.2 9.4 9.4 9.4 16v24.8c0 6.7-3.6 12.8-9.4 16L66.4 89.3c-5.8 3.2-12.8 3.2-18.6 0L25.5 76.8c-5.8-3.2-9.4-9.4-9.4-16V35.9c0-6.7 3.6-12.8 9.4-16L47.8 7.5Z" transform="translate(-8 0)" fill="#2563EB" />
+                  <path d="M23 35.8c0-5.9 4.8-10.7 10.7-10.7h43.5L71.8 41H55.5v35.8L39.8 67V41H23V35.8Z" fill="white" />
+                  <path d="M68 58.8 81.6 51l13.7 7.8-13.7 7.9L68 58.8Z" fill="#FFFFFF" />
+                  <path d="M68 58.8 81.6 66.7v17.2L68 76.1V58.8Z" fill="#DDEBFF" />
+                  <path d="M95.3 58.8 81.6 66.7v17.2l13.7-7.8V58.8Z" fill="#1D4ED8" />
+                </svg>
+                <span>
+                  <span class="wordmark-name">Tradgio</span>
+                  <span class="wordmark-subtitle">库存管理平台</span>
+                </span>
+              </div>
+            </div>
+            <div class="reference-logo">
+              <svg viewBox="0 0 96 96" fill="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="ref-preview-blue" x1="12" y1="10" x2="76" y2="88" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#1677FF" />
+                    <stop offset="1" stop-color="#1D4ED8" />
+                  </linearGradient>
+                  <filter id="ref-preview-shadow" x="0" y="0" width="96" height="96" filterUnits="userSpaceOnUse">
+                    <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#1D4ED8" flood-opacity="0.22" />
+                  </filter>
+                </defs>
+                <path filter="url(#ref-preview-shadow)" d="M47.8 7.5c5.8-3.2 12.8-3.2 18.6 0l22.3 12.4c5.8 3.2 9.4 9.4 9.4 16v24.8c0 6.7-3.6 12.8-9.4 16L66.4 89.3c-5.8 3.2-12.8 3.2-18.6 0L25.5 76.8c-5.8-3.2-9.4-9.4-9.4-16V35.9c0-6.7 3.6-12.8 9.4-16L47.8 7.5Z" transform="translate(-8 0)" fill="url(#ref-preview-blue)" />
+                <path d="M23 35.8c0-5.9 4.8-10.7 10.7-10.7h43.5L71.8 41H55.5v35.8L39.8 67V41H23V35.8Z" fill="white" />
+                <path d="M68 58.8 81.6 51l13.7 7.8-13.7 7.9L68 58.8Z" fill="#FFFFFF" />
+                <path d="M68 58.8 81.6 66.7v17.2L68 76.1V58.8Z" fill="#E7F0FF" />
+                <path d="M95.3 58.8 81.6 66.7v17.2l13.7-7.8V58.8Z" fill="#1D63E8" />
+              </svg>
+            </div>
+          </div>
+          <div class="logo-summary">
+            <div><strong>气质</strong><span>更完整、更像正式 App 品牌。</span></div>
+            <div><strong>优点</strong><span>库存识别强，小图标记忆点最好。</span></div>
+            <div><strong>风险</strong><span>立体货箱在极小尺寸要做简化版。</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="compare">
+        <article class="draft lucide">
+          <aside class="sidebar">
+            <div class="brand">
+              <div class="brand-mark">T</div>
+              <div>
+                <strong>Tradgio</strong>
+                <span>库存管理平台</span>
+              </div>
+            </div>
+            <nav class="nav">
+              <div class="nav-item active"><iconify-icon icon="lucide:layout-dashboard"></iconify-icon>总览</div>
+              <div class="nav-item"><iconify-icon icon="lucide:package"></iconify-icon>货品</div>
+              <div class="nav-item"><iconify-icon icon="lucide:handshake"></iconify-icon>往来单位</div>
+              <div class="nav-item"><iconify-icon icon="lucide:archive-restore"></iconify-icon>进货</div>
+              <div class="nav-item"><iconify-icon icon="lucide:truck"></iconify-icon>出货</div>
+              <div class="nav-item"><iconify-icon icon="lucide:file-spreadsheet"></iconify-icon>报价</div>
+              <div class="nav-item"><iconify-icon icon="lucide:file-check-2"></iconify-icon>合同</div>
+            </nav>
+            <div class="account">
+              <span class="account-name"><iconify-icon icon="lucide:circle-user-round"></iconify-icon>admin</span>
+              <button type="button"><iconify-icon icon="lucide:log-out"></iconify-icon></button>
+            </div>
+          </aside>
+          <section class="main">
+            <div class="draft-label">方案 A · Lucide，细线、清爽、后台产品感</div>
+            <div class="top">
+              <div class="hero">
+                <h2>Good afternoon, admin!</h2>
+                <div class="meta">
+                  <span><iconify-icon icon="lucide:calendar-days"></iconify-icon>2026-06-04 Thu</span>
+                  <span><iconify-icon icon="lucide:cloud-sun"></iconify-icon>上海 27°C 多云</span>
+                </div>
+              </div>
+              <div class="search">
+                <div class="search-control">
+                  <iconify-icon icon="lucide:search"></iconify-icon>
+                  <span class="search-text">搜索进货、出货、报价、合同</span>
+                  <span class="search-button">搜索</span>
+                </div>
+              </div>
+            </div>
+            <div class="quick">
+              <div class="card">
+                <div class="quick-icon"><iconify-icon icon="lucide:archive-restore"></iconify-icon></div>
+                <h3>新建进货单</h3>
+                <p>记录进货并增加库存</p>
+              </div>
+              <div class="card">
+                <div class="quick-icon"><iconify-icon icon="lucide:truck"></iconify-icon></div>
+                <h3>新建出货单</h3>
+                <p>记录出货并校验库存</p>
+              </div>
+              <div class="card">
+                <div class="quick-icon"><iconify-icon icon="lucide:file-spreadsheet"></iconify-icon></div>
+                <h3>新建报价单</h3>
+                <p>生成报价，不影响库存</p>
+              </div>
+            </div>
+            <div class="grid">
+              <div class="card panel">
+                <h3>库存概览</h3>
+                <p>图标更轻，适合信息密度高的列表。</p>
+                <div class="panel-row"><span><iconify-icon icon="lucide:boxes"></iconify-icon>铝型材 A01</span><strong>126 件</strong></div>
+                <div class="panel-row"><span><iconify-icon icon="lucide:box"></iconify-icon>钢卷 B12</span><strong>38 卷</strong></div>
+                <div class="panel-row"><span><iconify-icon icon="lucide:triangle-alert"></iconify-icon>库存偏低</span><strong>2 项</strong></div>
+              </div>
+              <div class="card panel">
+                <h3>最近单据</h3>
+                <p>同一组图标覆盖单据类型、导出与查看动作。</p>
+                <div class="panel-row"><span><iconify-icon icon="lucide:download"></iconify-icon>导出模板 Excel</span><strong>可用</strong></div>
+                <div class="panel-row"><span><iconify-icon icon="lucide:eye"></iconify-icon>查看详情</span><strong>清晰</strong></div>
+                <div class="panel-row"><span><iconify-icon icon="lucide:pen-line"></iconify-icon>编辑单据</span><strong>轻量</strong></div>
+              </div>
+            </div>
+          </section>
+        </article>
+
+        <article class="draft phosphor">
+          <aside class="sidebar">
+            <div class="brand">
+              <div class="brand-mark">T</div>
+              <div>
+                <strong>Tradgio</strong>
+                <span>库存管理平台</span>
+              </div>
+            </div>
+            <nav class="nav">
+              <div class="nav-item active"><iconify-icon icon="ph:chart-pie-slice"></iconify-icon>总览</div>
+              <div class="nav-item"><iconify-icon icon="ph:package"></iconify-icon>货品</div>
+              <div class="nav-item"><iconify-icon icon="ph:users-three"></iconify-icon>往来单位</div>
+              <div class="nav-item"><iconify-icon icon="ph:tray-arrow-down"></iconify-icon>进货</div>
+              <div class="nav-item"><iconify-icon icon="ph:truck"></iconify-icon>出货</div>
+              <div class="nav-item"><iconify-icon icon="ph:receipt"></iconify-icon>报价</div>
+              <div class="nav-item"><iconify-icon icon="ph:file-text"></iconify-icon>合同</div>
+            </nav>
+            <div class="account">
+              <span class="account-name"><iconify-icon icon="ph:user-circle"></iconify-icon>admin</span>
+              <button type="button"><iconify-icon icon="ph:sign-out"></iconify-icon></button>
+            </div>
+          </aside>
+          <section class="main">
+            <div class="draft-label">方案 B · Phosphor，圆润、亲和、稍有产品个性</div>
+            <div class="top">
+              <div class="hero">
+                <h2>Good afternoon, admin!</h2>
+                <div class="meta">
+                  <span><iconify-icon icon="ph:calendar-dots"></iconify-icon>2026-06-04 Thu</span>
+                  <span><iconify-icon icon="ph:cloud-sun"></iconify-icon>上海 27°C 多云</span>
+                </div>
+              </div>
+              <div class="search">
+                <div class="search-control">
+                  <iconify-icon icon="ph:magnifying-glass"></iconify-icon>
+                  <span class="search-text">搜索进货、出货、报价、合同</span>
+                  <span class="search-button">搜索</span>
+                </div>
+              </div>
+            </div>
+            <div class="quick">
+              <div class="card">
+                <div class="quick-icon"><iconify-icon icon="ph:tray-arrow-down"></iconify-icon></div>
+                <h3>新建进货单</h3>
+                <p>记录进货并增加库存</p>
+              </div>
+              <div class="card">
+                <div class="quick-icon"><iconify-icon icon="ph:truck"></iconify-icon></div>
+                <h3>新建出货单</h3>
+                <p>记录出货并校验库存</p>
+              </div>
+              <div class="card">
+                <div class="quick-icon"><iconify-icon icon="ph:receipt"></iconify-icon></div>
+                <h3>新建报价单</h3>
+                <p>生成报价，不影响库存</p>
+              </div>
+            </div>
+            <div class="grid">
+              <div class="card panel">
+                <h3>库存概览</h3>
+                <p>图标更圆润，业务识别度强一点。</p>
+                <div class="panel-row"><span><iconify-icon icon="ph:stack"></iconify-icon>铝型材 A01</span><strong>126 件</strong></div>
+                <div class="panel-row"><span><iconify-icon icon="ph:cube"></iconify-icon>钢卷 B12</span><strong>38 卷</strong></div>
+                <div class="panel-row"><span><iconify-icon icon="ph:warning"></iconify-icon>库存偏低</span><strong>2 项</strong></div>
+              </div>
+              <div class="card panel">
+                <h3>最近单据</h3>
+                <p>视觉更温和，适合降低业务系统的生硬感。</p>
+                <div class="panel-row"><span><iconify-icon icon="ph:download-simple"></iconify-icon>导出模板 Excel</span><strong>可用</strong></div>
+                <div class="panel-row"><span><iconify-icon icon="ph:eye"></iconify-icon>查看详情</span><strong>清晰</strong></div>
+                <div class="panel-row"><span><iconify-icon icon="ph:pencil-simple-line"></iconify-icon>编辑单据</span><strong>轻快</strong></div>
+              </div>
+            </div>
+          </section>
+        </article>
+      </section>
+
+      <section class="note">
+        <div class="note-card">
+          <strong>我的初步判断：Lucide 更适合正式接入</strong>
+          它的线条更克制，和当前系统的密集列表、表单、导出动作更贴合。缺点是个性较弱，需要靠品牌 Logo 和局部颜色补足识别度。
+        </div>
+        <div class="note-card">
+          <strong>Phosphor 可以作为备选或局部使用</strong>
+          它更友好、更有圆润感，但如果整套使用，业务后台会稍微偏“轻应用”。除非你希望系统看起来更柔和，否则我会谨慎使用。
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
