@@ -972,7 +972,7 @@ a {
 
 .overview-chart--donut {
   display: grid;
-  grid-template-columns: minmax(136px, 152px) max-content;
+  grid-template-columns: minmax(160px, 176px) minmax(96px, 112px);
   justify-items: stretch;
   align-items: center;
   gap: var(--space-3);
@@ -992,7 +992,7 @@ a {
 }
 
 .overview-chart__donut {
-  max-width: 152px;
+  max-width: 176px;
 }
 
 .overview-chart__donut circle,
@@ -1024,13 +1024,14 @@ a {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  width: max-content;
+  justify-self: end;
+  width: 112px;
   min-width: 0;
 }
 
 .overview-chart__legend-item {
   display: grid;
-  grid-template-columns: auto max-content auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   column-gap: var(--space-2);
   min-width: 0;
@@ -1052,6 +1053,7 @@ a {
 }
 
 .overview-chart__legend-value {
+  justify-self: end;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
