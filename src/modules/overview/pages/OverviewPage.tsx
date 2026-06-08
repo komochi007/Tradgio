@@ -1,14 +1,16 @@
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect, useState, useCallback, useRef, type MouseEvent } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   formatCurrency,
   formatDate,
+  formatNumber,
   SkeletonCard,
   SkeletonTable,
   EmptyState,
   Tag,
   Button,
   Input,
+  Select,
 } from "../../../shared"
 import { useAuth } from "../../auth"
 import {
@@ -21,15 +23,31 @@ import { fetchOverviewData } from "../application/overviewService"
 import { getWeather } from "../application/weatherService"
 import { searchDocuments } from "../../search/application/searchService"
 import { typeLabel, typeVariant } from "../../search/domain/types"
-import type { OverviewData } from "../application/overviewService"
+import type {
+  MonthlySalesMetric,
+  OverviewData,
+  ProductTypeSalesSeries,
+  ProductTypeSkuItem,
+} from "../application/overviewService"
 import type { WeatherInfo } from "../application/weatherService"
 import type { SearchResult } from "../../search/domain/types"
+
+const ALL_PRODUCT_TYPES = "__all_product_types__"
+const chartColors = ["#2563EB", "#16A34A", "#D97706", "#0891B2", "#64748B", "#DB2777"]
 
 const quickActions = [
   { path: "/purchases/new", label: "新建进货单", desc: "记录进货并增加库存", Icon: PurchaseIcon },
   { path: "/sales/new", label: "新建出货单", desc: "记录出货并校验库存", Icon: SalesIcon },
   { path: "/quotes/new", label: "新建报价单", desc: "生成报价，不影响库存", Icon: QuoteIcon },
 ]
+
+type ChartTooltip = {
+  x: number
+  y: number
+  title: string
+  value: string
+  meta?: string
+}
 
 function getGreeting(): string {
   const hour = new Date().getHours()
@@ -70,6 +88,258 @@ function WeatherGlyph({ description }: { description?: string }) {
   )
 }
 
+function getTooltipPoint(e: MouseEvent<SVGElement>) {
+  const svg = e.currentTarget.ownerSVGElement ?? e.currentTarget
+  const rect = svg.getBoundingClientRect()
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
+  }
+}
+
+function ChartTooltipLayer({ tooltip }: { tooltip: ChartTooltip | null }) {
+  if (!tooltip) return null
+
+  return (
+    <div
+      className="overview-chart__tooltip"
+      style={{ left: tooltip.x, top: tooltip.y }}
+    >
+      <span className="overview-chart__tooltip-title">{tooltip.title}</span>
+      <span className="overview-chart__tooltip-value">{tooltip.value}</span>
+      {tooltip.meta && <span className="overview-chart__tooltip-meta">{tooltip.meta}</span>}
+    </div>
+  )
+}
+
+function ProductTypeDonutChart({ items }: { items: ProductTypeSkuItem[] }) {
+  const [tooltip, setTooltip] = useState<ChartTooltip | null>(null)
+  const total = items.reduce((sum, item) => sum + item.skuCount, 0)
+  const radius = 58
+  const circumference = 2 * Math.PI * radius
+  let offset = 0
+
+  if (total === 0) {
+    return (
+      <EmptyState
+        title="暂无货品类型数据"
+        description="给货品补充产品类型后，这里会展示 SKU 分布。"
+      />
+    )
+  }
+
+  return (
+    <div className="overview-chart overview-chart--donut">
+      <svg className="overview-chart__donut" viewBox="0 0 180 180" role="img" aria-label="按产品类型展示 SKU 数量">
+        <circle
+          cx="90"
+          cy="90"
+          r={radius}
+          fill="none"
+          stroke="#EEF2F7"
+          strokeWidth="18"
+        />
+        {items.map((item, index) => {
+          const dash = (item.skuCount / total) * circumference
+          const dashOffset = -offset
+          offset += dash
+          return (
+            <circle
+              key={item.productType}
+              cx="90"
+              cy="90"
+              r={radius}
+              fill="none"
+              stroke={chartColors[index % chartColors.length]}
+              strokeWidth="18"
+              strokeDasharray={`${dash} ${circumference - dash}`}
+              strokeDashoffset={dashOffset}
+              strokeLinecap="round"
+              transform="rotate(-90 90 90)"
+              onMouseEnter={(e) => {
+                const point = getTooltipPoint(e)
+                setTooltip({
+                  ...point,
+                  title: item.productType,
+                  value: `${formatNumber(item.skuCount)} 个 SKU`,
+                  meta: `${Math.round((item.skuCount / total) * 100)}%`,
+                })
+              }}
+              onMouseMove={(e) => {
+                const point = getTooltipPoint(e)
+                setTooltip((prev) => prev ? { ...prev, ...point } : prev)
+              }}
+              onMouseLeave={() => setTooltip(null)}
+            >
+              <title>{`${item.productType}: ${formatNumber(item.skuCount)} 个 SKU`}</title>
+            </circle>
+          )
+        })}
+        <text x="90" y="84" textAnchor="middle" className="overview-chart__center-value">
+          {formatNumber(total)}
+        </text>
+        <text x="90" y="108" textAnchor="middle" className="overview-chart__center-label">
+          SKU
+        </text>
+      </svg>
+      <ChartTooltipLayer tooltip={tooltip} />
+      <div className="overview-chart__legend">
+        {items.map((item, index) => (
+          <div className="overview-chart__legend-item" key={item.productType}>
+            <span
+              className="overview-chart__legend-dot"
+              style={{ background: chartColors[index % chartColors.length] }}
+            />
+            <span className="overview-chart__legend-name">{item.productType}</span>
+            <span className="overview-chart__legend-value">{formatNumber(item.skuCount)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function getSelectedSalesSeries(
+  salesSeries: ProductTypeSalesSeries[],
+  selectedType: string
+): MonthlySalesMetric[] {
+  if (salesSeries.length === 0) return []
+
+  if (selectedType !== ALL_PRODUCT_TYPES) {
+    return salesSeries.find((series) => series.productType === selectedType)?.months ?? salesSeries[0].months.map((month) => ({ ...month, quantity: 0, amount: 0 }))
+  }
+
+  return salesSeries[0].months.map((month, index) => ({
+    ...month,
+    quantity: salesSeries.reduce((sum, series) => sum + series.months[index].quantity, 0),
+    amount: Math.round(salesSeries.reduce((sum, series) => sum + series.months[index].amount, 0) * 100) / 100,
+  }))
+}
+
+function MonthlyBarChart({
+  data,
+  metric,
+}: {
+  data: MonthlySalesMetric[]
+  metric: "quantity" | "amount"
+}) {
+  const [tooltip, setTooltip] = useState<ChartTooltip | null>(null)
+  const values = data.map((item) => item[metric])
+  const maxValue = Math.max(...values, 0)
+  const total = values.reduce((sum, value) => sum + value, 0)
+  const width = 360
+  const height = 220
+  const padding = { top: 20, right: 12, bottom: 34, left: 36 }
+  const chartWidth = width - padding.left - padding.right
+  const chartHeight = height - padding.top - padding.bottom
+  const barSlot = data.length > 0 ? chartWidth / data.length : chartWidth
+  const barWidth = Math.min(18, barSlot * 0.48)
+  const formatValue = metric === "amount" ? formatCurrency : formatNumber
+  const emptyTitle = metric === "amount" ? "暂无出货金额数据" : "暂无出货数量数据"
+
+  if (data.length === 0 || total === 0) {
+    return (
+      <EmptyState
+        title={emptyTitle}
+        description="完成出货单后，这里会按近 12 个月展示趋势。"
+      />
+    )
+  }
+
+  return (
+    <div className="overview-chart overview-chart--bar">
+      <svg className="overview-chart__bar" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={metric === "amount" ? "近 12 个月出货金额" : "近 12 个月出货数量"}>
+        {[0, 0.5, 1].map((scale) => {
+          const y = padding.top + chartHeight - chartHeight * scale
+          return (
+            <g key={scale}>
+              <line
+                x1={padding.left}
+                y1={y}
+                x2={width - padding.right}
+                y2={y}
+                className="overview-chart__grid-line"
+              />
+              <text
+                x={padding.left - 10}
+                y={y + 4}
+                textAnchor="end"
+                className="overview-chart__axis-label"
+              >
+                {formatValue(maxValue * scale)}
+              </text>
+            </g>
+          )
+        })}
+        {data.map((item, index) => {
+          const value = item[metric]
+          const barHeight = maxValue > 0 ? (value / maxValue) * chartHeight : 0
+          const x = padding.left + index * barSlot + (barSlot - barWidth) / 2
+          const y = padding.top + chartHeight - barHeight
+          const tooltipPayload = {
+            title: item.monthLabel,
+            value: formatValue(value),
+            meta: metric === "amount" ? `${formatNumber(item.quantity)} 件出货` : formatCurrency(item.amount),
+          }
+
+          return (
+            <g key={item.monthKey}>
+              <rect
+                x={x}
+                y={y}
+                width={barWidth}
+                height={barHeight}
+                rx="7"
+                className="overview-chart__bar-rect"
+              />
+              <rect
+                x={padding.left + index * barSlot}
+                y={padding.top}
+                width={barSlot}
+                height={chartHeight}
+                className="overview-chart__bar-hit"
+                fill="transparent"
+                onMouseEnter={(e) => {
+                  const point = getTooltipPoint(e)
+                  setTooltip({
+                    ...point,
+                    ...tooltipPayload,
+                  })
+                }}
+                onMouseOver={(e) => {
+                  const point = getTooltipPoint(e)
+                  setTooltip({
+                    ...point,
+                    ...tooltipPayload,
+                  })
+                }}
+                onMouseMove={(e) => {
+                  const point = getTooltipPoint(e)
+                  setTooltip((prev) => prev ? { ...prev, ...point } : prev)
+                }}
+                onMouseLeave={() => setTooltip(null)}
+              >
+                <title>{`${item.monthLabel}: ${formatValue(value)}`}</title>
+              </rect>
+              {(index % 2 === 0 && index !== data.length - 2) || index === data.length - 1 ? (
+                <text
+                  x={x + barWidth / 2}
+                  y={height - 10}
+                  textAnchor="middle"
+                  className="overview-chart__axis-label"
+                >
+                  {item.monthLabel}
+                </text>
+              ) : null}
+            </g>
+          )
+        })}
+      </svg>
+      <ChartTooltipLayer tooltip={tooltip} />
+    </div>
+  )
+}
+
 export function OverviewPage() {
   const navigate = useNavigate()
   const { account } = useAuth()
@@ -85,6 +355,8 @@ export function OverviewPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searchState, setSearchState] = useState<"idle" | "loading" | "results" | "empty" | "error">("idle")
   const [searchError, setSearchError] = useState("")
+  const [quantityProductType, setQuantityProductType] = useState(ALL_PRODUCT_TYPES)
+  const [amountProductType, setAmountProductType] = useState(ALL_PRODUCT_TYPES)
 
   useEffect(() => {
     let cancelled = false
@@ -161,6 +433,11 @@ export function OverviewPage() {
           <SkeletonTable rows={5} cols={3} />
           <SkeletonTable rows={5} cols={4} />
         </div>
+        <div className="overview__dashboard-grid">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
       </div>
     )
   }
@@ -169,6 +446,18 @@ export function OverviewPage() {
     (data?.totalProductCount ?? 0) > 0 ||
     (data?.totalCounterpartyCount ?? 0) > 0 ||
     (data?.recentRecords.length ?? 0) > 0
+  const chartFilterOptions = [
+    { value: ALL_PRODUCT_TYPES, label: "全部类型" },
+    ...data!.dashboard.productTypes.map((productType) => ({
+      value: productType,
+      label: productType,
+    })),
+  ]
+  const quantitySeries = getSelectedSalesSeries(data!.dashboard.salesSeries, quantityProductType)
+  const amountSeries = getSelectedSalesSeries(data!.dashboard.salesSeries, amountProductType)
+  const totalSkuCount = data!.dashboard.productTypeSkuItems.reduce((sum, item) => sum + item.skuCount, 0)
+  const totalSalesQuantity = quantitySeries.reduce((sum, item) => sum + item.quantity, 0)
+  const totalSalesAmount = amountSeries.reduce((sum, item) => sum + item.amount, 0)
 
   return (
     <div className="overview-page">
@@ -273,6 +562,58 @@ export function OverviewPage() {
             <p className="section-card__description">{desc}</p>
           </article>
         ))}
+      </div>
+
+      <div className="overview__dashboard-grid">
+        <section className="section-card overview__dashboard-card overview__dashboard-card--donut">
+          <div className="overview__card-header">
+            <div>
+              <p className="section-eyebrow">产品类型分布</p>
+              <h3 className="section-card__title">
+                {totalSkuCount > 0 ? `共 ${formatNumber(totalSkuCount)} 个 SKU` : "暂无 SKU 数据"}
+              </h3>
+            </div>
+          </div>
+          <ProductTypeDonutChart items={data!.dashboard.productTypeSkuItems} />
+        </section>
+
+        <section className="section-card overview__dashboard-card">
+          <div className="overview__card-header">
+            <div>
+              <p className="section-eyebrow">近 12 个月出货数量</p>
+              <h3 className="section-card__title">
+                {totalSalesQuantity > 0 ? `${formatNumber(totalSalesQuantity)} 件` : "暂无出货数量"}
+              </h3>
+            </div>
+            <div className="overview__chart-filter">
+              <Select
+                value={quantityProductType}
+                options={chartFilterOptions}
+                onValueChange={(value) => setQuantityProductType(value)}
+              />
+            </div>
+          </div>
+          <MonthlyBarChart data={quantitySeries} metric="quantity" />
+        </section>
+
+        <section className="section-card overview__dashboard-card">
+          <div className="overview__card-header">
+            <div>
+              <p className="section-eyebrow">近 12 个月出货金额</p>
+              <h3 className="section-card__title">
+                {totalSalesAmount > 0 ? formatCurrency(totalSalesAmount) : "暂无出货金额"}
+              </h3>
+            </div>
+            <div className="overview__chart-filter">
+              <Select
+                value={amountProductType}
+                options={chartFilterOptions}
+                onValueChange={(value) => setAmountProductType(value)}
+              />
+            </div>
+          </div>
+          <MonthlyBarChart data={amountSeries} metric="amount" />
+        </section>
       </div>
 
       {/* Bento Grid: Stock + Recent */}

@@ -26,6 +26,29 @@ export type StockItem = {
   quantity: number
 }
 
+export type ProductTypeSkuItem = {
+  productType: string
+  skuCount: number
+}
+
+export type MonthlySalesMetric = {
+  monthKey: string
+  monthLabel: string
+  quantity: number
+  amount: number
+}
+
+export type ProductTypeSalesSeries = {
+  productType: string
+  months: MonthlySalesMetric[]
+}
+
+export type OverviewDashboardData = {
+  productTypeSkuItems: ProductTypeSkuItem[]
+  productTypes: string[]
+  salesSeries: ProductTypeSalesSeries[]
+}
+
 export type OverviewData = {
   recentRecords: RecentRecord[]
   stockItems: StockItem[]
@@ -34,10 +57,13 @@ export type OverviewData = {
   totalProductCount: number
   totalCounterpartyCount: number
   lowStockCount: number
+  dashboard: OverviewDashboardData
 }
 
 const RECENT_LIMIT = 8
 const LOW_STOCK_THRESHOLD = 10
+const DASHBOARD_MONTH_COUNT = 12
+const UNCATEGORIZED_PRODUCT_TYPE = "未分类"
 
 async function fetchProducts(): Promise<Product[]> {
   try {
@@ -60,6 +86,106 @@ async function fetchStockSnapshots(): Promise<CurrentStockSnapshot[]> {
     return await getStockSnapshot()
   } catch {
     return []
+  }
+}
+
+function normalizeProductType(productType?: string): string {
+  const trimmed = productType?.trim()
+  return trimmed || UNCATEGORIZED_PRODUCT_TYPE
+}
+
+function getRecentMonths(count: number): MonthlySalesMetric[] {
+  const now = new Date()
+  const months: MonthlySalesMetric[] = []
+
+  for (let offset = count - 1; offset >= 0; offset--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - offset, 1)
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    months.push({
+      monthKey: `${year}-${String(month).padStart(2, "0")}`,
+      monthLabel: `${String(year).slice(2)}/${String(month).padStart(2, "0")}`,
+      quantity: 0,
+      amount: 0,
+    })
+  }
+
+  return months
+}
+
+function createEmptyMonthMap(months: MonthlySalesMetric[]): Map<string, MonthlySalesMetric> {
+  return new Map(
+    months.map((month) => [
+      month.monthKey,
+      {
+        ...month,
+      },
+    ])
+  )
+}
+
+function buildDashboardData(
+  products: Product[],
+  sales: Awaited<ReturnType<typeof listSalesOrders>>
+): OverviewDashboardData {
+  const productMap = new Map(products.map((p) => [p.id, p]))
+  const skuCountByType = new Map<string, number>()
+
+  for (const product of products) {
+    const productType = normalizeProductType(product.productType)
+    skuCountByType.set(productType, (skuCountByType.get(productType) ?? 0) + 1)
+  }
+
+  const baseMonths = getRecentMonths(DASHBOARD_MONTH_COUNT)
+  const monthKeys = new Set(baseMonths.map((month) => month.monthKey))
+  const salesByType = new Map<string, Map<string, MonthlySalesMetric>>()
+
+  function ensureSeries(productType: string) {
+    if (!salesByType.has(productType)) {
+      salesByType.set(productType, createEmptyMonthMap(baseMonths))
+    }
+    return salesByType.get(productType)!
+  }
+
+  for (const productType of skuCountByType.keys()) {
+    ensureSeries(productType)
+  }
+
+  for (const order of sales) {
+    const happenedAt = new Date(order.happenedAt)
+    const monthKey = `${happenedAt.getFullYear()}-${String(happenedAt.getMonth() + 1).padStart(2, "0")}`
+    if (!monthKeys.has(monthKey)) continue
+
+    for (const line of order.lines) {
+      const productType = normalizeProductType(productMap.get(line.productId)?.productType)
+      const monthMetric = ensureSeries(productType).get(monthKey)
+      if (!monthMetric) continue
+
+      monthMetric.quantity += line.quantity
+      monthMetric.amount = Math.round((monthMetric.amount + line.lineAmount) * 100) / 100
+    }
+  }
+
+  const productTypeSkuItems = Array.from(skuCountByType.entries())
+    .map(([productType, skuCount]) => ({ productType, skuCount }))
+    .sort((a, b) => b.skuCount - a.skuCount || a.productType.localeCompare(b.productType, "zh-Hans-CN"))
+
+  const productTypes = Array.from(salesByType.keys())
+    .sort((a, b) => {
+      if (a === UNCATEGORIZED_PRODUCT_TYPE) return 1
+      if (b === UNCATEGORIZED_PRODUCT_TYPE) return -1
+      return a.localeCompare(b, "zh-Hans-CN")
+    })
+
+  const salesSeries = productTypes.map((productType) => ({
+    productType,
+    months: Array.from(ensureSeries(productType).values()),
+  }))
+
+  return {
+    productTypeSkuItems,
+    productTypes,
+    salesSeries,
   }
 }
 
@@ -138,5 +264,6 @@ export async function fetchOverviewData(): Promise<OverviewData> {
     totalProductCount: products.length,
     totalCounterpartyCount: counterparties.length,
     lowStockCount,
+    dashboard: buildDashboardData(products, sales),
   }
 }

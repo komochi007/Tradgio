@@ -929,6 +929,181 @@ a {
   align-items: stretch;
 }
 
+.overview__dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: stretch;
+}
+
+.overview__dashboard-card {
+  grid-column: span 4;
+  display: flex;
+  flex-direction: column;
+  min-height: 342px;
+  overflow: visible;
+}
+
+.overview__card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.section-eyebrow {
+  margin: 0 0 var(--space-1);
+  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.overview__chart-filter {
+  width: 148px;
+  flex-shrink: 0;
+}
+
+.overview-chart {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.overview-chart--donut {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.overview-chart--bar {
+  display: flex;
+  align-items: stretch;
+}
+
+.overview-chart__donut,
+.overview-chart__bar {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.overview-chart__donut circle,
+.overview-chart__bar rect {
+  transition:
+    opacity var(--motion-default),
+    filter var(--motion-default);
+}
+
+.overview-chart__donut circle:hover,
+.overview-chart__bar-rect:hover {
+  filter: drop-shadow(0 6px 10px rgba(37, 99, 235, 0.18));
+}
+
+.overview-chart__center-value {
+  fill: var(--text-primary);
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.overview-chart__center-label {
+  fill: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.overview-chart__legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(100%, 220px);
+  min-width: 0;
+}
+
+.overview-chart__legend-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.overview-chart__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+}
+
+.overview-chart__legend-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overview-chart__legend-value {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.overview-chart__grid-line {
+  stroke: var(--border-default);
+  stroke-width: 1;
+}
+
+.overview-chart__axis-label {
+  fill: var(--text-tertiary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.overview-chart__bar-rect {
+  fill: var(--color-primary);
+}
+
+.overview-chart__bar-hit {
+  pointer-events: all;
+  cursor: default;
+}
+
+.overview-chart__tooltip {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 116px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid rgba(229, 231, 235, 0.88);
+  border-radius: var(--radius-sm);
+  background: rgba(17, 24, 39, 0.92);
+  box-shadow: var(--shadow-md);
+  color: #ffffff;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 10px));
+}
+
+.overview-chart__tooltip-title,
+.overview-chart__tooltip-meta {
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.overview-chart__tooltip-value {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .overview__stock-list,
 .overview__recent-table {
   margin-top: var(--space-4);
@@ -963,6 +1138,14 @@ a {
   .overview__bento-grid {
     grid-template-columns: 1fr;
   }
+
+  .overview__dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .overview__dashboard-card {
+    grid-column: auto;
+  }
 }
 
 @media (max-width: 767px) {
@@ -986,6 +1169,19 @@ a {
 
   .overview__search-item-date {
     display: none;
+  }
+
+  .overview__card-header,
+  .overview-chart--donut {
+    grid-template-columns: 1fr;
+  }
+
+  .overview__card-header {
+    display: grid;
+  }
+
+  .overview__chart-filter {
+    width: 100%;
   }
 }
 
