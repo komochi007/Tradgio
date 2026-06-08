@@ -8,10 +8,13 @@ import {
   SkeletonCard,
   Tag,
   FormErrorSummary,
+  DraftRestoreBanner,
   formatFileSize,
+  useFormDraft,
   useToast,
 } from "../../../shared"
 import type { SelectOption } from "../../../shared"
+import { useAuth } from "../../auth"
 import {
   createContractRecord,
   updateContractRecord,
@@ -28,10 +31,21 @@ import {
 } from "../domain/types"
 import { counterpartyRepository } from "../../master-data/counterparties/infrastructure/counterpartyRepository"
 
+function isContractFormEmpty(form: ContractFormData): boolean {
+  return (
+    !form.contractNo.trim() &&
+    !form.title.trim() &&
+    !form.customerId &&
+    !form.customerName.trim() &&
+    !form.remark.trim()
+  )
+}
+
 export function ContractFormPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const toast = useToast()
+  const { account } = useAuth()
   const isEdit = Boolean(id)
 
   const [formData, setFormData] = useState<ContractFormData>(emptyContractForm())
@@ -43,6 +57,17 @@ export function ContractFormPage() {
   const [submitting, setSubmitting] = useState(false)
   const [loadingInit, setLoadingInit] = useState(Boolean(id))
   const [loadError, setLoadError] = useState<string | null>(null)
+  const draft = useFormDraft<ContractFormData>({
+    accountId: account?.id,
+    formKey: "contract-new",
+    data: formData,
+    enabled: !isEdit,
+    isEmpty: isContractFormEmpty,
+    onRestore: (data) => {
+      setFormData(data)
+      setErrors({})
+    },
+  })
 
   useEffect(() => {
     async function init() {
@@ -117,6 +142,7 @@ export function ContractFormPage() {
         toast.success("合同已更新")
       } else {
         await createContractRecord(formData, selectedFiles)
+        draft.clearDraft()
         toast.success("合同已保存")
       }
       navigate("/contracts")
@@ -171,6 +197,14 @@ export function ContractFormPage() {
           </Button>
         </div>
       </div>
+
+      {draft.pendingDraft && (
+        <DraftRestoreBanner
+          updatedAt={draft.pendingDraft.updatedAt}
+          onRestore={draft.restoreDraft}
+          onDiscard={draft.discardDraft}
+        />
+      )}
 
       <FormErrorSummary errors={errors} />
 
@@ -371,6 +405,21 @@ export function ContractFormPage() {
         </div>
 
         <div className="form-card__footer">
+          {!isEdit && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (draft.saveDraftNow()) {
+                  toast.success("草稿已保存")
+                } else {
+                  toast.warning("暂无可保存的草稿内容")
+                }
+              }}
+              disabled={submitting}
+            >
+              保存草稿
+            </Button>
+          )}
           <Button
             variant="ghost"
             onClick={() => navigate("/contracts")}

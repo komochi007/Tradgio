@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Button, Input, Select, SkeletonCard, EmptyState, FormErrorSummary, useToast, generateId } from "../../../../shared"
+import { Button, Input, Select, SkeletonCard, EmptyState, FormErrorSummary, DraftRestoreBanner, useFormDraft, useToast, generateId } from "../../../../shared"
+import { useAuth } from "../../../auth"
 import { counterpartyRepository } from "../infrastructure/counterpartyRepository"
 import {
   validateCounterpartyForm,
@@ -14,11 +15,23 @@ const typeOptions = [
   { value: "supplier", label: "供应商" },
 ]
 
+function isCounterpartyFormEmpty(form: CounterpartyFormData): boolean {
+  return (
+    !form.name.trim() &&
+    !form.type &&
+    !form.contactPerson.trim() &&
+    !form.phone.trim() &&
+    !form.address.trim() &&
+    !form.notes.trim()
+  )
+}
+
 export function CounterpartyFormPage() {
   const { id } = useParams<{ id: string }>()
   const isEdit = !!id
   const navigate = useNavigate()
   const toast = useToast()
+  const { account } = useAuth()
 
   const [form, setForm] = useState<CounterpartyFormData>(emptyCounterpartyForm())
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -26,6 +39,17 @@ export function CounterpartyFormPage() {
   const [loading, setLoading] = useState(isEdit)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
+  const draft = useFormDraft<CounterpartyFormData>({
+    accountId: account?.id,
+    formKey: "counterparty-new",
+    data: form,
+    enabled: !isEdit,
+    isEmpty: isCounterpartyFormEmpty,
+    onRestore: (data) => {
+      setForm(data)
+      setErrors({})
+    },
+  })
 
   useEffect(() => {
     if (!id) return
@@ -91,6 +115,7 @@ export function CounterpartyFormPage() {
           createdAt: now,
           updatedAt: now,
         })
+        draft.clearDraft()
         toast.success("单位已创建")
       }
       navigate("/counterparties", { replace: true })
@@ -147,6 +172,14 @@ export function CounterpartyFormPage() {
           </p>
         </div>
       </div>
+
+      {draft.pendingDraft && (
+        <DraftRestoreBanner
+          updatedAt={draft.pendingDraft.updatedAt}
+          onRestore={draft.restoreDraft}
+          onDiscard={draft.discardDraft}
+        />
+      )}
 
       <form onSubmit={handleSubmit} className="form-card">
         <div className="form-card__body">
@@ -205,6 +238,21 @@ export function CounterpartyFormPage() {
         </div>
 
         <div className="form-card__footer">
+          {!isEdit && (
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => {
+                if (draft.saveDraftNow()) {
+                  toast.success("草稿已保存")
+                } else {
+                  toast.warning("暂无可保存的草稿内容")
+                }
+              }}
+            >
+              保存草稿
+            </Button>
+          )}
           <Button
             variant="secondary"
             type="button"

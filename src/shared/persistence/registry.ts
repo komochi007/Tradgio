@@ -26,6 +26,7 @@ export const persistenceConfig: PersistenceConfig = {
  *   quotes        → tradgio_quotes
  *   contracts     → tradgio_contracts
  *   inventory     → tradgio_inventory_ledger / tradgio_inventory_snapshot
+ *   drafts        → tradgio_drafts
  */
 export const STORAGE_KEYS = {
   auth: {
@@ -43,6 +44,7 @@ export const STORAGE_KEYS = {
     inventoryLedger: "tradgio_inventory_ledger",
     inventorySnapshot: "tradgio_inventory_snapshot",
   },
+  drafts: "tradgio_drafts",
 } as const
 
 /**
@@ -54,6 +56,7 @@ export function getAllStorageKeys(): string[] {
     STORAGE_KEYS.auth.passwords,
     STORAGE_KEYS.auth.session,
     ...Object.values(STORAGE_KEYS.data),
+    STORAGE_KEYS.drafts,
   ]
 }
 

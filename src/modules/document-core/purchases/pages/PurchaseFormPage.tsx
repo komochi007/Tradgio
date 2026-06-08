@@ -6,10 +6,13 @@ import {
   Select,
   SectionCard,
   EmptyState, FormErrorSummary,
+  DraftRestoreBanner,
+  useFormDraft,
   useToast,
   ProductSearchSelect,
 } from "../../../../shared"
 import { formatCurrency } from "../../../../shared"
+import { useAuth } from "../../../auth"
 import { productRepository } from "../../../master-data/products"
 import { counterpartyRepository } from "../../../master-data/counterparties"
 import type { Product } from "../../../master-data/products"
@@ -27,11 +30,32 @@ import {
   validatePurchaseForm,
 } from "../domain/types"
 
+function isPurchaseLineEmpty(line: PurchaseFormLine): boolean {
+  return (
+    !line.productId &&
+    !line.productName.trim() &&
+    !line.spec.trim() &&
+    !line.unit.trim() &&
+    !line.quantity.trim() &&
+    !line.unitPrice.trim()
+  )
+}
+
+function isPurchaseFormEmpty(form: PurchaseFormData): boolean {
+  return (
+    !form.supplierId &&
+    !form.supplierName.trim() &&
+    !form.remark.trim() &&
+    form.lines.every(isPurchaseLineEmpty)
+  )
+}
+
 export function PurchaseFormPage() {
   const { id } = useParams<{ id: string }>()
   const isEdit = Boolean(id)
   const navigate = useNavigate()
   const toast = useToast()
+  const { account } = useAuth()
 
   const [form, setForm] = useState<PurchaseFormData>(emptyPurchaseForm())
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -40,6 +64,17 @@ export function PurchaseFormPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [suppliers, setSuppliers] = useState<Counterparty[]>([])
+  const draft = useFormDraft<PurchaseFormData>({
+    accountId: account?.id,
+    formKey: "purchase-new",
+    data: form,
+    enabled: !isEdit,
+    isEmpty: isPurchaseFormEmpty,
+    onRestore: (data) => {
+      setForm(data)
+      setErrors({})
+    },
+  })
 
   useEffect(() => {
     async function init() {
@@ -149,6 +184,7 @@ export function PurchaseFormPage() {
         toast.success("进货单已更新")
       } else {
         const created = await createPurchaseOrder(form)
+        draft.clearDraft()
         toast.success("进货单已保存")
         navigate(`/purchases/${created.id}`, { replace: true })
         return
@@ -207,6 +243,14 @@ export function PurchaseFormPage() {
           返回列表
         </Button>
       </div>
+
+      {draft.pendingDraft && (
+        <DraftRestoreBanner
+          updatedAt={draft.pendingDraft.updatedAt}
+          onRestore={draft.restoreDraft}
+          onDiscard={draft.discardDraft}
+        />
+      )}
 
       {Object.keys(errors).length > 0 && (
         <FormErrorSummary errors={errors} />
@@ -337,6 +381,20 @@ export function PurchaseFormPage() {
           <span className="sticky-action-bar__value">{formatCurrency(computeTotal())}</span>
         </div>
         <div className="sticky-action-bar__actions">
+          {!isEdit && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (draft.saveDraftNow()) {
+                  toast.success("草稿已保存")
+                } else {
+                  toast.warning("暂无可保存的草稿内容")
+                }
+              }}
+            >
+              保存草稿
+            </Button>
+          )}
           <Button variant="ghost" onClick={() => navigate("/purchases")}>
             取消
           </Button>

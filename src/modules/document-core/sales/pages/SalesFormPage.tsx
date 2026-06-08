@@ -7,9 +7,12 @@ import {
   ProductSearchSelect,
   SectionCard,
   EmptyState, FormErrorSummary,
+  DraftRestoreBanner,
+  useFormDraft,
   useToast,
 } from "../../../../shared"
 import { formatCurrency } from "../../../../shared"
+import { useAuth } from "../../../auth"
 import { productRepository } from "../../../master-data/products"
 import { counterpartyRepository } from "../../../master-data/counterparties"
 import { getCurrentStock } from "../../../inventory-engine"
@@ -31,11 +34,32 @@ import {
 
 type StockMap = Record<string, number>
 
+function isSalesLineEmpty(line: SalesFormLine): boolean {
+  return (
+    !line.productId &&
+    !line.productName.trim() &&
+    !line.spec.trim() &&
+    !line.unit.trim() &&
+    !line.quantity.trim() &&
+    !line.unitPrice.trim()
+  )
+}
+
+function isSalesFormEmpty(form: SalesFormData): boolean {
+  return (
+    !form.customerId &&
+    !form.customerName.trim() &&
+    !form.remark.trim() &&
+    form.lines.every(isSalesLineEmpty)
+  )
+}
+
 export function SalesFormPage() {
   const { id } = useParams<{ id: string }>()
   const isEdit = Boolean(id)
   const navigate = useNavigate()
   const toast = useToast()
+  const { account } = useAuth()
 
   const [form, setForm] = useState<SalesFormData>(emptySalesForm())
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -51,6 +75,17 @@ export function SalesFormPage() {
     currentStock: number
     shortage: number
   }>>([])
+  const draft = useFormDraft<SalesFormData>({
+    accountId: account?.id,
+    formKey: "sales-new",
+    data: form,
+    enabled: !isEdit,
+    isEmpty: isSalesFormEmpty,
+    onRestore: (data) => {
+      setForm(data)
+      setErrors({})
+    },
+  })
 
   useEffect(() => {
     async function init() {
@@ -199,6 +234,7 @@ export function SalesFormPage() {
         toast.success("出货单已更新")
       } else {
         const created = await createSalesOrder(form)
+        draft.clearDraft()
         toast.success("出货单已保存")
         navigate(`/sales/${created.id}`, { replace: true })
         return
@@ -260,6 +296,13 @@ export function SalesFormPage() {
         </Button>
       </div>
 
+      {draft.pendingDraft && (
+        <DraftRestoreBanner
+          updatedAt={draft.pendingDraft.updatedAt}
+          onRestore={draft.restoreDraft}
+          onDiscard={draft.discardDraft}
+        />
+      )}
 
       <FormErrorSummary errors={errors} />
       <SectionCard eyebrow="基本信息" title="客户与日期">
@@ -428,6 +471,20 @@ export function SalesFormPage() {
           <span className="sticky-action-bar__value">{formatCurrency(computeTotal())}</span>
         </div>
         <div className="sticky-action-bar__actions">
+          {!isEdit && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (draft.saveDraftNow()) {
+                  toast.success("草稿已保存")
+                } else {
+                  toast.warning("暂无可保存的草稿内容")
+                }
+              }}
+            >
+              保存草稿
+            </Button>
+          )}
           <Button variant="ghost" onClick={() => navigate("/sales")}>
             取消
           </Button>

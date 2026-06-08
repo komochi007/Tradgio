@@ -7,9 +7,12 @@ import {
   ProductSearchSelect,
   SectionCard,
   EmptyState, FormErrorSummary,
+  DraftRestoreBanner,
+  useFormDraft,
   useToast,
 } from "../../../../shared"
 import { formatCurrency } from "../../../../shared"
+import { useAuth } from "../../../auth"
 import { productRepository } from "../../../master-data/products"
 import { counterpartyRepository } from "../../../master-data/counterparties"
 import type { Product } from "../../../master-data/products"
@@ -27,11 +30,32 @@ import {
   validateQuoteForm,
 } from "../domain/types"
 
+function isQuoteLineEmpty(line: QuoteFormLine): boolean {
+  return (
+    !line.productId &&
+    !line.productName.trim() &&
+    !line.spec.trim() &&
+    !line.unit.trim() &&
+    !line.quantity.trim() &&
+    !line.unitPrice.trim()
+  )
+}
+
+function isQuoteFormEmpty(form: QuoteFormData): boolean {
+  return (
+    !form.customerId &&
+    !form.customerName.trim() &&
+    !form.remark.trim() &&
+    form.lines.every(isQuoteLineEmpty)
+  )
+}
+
 export function QuoteFormPage() {
   const { id } = useParams<{ id: string }>()
   const isEdit = Boolean(id)
   const navigate = useNavigate()
   const toast = useToast()
+  const { account } = useAuth()
 
   const [form, setForm] = useState<QuoteFormData>(emptyQuoteForm())
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -40,6 +64,17 @@ export function QuoteFormPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [customers, setCustomers] = useState<Counterparty[]>([])
+  const draft = useFormDraft<QuoteFormData>({
+    accountId: account?.id,
+    formKey: "quote-new",
+    data: form,
+    enabled: !isEdit,
+    isEmpty: isQuoteFormEmpty,
+    onRestore: (data) => {
+      setForm(data)
+      setErrors({})
+    },
+  })
 
   useEffect(() => {
     async function init() {
@@ -149,6 +184,7 @@ export function QuoteFormPage() {
         toast.success("报价单已更新")
       } else {
         const created = await createQuoteOrder(form)
+        draft.clearDraft()
         toast.success("报价单已保存")
         navigate(`/quotes/${created.id}`, { replace: true })
         return
@@ -210,6 +246,13 @@ export function QuoteFormPage() {
         </Button>
       </div>
 
+      {draft.pendingDraft && (
+        <DraftRestoreBanner
+          updatedAt={draft.pendingDraft.updatedAt}
+          onRestore={draft.restoreDraft}
+          onDiscard={draft.discardDraft}
+        />
+      )}
 
       <FormErrorSummary errors={errors} />
       <SectionCard eyebrow="基本信息" title="客户与日期">
@@ -337,6 +380,20 @@ export function QuoteFormPage() {
           <span className="sticky-action-bar__value">{formatCurrency(computeTotal())}</span>
         </div>
         <div className="sticky-action-bar__actions">
+          {!isEdit && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (draft.saveDraftNow()) {
+                  toast.success("草稿已保存")
+                } else {
+                  toast.warning("暂无可保存的草稿内容")
+                }
+              }}
+            >
+              保存草稿
+            </Button>
+          )}
           <Button variant="ghost" onClick={() => navigate("/quotes")}>
             取消
           </Button>
