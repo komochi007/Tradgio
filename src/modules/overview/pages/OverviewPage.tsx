@@ -33,7 +33,7 @@ import type { WeatherInfo } from "../application/weatherService"
 import type { SearchResult } from "../../search/domain/types"
 
 const ALL_PRODUCT_TYPES = "__all_product_types__"
-const chartColors = ["#2563EB", "#0284C7", "#0891B2", "#0D9488", "#14B8A6", "#67E8F9"]
+const chartColors = ["#001C2D", "#2F63E6", "#3BA0F2", "#FFF1C7", "#F1F1F1"]
 
 const quickActions = [
   { path: "/purchases/new", label: "新建进货单", desc: "记录进货并增加库存", Icon: PurchaseIcon },
