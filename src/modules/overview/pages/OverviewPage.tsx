@@ -228,27 +228,30 @@ function MonthlyBarChart({
   const maxValue = Math.max(...values, 0)
   const total = values.reduce((sum, value) => sum + value, 0)
   const width = 360
-  const height = 220
-  const padding = { top: 20, right: 12, bottom: 34, left: 36 }
+  const height = 176
+  const padding = { top: 16, right: 12, bottom: 28, left: 36 }
   const chartWidth = width - padding.left - padding.right
   const chartHeight = height - padding.top - padding.bottom
   const barSlot = data.length > 0 ? chartWidth / data.length : chartWidth
-  const barWidth = Math.min(18, barSlot * 0.48)
+  const barWidth = Math.min(22, barSlot * 0.48)
   const formatValue = metric === "amount" ? formatCurrency : formatNumber
+  const formatAxisValue = metric === "amount"
+    ? (value: number) => `¥${Math.round(value).toLocaleString("zh-CN")}`
+    : formatNumber
   const emptyTitle = metric === "amount" ? "暂无出货金额数据" : "暂无出货数量数据"
 
   if (data.length === 0 || total === 0) {
     return (
       <EmptyState
         title={emptyTitle}
-        description="完成出货单后，这里会按近 12 个月展示趋势。"
+        description="完成出货单后，这里会按近 6 个月展示趋势。"
       />
     )
   }
 
   return (
     <div className="overview-chart overview-chart--bar">
-      <svg className="overview-chart__bar" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={metric === "amount" ? "近 12 个月出货金额" : "近 12 个月出货数量"}>
+      <svg className="overview-chart__bar" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={metric === "amount" ? "近 6 个月出货金额" : "近 6 个月出货数量"}>
         {[0, 0.5, 1].map((scale) => {
           const y = padding.top + chartHeight - chartHeight * scale
           return (
@@ -266,7 +269,7 @@ function MonthlyBarChart({
                 textAnchor="end"
                 className="overview-chart__axis-label"
               >
-                {formatValue(maxValue * scale)}
+                {formatAxisValue(maxValue * scale)}
               </text>
             </g>
           )
@@ -321,16 +324,14 @@ function MonthlyBarChart({
               >
                 <title>{`${item.monthLabel}: ${formatValue(value)}`}</title>
               </rect>
-              {(index % 2 === 0 && index !== data.length - 2) || index === data.length - 1 ? (
-                <text
-                  x={x + barWidth / 2}
-                  y={height - 10}
-                  textAnchor="middle"
-                  className="overview-chart__axis-label"
-                >
-                  {item.monthLabel}
-                </text>
-              ) : null}
+              <text
+                x={x + barWidth / 2}
+                y={height - 9}
+                textAnchor="middle"
+                className="overview-chart__axis-label"
+              >
+                {item.monthLabel}
+              </text>
             </g>
           )
         })}
@@ -424,6 +425,11 @@ export function OverviewPage() {
         <section className="overview__page-header overview__page-header--loading">
           <SkeletonCard />
         </section>
+        <div className="overview__dashboard-grid">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
         <div className="overview__quick-grid">
           <SkeletonCard />
           <SkeletonCard />
@@ -432,11 +438,6 @@ export function OverviewPage() {
         <div className="overview__bento-grid">
           <SkeletonTable rows={5} cols={3} />
           <SkeletonTable rows={5} cols={4} />
-        </div>
-        <div className="overview__dashboard-grid">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
         </div>
       </div>
     )
@@ -547,23 +548,6 @@ export function OverviewPage() {
         </div>
       </section>
 
-      {/* Quick Actions */}
-      <div className="overview__quick-grid">
-        {quickActions.map(({ path, label, desc, Icon }) => (
-          <article
-            key={path}
-            className="section-card section-card--interactive"
-            onClick={() => navigate(path)}
-          >
-            <div className="overview__quick-icon">
-              <Icon size={24} />
-            </div>
-            <h3 className="section-card__title">{label}</h3>
-            <p className="section-card__description">{desc}</p>
-          </article>
-        ))}
-      </div>
-
       <div className="overview__dashboard-grid">
         <section className="section-card overview__dashboard-card overview__dashboard-card--donut">
           <div className="overview__card-header">
@@ -580,7 +564,7 @@ export function OverviewPage() {
         <section className="section-card overview__dashboard-card">
           <div className="overview__card-header">
             <div>
-              <p className="section-eyebrow">近 12 个月出货数量</p>
+              <p className="section-eyebrow">近 6 个月出货数量</p>
               <h3 className="section-card__title">
                 {totalSalesQuantity > 0 ? `${formatNumber(totalSalesQuantity)} 件` : "暂无出货数量"}
               </h3>
@@ -599,7 +583,7 @@ export function OverviewPage() {
         <section className="section-card overview__dashboard-card">
           <div className="overview__card-header">
             <div>
-              <p className="section-eyebrow">近 12 个月出货金额</p>
+              <p className="section-eyebrow">近 6 个月出货金额</p>
               <h3 className="section-card__title">
                 {totalSalesAmount > 0 ? formatCurrency(totalSalesAmount) : "暂无出货金额"}
               </h3>
@@ -614,6 +598,23 @@ export function OverviewPage() {
           </div>
           <MonthlyBarChart data={amountSeries} metric="amount" />
         </section>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="overview__quick-grid">
+        {quickActions.map(({ path, label, desc, Icon }) => (
+          <article
+            key={path}
+            className="section-card section-card--interactive"
+            onClick={() => navigate(path)}
+          >
+            <div className="overview__quick-icon">
+              <Icon size={24} />
+            </div>
+            <h3 className="section-card__title">{label}</h3>
+            <p className="section-card__description">{desc}</p>
+          </article>
+        ))}
       </div>
 
       {/* Bento Grid: Stock + Recent */}

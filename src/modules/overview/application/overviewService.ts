@@ -62,7 +62,7 @@ export type OverviewData = {
 
 const RECENT_LIMIT = 8
 const LOW_STOCK_THRESHOLD = 10
-const DASHBOARD_MONTH_COUNT = 12
+const DASHBOARD_MONTH_COUNT = 6
 const UNCATEGORIZED_PRODUCT_TYPE = "未分类"
 
 async function fetchProducts(): Promise<Product[]> {
