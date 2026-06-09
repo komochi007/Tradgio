@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom"
 import { Button, Input, Tag, EmptyState, SkeletonTable, useToast, formatCurrency } from "../../../../shared"
 import { productRepository } from "../infrastructure/productRepository"
 import type { Product } from "../domain/types"
+import { listPurchaseOrders } from "../../../document-core/purchases/application/purchaseService"
+import { listSalesOrders } from "../../../document-core/sales/application/salesService"
+import { listQuoteOrders } from "../../../document-core/quotes/application/quoteService"
 
 export function ProductListPage() {
   const navigate = useNavigate()
@@ -44,6 +47,33 @@ export function ProductListPage() {
     }
   }
 
+  async function handleDelete(product: Product) {
+    const confirmed = window.confirm(`确认删除货品「${product.name}」吗？删除后不可恢复。`)
+    if (!confirmed) return
+
+    try {
+      const [purchases, sales, quotes] = await Promise.all([
+        listPurchaseOrders(),
+        listSalesOrders(),
+        listQuoteOrders(),
+      ])
+      const referenced = [...purchases, ...sales, ...quotes].some((order) =>
+        order.lines.some((line) => line.productId === product.id)
+      )
+
+      if (referenced) {
+        toast.warning("该货品已被单据引用，请停用后保留历史记录")
+        return
+      }
+
+      await productRepository.remove(product.id)
+      setProducts((prev) => prev.filter((p) => p.id !== product.id))
+      toast.success("货品已删除")
+    } catch {
+      toast.error("删除失败，请重试")
+    }
+  }
+
   function handleSearch() {
     setAppliedSearch(search.trim())
   }
@@ -54,8 +84,12 @@ export function ProductListPage() {
   }
 
   const filtered = products.filter((p) => {
+    const q = appliedSearch.toLowerCase()
     const matchSearch =
-      !appliedSearch || p.name.toLowerCase().includes(appliedSearch.toLowerCase())
+      !appliedSearch ||
+      p.name.toLowerCase().includes(q) ||
+      (p.productCode ?? "").toLowerCase().includes(q) ||
+      (p.material ?? "").toLowerCase().includes(q)
     const matchStatus =
       statusFilter === "all" || p.status === statusFilter
     return matchSearch && matchStatus
@@ -67,7 +101,7 @@ export function ProductListPage() {
         <div className="page-header">
           <h1 className="page-title">货品</h1>
         </div>
-        <SkeletonTable rows={6} cols={6} />
+        <SkeletonTable rows={6} cols={10} />
       </div>
     )
   }
@@ -103,7 +137,7 @@ export function ProductListPage() {
       <div className="filter-toolbar">
         <div className="filter-toolbar__search">
           <Input
-            placeholder="搜索货品名称"
+            placeholder="搜索货品名称、产品编号或材质"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -144,8 +178,10 @@ export function ProductListPage() {
             <thead>
               <tr>
                 <th>货品名称</th>
+                <th>产品编号</th>
                 <th>规格型号</th>
                 <th>产品类型</th>
+                <th>材质</th>
                 <th>单位</th>
                 <th className="data-table__num">默认进价</th>
                 <th className="data-table__num">默认售价</th>
@@ -157,8 +193,10 @@ export function ProductListPage() {
               {filtered.map((p) => (
                 <tr key={p.id}>
                   <td className="data-table__name">{p.name}</td>
+                  <td className="data-table__muted">{p.productCode || "-"}</td>
                   <td className="data-table__muted">{p.spec || "-"}</td>
                   <td className="data-table__muted">{p.productType || "-"}</td>
+                  <td className="data-table__muted">{p.material || "-"}</td>
                   <td>{p.unit}</td>
                   <td className="data-table__num">
                     {p.defaultPurchasePrice != null ? formatCurrency(p.defaultPurchasePrice) : "-"}
@@ -188,6 +226,14 @@ export function ProductListPage() {
                       onClick={() => handleToggleStatus(p)}
                     >
                       {p.status === "active" ? "停用" : "启用"}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="small"
+                      onClick={() => handleDelete(p)}
+                      style={{ color: "var(--state-error)" }}
+                    >
+                      删除
                     </Button>
                   </td>
                 </tr>

@@ -13,10 +13,12 @@ import type { ProductFormData } from "../domain/types"
 
 function isProductFormEmpty(form: ProductFormData): boolean {
   return (
+    !form.productCode.trim() &&
     !form.name.trim() &&
     !form.spec.trim() &&
     !form.unit &&
     !form.productType.trim() &&
+    !form.material.trim() &&
     !form.defaultPurchasePrice.trim() &&
     !form.defaultSalesPrice.trim() &&
     !form.notes.trim()
@@ -89,10 +91,12 @@ export function ProductFormPage() {
     try {
       if (isEdit && id) {
         await productRepository.update(id, {
+          productCode: form.productCode.trim(),
           name: form.name.trim(),
           spec: form.spec.trim(),
           unit: form.unit,
           productType: form.productType.trim(),
+          material: form.material.trim(),
           defaultPurchasePrice: form.defaultPurchasePrice ? Number(form.defaultPurchasePrice) : null,
           defaultSalesPrice: form.defaultSalesPrice ? Number(form.defaultSalesPrice) : null,
           notes: form.notes.trim(),
@@ -103,10 +107,12 @@ export function ProductFormPage() {
         const now = new Date().toISOString()
         await productRepository.create({
           id: generateId(),
+          productCode: form.productCode.trim(),
           name: form.name.trim(),
           spec: form.spec.trim(),
           unit: form.unit,
           productType: form.productType.trim(),
+          material: form.material.trim(),
           defaultPurchasePrice: form.defaultPurchasePrice ? Number(form.defaultPurchasePrice) : null,
           defaultSalesPrice: form.defaultSalesPrice ? Number(form.defaultSalesPrice) : null,
           notes: form.notes.trim(),
@@ -186,13 +192,22 @@ export function ProductFormPage() {
         <div className="form-card__body">
           <FormErrorSummary errors={errors} />
 
-          <Input
-            label="货品名称"
-            placeholder="请输入货品名称"
-            value={form.name}
-            onChange={(e) => updateField("name", e.target.value)}
-            error={errors.name}
-          />
+          <div className="form-row">
+            <Input
+              label="货品名称"
+              placeholder="请输入货品名称"
+              value={form.name}
+              onChange={(e) => updateField("name", e.target.value)}
+              error={errors.name}
+            />
+            <Input
+              label="产品编号"
+              placeholder="选填"
+              value={form.productCode}
+              onChange={(e) => updateField("productCode", e.target.value)}
+              error={errors.productCode}
+            />
+          </div>
 
           <div className="form-row">
             <Input
@@ -218,6 +233,14 @@ export function ProductFormPage() {
             value={form.productType}
             onChange={(e) => updateField("productType", e.target.value)}
             error={errors.productType}
+          />
+
+          <Input
+            label="材质"
+            placeholder="选填，如：涤纶、棉、尼龙"
+            value={form.material}
+            onChange={(e) => updateField("material", e.target.value)}
+            error={errors.material}
           />
 
           <div className="form-row">

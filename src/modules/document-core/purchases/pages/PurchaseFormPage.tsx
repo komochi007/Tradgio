@@ -296,7 +296,7 @@ export function PurchaseFormPage() {
         )}
 
         <div className="line-items-table-wrapper">
-          <table className="line-items-table">
+          <table className="line-items-table line-items-table--purchase">
             <thead>
               <tr>
                 <th style={{ width: "28%" }}>货品</th>

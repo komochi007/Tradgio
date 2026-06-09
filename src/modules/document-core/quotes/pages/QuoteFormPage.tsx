@@ -128,6 +128,7 @@ export function QuoteFormPage() {
         if (product) {
           lines[index].productName = product.name
           lines[index].spec = product.spec
+          lines[index].composition = product.material ?? ""
           lines[index].unit = product.unit
           if (!lines[index].unitPrice || lines[index].unitPrice === "") {
             lines[index].unitPrice =
@@ -301,7 +302,7 @@ export function QuoteFormPage() {
         )}
 
         <div className="line-items-table-wrapper">
-          <table className="line-items-table">
+          <table className="line-items-table line-items-table--quote">
             <thead>
               <tr>
                 <th style={{ width: "20%" }}>货品</th>

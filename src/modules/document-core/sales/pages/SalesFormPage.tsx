@@ -161,6 +161,7 @@ export function SalesFormPage() {
       if (field === "productId" && value) {
         const product = products.find((p) => p.id === value)
         if (product) {
+          lines[index].productCode = product.productCode ?? ""
           lines[index].productName = product.name
           lines[index].spec = product.spec
           lines[index].unit = product.unit
@@ -348,7 +349,7 @@ export function SalesFormPage() {
         )}
 
         <div className="line-items-table-wrapper">
-          <table className="line-items-table">
+          <table className="line-items-table line-items-table--sales">
             <thead>
               <tr>
                 <th style={{ width: "20%" }}>货品</th>

@@ -5,10 +5,12 @@ export type ProductStatus = "active" | "inactive"
 
 export type Product = {
   id: string
+  productCode: string
   name: string
   spec: string
   unit: ProductUnit
   productType: string
+  material: string
   defaultPurchasePrice: number | null
   defaultSalesPrice: number | null
   notes: string
@@ -18,10 +20,12 @@ export type Product = {
 }
 
 export type ProductFormData = {
+  productCode: string
   name: string
   spec: string
   unit: ProductUnit
   productType: string
+  material: string
   defaultPurchasePrice: string
   defaultSalesPrice: string
   notes: string
@@ -36,6 +40,10 @@ export function validateProductForm(data: ProductFormData): Record<string, strin
     errors.name = "货品名称不能超过 50 个字"
   }
 
+  if (data.productCode.length > 30) {
+    errors.productCode = "产品编号不能超过 30 个字"
+  }
+
   if (data.spec.length > 50) {
     errors.spec = "规格型号不能超过 50 个字"
   }
@@ -46,6 +54,10 @@ export function validateProductForm(data: ProductFormData): Record<string, strin
 
   if (data.productType.length > 30) {
     errors.productType = "产品类型不能超过 30 个字"
+  }
+
+  if (data.material.length > 50) {
+    errors.material = "材质不能超过 50 个字"
   }
 
   if (data.defaultPurchasePrice !== "") {
@@ -71,10 +83,12 @@ export function validateProductForm(data: ProductFormData): Record<string, strin
 
 export function emptyProductForm(): ProductFormData {
   return {
+    productCode: "",
     name: "",
     spec: "",
     unit: "" as ProductUnit,
     productType: "",
+    material: "",
     defaultPurchasePrice: "",
     defaultSalesPrice: "",
     notes: "",
@@ -83,12 +97,14 @@ export function emptyProductForm(): ProductFormData {
 
 export function productToFormData(product: Product): ProductFormData {
   return {
+    productCode: product.productCode ?? "",
     name: product.name,
     spec: product.spec,
     unit: product.unit,
-    productType: product.productType,
+    productType: product.productType ?? "",
+    material: product.material ?? "",
     defaultPurchasePrice: product.defaultPurchasePrice?.toString() ?? "",
     defaultSalesPrice: product.defaultSalesPrice?.toString() ?? "",
-    notes: product.notes,
+    notes: product.notes ?? "",
   }
 }

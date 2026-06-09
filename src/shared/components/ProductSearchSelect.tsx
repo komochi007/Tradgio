@@ -2,8 +2,10 @@ import { useState, useRef, useEffect, useCallback } from "react"
 
 export type ProductOption = {
   id: string
+  productCode?: string
   name: string
   spec: string
+  material?: string
   unit: string
 }
 
@@ -13,6 +15,15 @@ type ProductSearchSelectProps = {
   placeholder?: string
   error?: string
   onChange: (productId: string, product: ProductOption | null) => void
+}
+
+function getProductMeta(product: ProductOption): string {
+  return [
+    product.productCode,
+    product.spec || "-",
+    product.material,
+    product.unit,
+  ].filter(Boolean).join(" / ")
 }
 
 export function ProductSearchSelect({
@@ -28,11 +39,14 @@ export function ProductSearchSelect({
   const inputRef = useRef<HTMLInputElement>(null)
   const selectedProduct = products.find((p) => p.id === value)
 
-  const filtered = search.trim()
+  const keyword = search.trim().toLowerCase()
+  const filtered = keyword
     ? products.filter(
         (p) =>
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          p.spec.toLowerCase().includes(search.toLowerCase())
+          p.name.toLowerCase().includes(keyword) ||
+          p.spec.toLowerCase().includes(keyword) ||
+          (p.productCode ?? "").toLowerCase().includes(keyword) ||
+          (p.material ?? "").toLowerCase().includes(keyword)
       )
     : products
 
@@ -131,7 +145,7 @@ export function ProductSearchSelect({
                   {product.name}
                 </span>
                 <span className="product-search-select__option-meta">
-                  {product.spec || "-"} / {product.unit}
+                  {getProductMeta(product)}
                 </span>
               </div>
             ))
