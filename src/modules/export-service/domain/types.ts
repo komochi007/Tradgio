@@ -1,10 +1,18 @@
 export type ExportLineItem = {
+  productCode?: string
   productName: string
   spec: string
+  composition?: string
+  color?: string
+  bulkMoq?: string
   unit: string
   quantity: number
+  taxExcludedUnitPrice?: number | null
   unitPrice: number
   lineAmount: number
+  dyeingFee?: string
+  leadTime?: string
+  lineRemark?: string
 }
 
 export type ExportHeader = {

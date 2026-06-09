@@ -15,21 +15,37 @@ function buildHeader(
 
 function buildLines(
   lines: Array<{
+    productCode?: string
     productName: string
     spec: string
+    composition?: string
+    color?: string
+    bulkMoq?: string
     unit: string
     quantity: number
+    taxExcludedUnitPrice?: number | null
     unitPrice: number
     lineAmount: number
+    dyeingFee?: string
+    leadTime?: string
+    lineRemark?: string
   }>
 ): ExportLineItem[] {
   return lines.map((l) => ({
+    productCode: l.productCode,
     productName: l.productName,
     spec: l.spec,
+    composition: l.composition,
+    color: l.color,
+    bulkMoq: l.bulkMoq,
     unit: l.unit,
     quantity: l.quantity,
+    taxExcludedUnitPrice: l.taxExcludedUnitPrice,
     unitPrice: l.unitPrice,
     lineAmount: l.lineAmount,
+    dyeingFee: l.dyeingFee,
+    leadTime: l.leadTime,
+    lineRemark: l.lineRemark,
   }))
 }
 

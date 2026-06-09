@@ -37,11 +37,14 @@ type StockMap = Record<string, number>
 function isSalesLineEmpty(line: SalesFormLine): boolean {
   return (
     !line.productId &&
+    !line.productCode.trim() &&
     !line.productName.trim() &&
     !line.spec.trim() &&
+    !line.color.trim() &&
     !line.unit.trim() &&
     !line.quantity.trim() &&
-    !line.unitPrice.trim()
+    !line.unitPrice.trim() &&
+    !line.lineRemark.trim()
   )
 }
 
@@ -348,13 +351,16 @@ export function SalesFormPage() {
           <table className="line-items-table">
             <thead>
               <tr>
-                <th style={{ width: "24%" }}>货品</th>
-                <th style={{ width: "10%" }}>规格</th>
-                <th style={{ width: "8%" }}>单位</th>
-                <th style={{ width: "10%" }}>当前库存</th>
-                <th style={{ width: "10%" }}>出货数量</th>
-                <th style={{ width: "12%" }}>单价</th>
-                <th style={{ width: "12%" }}>金额</th>
+                <th style={{ width: "20%" }}>货品</th>
+                <th style={{ width: "11%" }}>产品编号</th>
+                <th style={{ width: "10%" }}>尺寸</th>
+                <th style={{ width: "10%" }}>颜色</th>
+                <th style={{ width: "7%" }}>单位</th>
+                <th style={{ width: "9%" }}>当前库存</th>
+                <th style={{ width: "9%" }}>出货数量</th>
+                <th style={{ width: "10%" }}>单价</th>
+                <th style={{ width: "10%" }}>金额</th>
+                <th style={{ width: "12%" }}>备注</th>
                 <th style={{ width: "8%" }}></th>
               </tr>
             </thead>
@@ -376,9 +382,25 @@ export function SalesFormPage() {
                     </td>
                     <td>
                       <Input
+                        placeholder="编号"
+                        value={line.productCode}
+                        onChange={(e) => updateLine(i, "productCode", e.target.value)}
+                        error={errors[`line_${i}_productCode`]}
+                      />
+                    </td>
+                    <td>
+                      <Input
                         value={line.spec}
                         onChange={(e) => updateLine(i, "spec", e.target.value)}
                         disabled
+                      />
+                    </td>
+                    <td>
+                      <Input
+                        placeholder="颜色"
+                        value={line.color}
+                        onChange={(e) => updateLine(i, "color", e.target.value)}
+                        error={errors[`line_${i}_color`]}
                       />
                     </td>
                     <td>
@@ -415,6 +437,14 @@ export function SalesFormPage() {
                     </td>
                     <td className="line-items-table__amount">
                       {formatCurrency(computeLineAmount(line))}
+                    </td>
+                    <td>
+                      <Input
+                        placeholder="选填"
+                        value={line.lineRemark}
+                        onChange={(e) => updateLine(i, "lineRemark", e.target.value)}
+                        error={errors[`line_${i}_lineRemark`]}
+                      />
                     </td>
                     <td>
                       <Button

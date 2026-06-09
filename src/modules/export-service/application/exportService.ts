@@ -1,3 +1,4 @@
+import ExcelJS from "exceljs"
 import type { ExportPayload, ExportFormat, ExportResult } from "../domain/types"
 
 function formatPayloadForPrint(payload: ExportPayload): string {
@@ -25,7 +26,160 @@ async function delay(ms: number): Promise<void> {
 }
 
 function getFormatSuffix(format: ExportFormat): string {
-  return format === "print" ? "打印版" : "表格版"
+  return format === "print" ? "打印版" : "模板Excel"
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+function setCellValue(
+  worksheet: ExcelJS.Worksheet,
+  cellAddress: string,
+  value: string | number | null | undefined
+) {
+  const cell = worksheet.getCell(cellAddress)
+  cell.value = value ?? ""
+}
+
+function cloneRowStyle(source: ExcelJS.Row, target: ExcelJS.Row) {
+  target.height = source.height
+  source.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    const targetCell = target.getCell(colNumber)
+    targetCell.style = { ...cell.style }
+    targetCell.numFmt = cell.numFmt
+    if (cell.alignment) targetCell.alignment = { ...cell.alignment }
+    if (cell.border) targetCell.border = { ...cell.border }
+    if (cell.fill) targetCell.fill = { ...cell.fill }
+    if (cell.font) targetCell.font = { ...cell.font }
+  })
+}
+
+function ensureRows(
+  worksheet: ExcelJS.Worksheet,
+  templateRowCount: number,
+  nextRow: number,
+  lineCount: number
+) {
+  const requiredRows = Math.max(lineCount, templateRowCount)
+  const extraRows = requiredRows - templateRowCount
+  if (extraRows <= 0) return requiredRows
+
+  worksheet.insertRows(nextRow, Array.from({ length: extraRows }, () => []), "i")
+  const sourceRow = worksheet.getRow(nextRow - 1)
+  for (let i = 0; i < extraRows; i++) {
+    cloneRowStyle(sourceRow, worksheet.getRow(nextRow + i))
+  }
+  return requiredRows
+}
+
+function fillSalesTemplate(workbook: ExcelJS.Workbook, payload: ExportPayload) {
+  const worksheet = workbook.getWorksheet(1)
+  if (!worksheet) throw new Error("出货单模板缺少工作表")
+
+  setCellValue(worksheet, "A4", `送货单  NO: ${payload.documentNo}`)
+  setCellValue(
+    worksheet,
+    "A5",
+    `收货单位：${payload.header.counterpartyName}     订单号：${payload.documentNo}     日期：${payload.header.date}`
+  )
+
+  const lineStartRow = 7
+  const lineRows = ensureRows(worksheet, 2, 9, payload.lineItems.length)
+  const totalRow = lineStartRow + lineRows
+
+  for (let i = 0; i < lineRows; i++) {
+    const rowNumber = lineStartRow + i
+    const item = payload.lineItems[i]
+    setCellValue(worksheet, `A${rowNumber}`, item?.productCode)
+    setCellValue(worksheet, `B${rowNumber}`, item?.productName)
+    setCellValue(worksheet, `C${rowNumber}`, item?.spec)
+    setCellValue(worksheet, `D${rowNumber}`, item?.color)
+    setCellValue(worksheet, `E${rowNumber}`, item?.unit)
+    setCellValue(worksheet, `F${rowNumber}`, item?.quantity)
+    setCellValue(worksheet, `G${rowNumber}`, item?.unitPrice)
+    setCellValue(worksheet, `H${rowNumber}`, item?.lineAmount)
+    setCellValue(worksheet, `I${rowNumber}`, item?.lineRemark)
+  }
+
+  setCellValue(worksheet, `H${totalRow}`, payload.totals.totalAmount)
+}
+
+function fillQuoteTemplate(workbook: ExcelJS.Workbook, payload: ExportPayload) {
+  const worksheet = workbook.getWorksheet(1)
+  if (!worksheet) throw new Error("报价单模板缺少工作表")
+
+  try {
+    worksheet.unMergeCells("K10:K15")
+  } catch {
+  }
+
+  setCellValue(
+    worksheet,
+    "A6",
+    `TO: ${payload.header.counterpartyName}     日期：${payload.header.date}     编号：${payload.documentNo}`
+  )
+
+  const lineStartRow = 10
+  const lineRows = ensureRows(worksheet, 6, 16, payload.lineItems.length)
+
+  for (let i = 0; i < lineRows; i++) {
+    const rowNumber = lineStartRow + i
+    const item = payload.lineItems[i]
+    setCellValue(worksheet, `A${rowNumber}`, item ? i + 1 : "")
+    setCellValue(worksheet, `B${rowNumber}`, item?.productName)
+    setCellValue(worksheet, `C${rowNumber}`, item?.composition)
+    setCellValue(worksheet, `D${rowNumber}`, item?.spec)
+    setCellValue(worksheet, `E${rowNumber}`, item?.color)
+    setCellValue(worksheet, `F${rowNumber}`, item?.bulkMoq)
+    setCellValue(worksheet, `G${rowNumber}`, item?.taxExcludedUnitPrice)
+    setCellValue(worksheet, `H${rowNumber}`, item?.unitPrice)
+    setCellValue(worksheet, `I${rowNumber}`, item?.dyeingFee)
+    setCellValue(worksheet, `J${rowNumber}`, "")
+    setCellValue(worksheet, `K${rowNumber}`, item?.leadTime)
+  }
+
+  const noteRow = lineStartRow + lineRows + 1
+  if (payload.header.remark) {
+    setCellValue(worksheet, `A${noteRow}`, `注：${payload.header.remark}`)
+  }
+}
+
+async function exportTemplateExcel(payload: ExportPayload, baseFilename: string) {
+  if (payload.documentType !== "sales" && payload.documentType !== "quote") {
+    throw new Error("当前单据暂未配置模板 Excel")
+  }
+
+  const templateFile =
+    payload.documentType === "sales"
+      ? "sales-order-template.xlsx"
+      : "quote-template.xlsx"
+  const response = await fetch(`/templates/${templateFile}`)
+  if (!response.ok) {
+    throw new Error("模板文件读取失败")
+  }
+
+  const workbook = new ExcelJS.Workbook()
+  await workbook.xlsx.load(await response.arrayBuffer())
+
+  if (payload.documentType === "sales") {
+    fillSalesTemplate(workbook, payload)
+  } else {
+    fillQuoteTemplate(workbook, payload)
+  }
+
+  const buffer = await workbook.xlsx.writeBuffer()
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  })
+  downloadBlob(blob, `${baseFilename}.xlsx`)
 }
 
 export async function exportDocument(
@@ -33,7 +187,7 @@ export async function exportDocument(
   format: ExportFormat
 ): Promise<ExportResult> {
   const formatSuffix = getFormatSuffix(format)
-  const baseFilename = `${payload.documentNo}${format === "print" ? "" : "-表格版"}`
+  const baseFilename = `${payload.documentNo}${format === "print" ? "" : "-模板Excel"}`
 
   try {
     await delay(600)
@@ -43,41 +197,11 @@ export async function exportDocument(
 
       if (typeof window !== "undefined") {
         const blob = new Blob([content], { type: "text/plain;charset=utf-8" })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = `${baseFilename}.txt`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
+        downloadBlob(blob, `${baseFilename}.txt`)
       }
     } else {
       if (typeof window !== "undefined") {
-        const rows = [
-          ["货品名称", "规格", "单位", "数量", "单价", "金额"],
-          ...payload.lineItems.map((l) => [
-            l.productName,
-            l.spec || "-",
-            l.unit || "-",
-            String(l.quantity),
-            `¥${l.unitPrice.toFixed(2)}`,
-            `¥${l.lineAmount.toFixed(2)}`,
-          ]),
-        ]
-        const csvContent = rows.map((r) => r.join(",")).join("\n")
-        const bom = "\uFEFF"
-        const blob = new Blob([bom + csvContent], {
-          type: "text/csv;charset=utf-8",
-        })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = `${baseFilename}.csv`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
+        await exportTemplateExcel(payload, baseFilename)
       }
     }
 

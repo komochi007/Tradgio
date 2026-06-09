@@ -35,9 +35,15 @@ function isQuoteLineEmpty(line: QuoteFormLine): boolean {
     !line.productId &&
     !line.productName.trim() &&
     !line.spec.trim() &&
+    !line.composition.trim() &&
+    !line.color.trim() &&
+    !line.bulkMoq.trim() &&
     !line.unit.trim() &&
     !line.quantity.trim() &&
-    !line.unitPrice.trim()
+    !line.taxExcludedUnitPrice.trim() &&
+    !line.unitPrice.trim() &&
+    !line.dyeingFee.trim() &&
+    !line.leadTime.trim()
   )
 }
 
@@ -298,13 +304,19 @@ export function QuoteFormPage() {
           <table className="line-items-table">
             <thead>
               <tr>
-                <th style={{ width: "28%" }}>货品</th>
-                <th style={{ width: "12%" }}>规格</th>
-                <th style={{ width: "10%" }}>单位</th>
-                <th style={{ width: "12%" }}>数量</th>
-                <th style={{ width: "14%" }}>单价</th>
-                <th style={{ width: "14%" }}>金额</th>
-                <th style={{ width: "10%" }}></th>
+                <th style={{ width: "20%" }}>货品</th>
+                <th style={{ width: "12%" }}>成分</th>
+                <th style={{ width: "10%" }}>尺寸</th>
+                <th style={{ width: "10%" }}>颜色</th>
+                <th style={{ width: "10%" }}>大货起订量</th>
+                <th style={{ width: "8%" }}>单位</th>
+                <th style={{ width: "9%" }}>数量</th>
+                <th style={{ width: "11%" }}>USD 单价</th>
+                <th style={{ width: "11%" }}>RMB 单价</th>
+                <th style={{ width: "12%" }}>染色费/版费</th>
+                <th style={{ width: "10%" }}>货期</th>
+                <th style={{ width: "10%" }}>金额</th>
+                <th style={{ width: "8%" }}></th>
               </tr>
             </thead>
             <tbody>
@@ -321,9 +333,33 @@ export function QuoteFormPage() {
                   </td>
                   <td>
                     <Input
+                      placeholder="成分"
+                      value={line.composition}
+                      onChange={(e) => updateLine(i, "composition", e.target.value)}
+                      error={errors[`line_${i}_composition`]}
+                    />
+                  </td>
+                  <td>
+                    <Input
                       value={line.spec}
                       onChange={(e) => updateLine(i, "spec", e.target.value)}
                       disabled
+                    />
+                  </td>
+                  <td>
+                    <Input
+                      placeholder="颜色"
+                      value={line.color}
+                      onChange={(e) => updateLine(i, "color", e.target.value)}
+                      error={errors[`line_${i}_color`]}
+                    />
+                  </td>
+                  <td>
+                    <Input
+                      placeholder="起订量"
+                      value={line.bulkMoq}
+                      onChange={(e) => updateLine(i, "bulkMoq", e.target.value)}
+                      error={errors[`line_${i}_bulkMoq`]}
                     />
                   </td>
                   <td>
@@ -342,9 +378,34 @@ export function QuoteFormPage() {
                     <Input
                       type="number"
                       placeholder="0.00"
+                      value={line.taxExcludedUnitPrice}
+                      onChange={(e) => updateLine(i, "taxExcludedUnitPrice", e.target.value)}
+                      error={errors[`line_${i}_taxExcludedUnitPrice`]}
+                    />
+                  </td>
+                  <td>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
                       value={line.unitPrice}
                       onChange={(e) => updateLine(i, "unitPrice", e.target.value)}
                       error={errors[`line_${i}_unitPrice`]}
+                    />
+                  </td>
+                  <td>
+                    <Input
+                      placeholder="选填"
+                      value={line.dyeingFee}
+                      onChange={(e) => updateLine(i, "dyeingFee", e.target.value)}
+                      error={errors[`line_${i}_dyeingFee`]}
+                    />
+                  </td>
+                  <td>
+                    <Input
+                      placeholder="货期"
+                      value={line.leadTime}
+                      onChange={(e) => updateLine(i, "leadTime", e.target.value)}
+                      error={errors[`line_${i}_leadTime`]}
                     />
                   </td>
                   <td className="line-items-table__amount">

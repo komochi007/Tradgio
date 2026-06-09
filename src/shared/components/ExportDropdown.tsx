@@ -85,7 +85,7 @@ export function ExportDropdown({ onExport, loading }: ExportDropdownProps) {
             className="export-dropdown__item"
             onClick={() => handleSelect("sheet")}
           >
-            表格版
+            模板Excel
           </button>
         </div>,
         document.body

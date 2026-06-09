@@ -3,10 +3,16 @@ export type QuoteLine = {
   productId: string
   productName: string
   spec: string
+  composition: string
+  color: string
+  bulkMoq: string
   unit: string
   quantity: number
+  taxExcludedUnitPrice: number | null
   unitPrice: number
   lineAmount: number
+  dyeingFee: string
+  leadTime: string
 }
 
 export type QuoteOrder = {
@@ -28,9 +34,15 @@ export type QuoteFormLine = {
   productId: string
   productName: string
   spec: string
+  composition: string
+  color: string
+  bulkMoq: string
   unit: string
   quantity: string
+  taxExcludedUnitPrice: string
   unitPrice: string
+  dyeingFee: string
+  leadTime: string
 }
 
 export type QuoteFormData = {
@@ -69,6 +81,27 @@ export function validateQuoteForm(data: QuoteFormData): Record<string, string> {
     if (line.unitPrice === "" || isNaN(price) || price < 0) {
       errors[`line_${i}_unitPrice`] = "请输入有效单价"
     }
+    if (line.taxExcludedUnitPrice !== "") {
+      const usdPrice = Number(line.taxExcludedUnitPrice)
+      if (isNaN(usdPrice) || usdPrice < 0) {
+        errors[`line_${i}_taxExcludedUnitPrice`] = "请输入有效 USD 单价"
+      }
+    }
+    if (line.composition.length > 50) {
+      errors[`line_${i}_composition`] = "成分不能超过 50 个字"
+    }
+    if (line.color.length > 30) {
+      errors[`line_${i}_color`] = "颜色不能超过 30 个字"
+    }
+    if (line.bulkMoq.length > 30) {
+      errors[`line_${i}_bulkMoq`] = "大货起订量不能超过 30 个字"
+    }
+    if (line.dyeingFee.length > 50) {
+      errors[`line_${i}_dyeingFee`] = "染色费/版费不能超过 50 个字"
+    }
+    if (line.leadTime.length > 30) {
+      errors[`line_${i}_leadTime`] = "货期不能超过 30 个字"
+    }
   }
 
   return errors
@@ -80,9 +113,15 @@ export function emptyQuoteLine(): QuoteFormLine {
     productId: "",
     productName: "",
     spec: "",
+    composition: "",
+    color: "",
+    bulkMoq: "",
     unit: "",
     quantity: "",
+    taxExcludedUnitPrice: "",
     unitPrice: "",
+    dyeingFee: "",
+    leadTime: "",
   }
 }
 
@@ -107,9 +146,15 @@ export function orderToFormData(order: QuoteOrder): QuoteFormData {
       productId: l.productId,
       productName: l.productName,
       spec: l.spec,
+      composition: l.composition ?? "",
+      color: l.color ?? "",
+      bulkMoq: l.bulkMoq ?? "",
       unit: l.unit,
       quantity: String(l.quantity),
+      taxExcludedUnitPrice: l.taxExcludedUnitPrice?.toString() ?? "",
       unitPrice: String(l.unitPrice),
+      dyeingFee: l.dyeingFee ?? "",
+      leadTime: l.leadTime ?? "",
     })),
   }
 }
@@ -122,15 +167,23 @@ export function formDataToOrder(
   const lines: QuoteLine[] = data.lines.map((l) => {
     const qty = Number(l.quantity)
     const price = Number(l.unitPrice)
+    const taxExcludedUnitPrice =
+      l.taxExcludedUnitPrice === "" ? null : Number(l.taxExcludedUnitPrice)
     return {
       id: l.key,
       productId: l.productId,
       productName: l.productName,
       spec: l.spec,
+      composition: l.composition.trim(),
+      color: l.color.trim(),
+      bulkMoq: l.bulkMoq.trim(),
       unit: l.unit,
       quantity: qty,
+      taxExcludedUnitPrice,
       unitPrice: price,
       lineAmount: Math.round(qty * price * 100) / 100,
+      dyeingFee: l.dyeingFee.trim(),
+      leadTime: l.leadTime.trim(),
     }
   })
 

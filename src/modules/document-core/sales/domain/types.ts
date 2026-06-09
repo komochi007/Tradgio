@@ -1,12 +1,15 @@
 export type SalesLine = {
   id: string
   productId: string
+  productCode: string
   productName: string
   spec: string
+  color: string
   unit: string
   quantity: number
   unitPrice: number
   lineAmount: number
+  lineRemark: string
 }
 
 export type SalesOrder = {
@@ -26,11 +29,14 @@ export type SalesOrder = {
 export type SalesFormLine = {
   key: string
   productId: string
+  productCode: string
   productName: string
   spec: string
+  color: string
   unit: string
   quantity: string
   unitPrice: string
+  lineRemark: string
 }
 
 export type SalesFormData = {
@@ -69,6 +75,15 @@ export function validateSalesForm(data: SalesFormData): Record<string, string> {
     if (line.unitPrice === "" || isNaN(price) || price < 0) {
       errors[`line_${i}_unitPrice`] = "请输入有效单价"
     }
+    if (line.productCode.length > 30) {
+      errors[`line_${i}_productCode`] = "产品编号不能超过 30 个字"
+    }
+    if (line.color.length > 30) {
+      errors[`line_${i}_color`] = "颜色不能超过 30 个字"
+    }
+    if (line.lineRemark.length > 80) {
+      errors[`line_${i}_lineRemark`] = "备注不能超过 80 个字"
+    }
   }
 
   return errors
@@ -78,11 +93,14 @@ export function emptySalesLine(): SalesFormLine {
   return {
     key: Math.random().toString(36).slice(2, 10),
     productId: "",
+    productCode: "",
     productName: "",
     spec: "",
+    color: "",
     unit: "",
     quantity: "",
     unitPrice: "",
+    lineRemark: "",
   }
 }
 
@@ -105,11 +123,14 @@ export function orderToFormData(order: SalesOrder): SalesFormData {
     lines: order.lines.map((l) => ({
       key: l.id,
       productId: l.productId,
+      productCode: l.productCode ?? "",
       productName: l.productName,
       spec: l.spec,
+      color: l.color ?? "",
       unit: l.unit,
       quantity: String(l.quantity),
       unitPrice: String(l.unitPrice),
+      lineRemark: l.lineRemark ?? "",
     })),
   }
 }
@@ -125,12 +146,15 @@ export function formDataToOrder(
     return {
       id: l.key,
       productId: l.productId,
+      productCode: l.productCode.trim(),
       productName: l.productName,
       spec: l.spec,
+      color: l.color.trim(),
       unit: l.unit,
       quantity: qty,
       unitPrice: price,
       lineAmount: Math.round(qty * price * 100) / 100,
+      lineRemark: l.lineRemark.trim(),
     }
   })
 

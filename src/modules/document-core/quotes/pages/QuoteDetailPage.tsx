@@ -110,7 +110,7 @@ export function QuoteDetailPage() {
             loading={exporting === "sheet"}
             onClick={() => handleExport("sheet")}
           >
-            导出表格版
+            导出模板Excel
           </Button>
           <Button variant="primary" onClick={() => navigate(`/quotes/${order.id}/edit`)}>
             编辑
@@ -156,22 +156,36 @@ export function QuoteDetailPage() {
             <thead>
               <tr>
                 <th>货品</th>
-                <th>规格</th>
+                <th>成分</th>
+                <th>尺寸</th>
+                <th>颜色</th>
+                <th>大货起订量</th>
                 <th>单位</th>
                 <th className="data-table__num">数量</th>
-                <th className="data-table__num">单价</th>
+                <th className="data-table__num">USD 单价</th>
+                <th className="data-table__num">RMB 单价</th>
                 <th className="data-table__num">金额</th>
+                <th>染色费/版费</th>
+                <th>货期</th>
               </tr>
             </thead>
             <tbody>
               {order.lines.map((line) => (
                 <tr key={line.id}>
                   <td className="data-table__name">{line.productName}</td>
+                  <td className="data-table__muted">{line.composition || "-"}</td>
                   <td className="data-table__muted">{line.spec || "-"}</td>
+                  <td className="data-table__muted">{line.color || "-"}</td>
+                  <td className="data-table__muted">{line.bulkMoq || "-"}</td>
                   <td className="data-table__muted">{line.unit || "-"}</td>
                   <td className="data-table__num">{line.quantity}</td>
+                  <td className="data-table__num">
+                    {line.taxExcludedUnitPrice != null ? `$${line.taxExcludedUnitPrice.toFixed(2)}` : "-"}
+                  </td>
                   <td className="data-table__num">{formatCurrency(line.unitPrice)}</td>
                   <td className="data-table__num">{formatCurrency(line.lineAmount)}</td>
+                  <td className="data-table__muted">{line.dyeingFee || "-"}</td>
+                  <td className="data-table__muted">{line.leadTime || "-"}</td>
                 </tr>
               ))}
             </tbody>
