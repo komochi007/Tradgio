@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react"
+import { createPortal } from "react-dom"
 
 export type ProductOption = {
   id: string
@@ -37,6 +38,7 @@ export function ProductSearchSelect({
   const [search, setSearch] = useState("")
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 0 })
   const selectedProduct = products.find((p) => p.id === value)
 
   const keyword = search.trim().toLowerCase()
@@ -51,7 +53,12 @@ export function ProductSearchSelect({
     : products
 
   const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+    const target = e.target as Node
+    if (
+      wrapperRef.current &&
+      !wrapperRef.current.contains(target) &&
+      !(target instanceof HTMLElement && target.closest(".product-search-select__dropdown"))
+    ) {
       setOpen(false)
     }
   }, [])
@@ -64,6 +71,28 @@ export function ProductSearchSelect({
   useEffect(() => {
     if (open) {
       inputRef.current?.focus()
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+
+    function updatePosition() {
+      const rect = wrapperRef.current?.getBoundingClientRect()
+      if (!rect) return
+      setMenuPosition({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      })
+    }
+
+    updatePosition()
+    window.addEventListener("resize", updatePosition)
+    window.addEventListener("scroll", updatePosition, true)
+    return () => {
+      window.removeEventListener("resize", updatePosition)
+      window.removeEventListener("scroll", updatePosition, true)
     }
   }, [open])
 
@@ -128,8 +157,15 @@ export function ProductSearchSelect({
         />
       )}
 
-      {open && (
-        <div className="product-search-select__dropdown">
+      {open && createPortal(
+        <div
+          className="product-search-select__dropdown"
+          style={{
+            top: menuPosition.top,
+            left: menuPosition.left,
+            width: menuPosition.width,
+          }}
+        >
           {filtered.length === 0 ? (
             <div className="product-search-select__empty">未找到匹配的货品</div>
           ) : (
@@ -151,7 +187,7 @@ export function ProductSearchSelect({
             ))
           )}
         </div>
-      )}
+      , document.body)}
     </div>
   )
 }
