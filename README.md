@@ -198,11 +198,14 @@ AI Agent 约束：
 ## 7. Local Development Setup
 当前可直接本地启动，当前脚本：
 - `npm run dev`
+- `npm run typecheck`
+- `npm run test`
+- `npm run test:watch`
 - `npm run build`
 - `npm run preview`
 
 当前仍建议后续补齐：
-- [ ] `lint` / `format` / `test` 命令
+- [ ] `lint` / `format` 命令
 - [ ] `.env.example`
 - [ ] CI 配置
 
@@ -211,9 +214,13 @@ AI Agent 约束：
 ```bash
 npm install
 npm run dev
+npm run typecheck
+npm run test
 npm run build
 npm run preview
 ```
+
+库存领域测试位于 `src/modules/inventory-engine/domain/calculator.test.ts`。`npm run test` 使用 Node 环境非交互执行，不依赖浏览器或 localStorage；标记为预期失败的用例用于固定任务 27 待修复的库存差额缺陷。
 
 ## 8. Environment Variables
 当前状态：
