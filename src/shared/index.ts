@@ -3,6 +3,9 @@ export { appConfig } from "./config"
 export { QueryProvider, queryClient, createLocalStorageRepository } from "./query"
 export type { LocalTransactionalRepository, Repository } from "./query"
 
+export { generateNextDocumentNumber } from "./document-number"
+export type { DocumentNumberType } from "./document-number"
+
 export {
   ACCOUNT_SCOPED_STORAGE_KEYS,
   getAccountScopeMigrationKey,

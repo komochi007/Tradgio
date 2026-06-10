@@ -214,15 +214,10 @@ export function ContractFormPage() {
           <div className="form-row">
             <Input
               label="合同编号"
-              placeholder="请输入合同编号"
-              value={formData.contractNo}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  contractNo: e.target.value,
-                }))
-              }
-              error={errors.contractNo}
+              placeholder="保存时自动生成"
+              value={isEdit ? formData.contractNo : ""}
+              helpText={isEdit ? "合同编号不可修改" : "保存后按当前月份自动生成"}
+              readOnly
             />
             <Select
               label="客户"

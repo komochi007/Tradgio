@@ -1,15 +1,19 @@
-import { createLocalStorageRepository } from "../../../../shared"
+import {
+  createLocalStorageRepository,
+  generateNextDocumentNumber,
+} from "../../../../shared"
 import type { QuoteOrder } from "../domain/types"
 
 export const quoteRepository = createLocalStorageRepository<QuoteOrder>(
-  "tradgio_quote_orders"
+  "tradgio_quote_orders",
+  { uniqueConstraints: [{ field: "documentNo", label: "报价单编号" }] }
 )
 
-export async function generateDocumentNo(): Promise<string> {
-  const now = new Date()
-  const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`
+export async function generateDocumentNo(date = new Date()): Promise<string> {
   const all = await quoteRepository.getAll()
-  const thisMonth = all.filter((o) => o.documentNo.startsWith(`BJ${ym}`))
-  const seq = String(thisMonth.length + 1).padStart(2, "0")
-  return `BJ${ym}${seq}`
+  return generateNextDocumentNumber(
+    "quote",
+    all.map((order) => order.documentNo),
+    date
+  )
 }

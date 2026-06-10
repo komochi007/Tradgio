@@ -1,4 +1,9 @@
-import { AppError, generateId, requireCurrentAccountId } from "../../../../shared"
+import {
+  AppError,
+  generateId,
+  requireCurrentAccountId,
+  runLocalAtomicSave,
+} from "../../../../shared"
 import type { QuoteOrder, QuoteFormData } from "../domain/types"
 import { formDataToOrder, validateQuoteForm } from "../domain/types"
 import { quoteRepository, generateDocumentNo } from "../infrastructure/quoteRepository"
@@ -18,12 +23,20 @@ export async function createQuoteOrder(
     data.lines.map((line) => line.productId)
   )
 
-  const order = formDataToOrder(data, undefined, requireCurrentAccountId())
-  order.id = generateId()
-  order.documentNo = await generateDocumentNo()
+  const accountId = requireCurrentAccountId()
 
-  await quoteRepository.create(order)
-  return order
+  return runLocalAtomicSave(
+    `${accountId}:quote:create:${JSON.stringify(data)}`,
+    [quoteRepository],
+    async () => {
+      const order = formDataToOrder(data, undefined, accountId)
+      order.id = generateId()
+      order.documentNo = await generateDocumentNo()
+
+      await quoteRepository.create(order)
+      return order
+    }
+  )
 }
 
 export async function updateQuoteOrder(

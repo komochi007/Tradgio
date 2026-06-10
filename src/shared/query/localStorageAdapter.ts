@@ -27,8 +27,18 @@ export interface LocalTransactionalRepository<T extends AccountOwnedEntity>
   replaceAll(items: T[]): Promise<void>
 }
 
+export type RepositoryUniqueConstraint<T extends AccountOwnedEntity> = {
+  field: keyof T
+  label: string
+}
+
+export type LocalStorageRepositoryOptions<T extends AccountOwnedEntity> = {
+  uniqueConstraints?: RepositoryUniqueConstraint<T>[]
+}
+
 export function createLocalStorageRepository<T extends AccountOwnedEntity>(
-  collectionKey: string
+  collectionKey: string,
+  options: LocalStorageRepositoryOptions<T> = {}
 ): LocalTransactionalRepository<T> {
   function readAll(): T[] {
     try {
@@ -49,6 +59,29 @@ export function createLocalStorageRepository<T extends AccountOwnedEntity>(
     return accountId
   }
 
+  function assertUnique(
+    items: T[],
+    candidate: T,
+    accountId: string,
+    excludedId?: string
+  ): void {
+    for (const constraint of options.uniqueConstraints ?? []) {
+      const value = candidate[constraint.field]
+      const duplicate = items.some(
+        (item) =>
+          item.accountId === accountId &&
+          item.id !== excludedId &&
+          item[constraint.field] === value
+      )
+      if (duplicate) {
+        throw new AppError(
+          "CONFLICT",
+          `${constraint.label}已存在: ${String(value)}`
+        )
+      }
+    }
+  }
+
   return {
     async getAll() {
       const accountId = getAccountId()
@@ -65,6 +98,7 @@ export function createLocalStorageRepository<T extends AccountOwnedEntity>(
       const accountId = getAccountId()
       const items = readAll()
       const ownedItem = { ...item, accountId } as T
+      assertUnique(items, ownedItem, accountId)
       items.push(ownedItem)
       writeAll(items)
       return ownedItem
@@ -79,7 +113,9 @@ export function createLocalStorageRepository<T extends AccountOwnedEntity>(
       if (index === -1) {
         throw new AppError("NOT_FOUND", `记录不存在: ${id}`)
       }
-      items[index] = { ...items[index], ...patch, accountId }
+      const updatedItem = { ...items[index], ...patch, accountId }
+      assertUnique(items, updatedItem, accountId, id)
+      items[index] = updatedItem
       writeAll(items)
       return items[index]
     },

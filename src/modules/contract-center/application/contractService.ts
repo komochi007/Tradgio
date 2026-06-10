@@ -1,4 +1,9 @@
-import { AppError, generateId, requireCurrentAccountId } from "../../../shared"
+import {
+  AppError,
+  generateId,
+  requireCurrentAccountId,
+  runLocalAtomicSave,
+} from "../../../shared"
 import type { ContractRecord, ContractAttachment, ContractFormData } from "../domain/types"
 import { validateContractForm, validateFile } from "../domain/types"
 import { contractRepository, generateDocumentNo } from "../infrastructure/contractRepository"
@@ -62,23 +67,33 @@ export async function createContractRecord(
     throw new AppError("UPLOAD_ERROR", "文件上传失败，请重试")
   }
 
-  const now = new Date().toISOString()
-  const record: ContractRecord = {
-    id: generateId(),
-    accountId: requireCurrentAccountId(),
-    contractNo: await generateDocumentNo(),
-    title: data.title.trim(),
-    customerId: data.customerId,
-    customerName: data.customerName,
-    signDate: data.signDate,
-    remark: data.remark.trim(),
-    attachments,
-    createdAt: now,
-    updatedAt: now,
-  }
+  const accountId = requireCurrentAccountId()
 
-  await contractRepository.create(record)
-  return record
+  return runLocalAtomicSave(
+    `${accountId}:contract:create:${JSON.stringify(data)}:${attachments
+      .map((attachment) => attachment.fileName)
+      .join(",")}`,
+    [contractRepository],
+    async () => {
+      const now = new Date().toISOString()
+      const record: ContractRecord = {
+        id: generateId(),
+        accountId,
+        contractNo: await generateDocumentNo(),
+        title: data.title.trim(),
+        customerId: data.customerId,
+        customerName: data.customerName,
+        signDate: data.signDate,
+        remark: data.remark.trim(),
+        attachments,
+        createdAt: now,
+        updatedAt: now,
+      }
+
+      await contractRepository.create(record)
+      return record
+    }
+  )
 }
 
 export async function updateContractRecord(
