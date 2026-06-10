@@ -9,6 +9,7 @@ import {
   Tag,
   FormErrorSummary,
   DraftRestoreBanner,
+  DraftSaveStatus,
   formatFileSize,
   useFormDraft,
   useToast,
@@ -404,7 +405,11 @@ export function ContractFormPage() {
           </div>
         </div>
 
-        <div className="form-card__footer">
+      </div>
+
+      <div className={`sticky-action-bar${isEdit ? " sticky-action-bar--end" : ""}`}>
+        {!isEdit && <DraftSaveStatus savedAt={draft.lastSavedAt} />}
+        <div className="sticky-action-bar__actions">
           {!isEdit && (
             <Button
               variant="secondary"

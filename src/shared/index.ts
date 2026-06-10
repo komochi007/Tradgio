@@ -45,6 +45,7 @@ export {
   ProductSearchSelect,
   ExportDropdown,
   DraftRestoreBanner,
+  DraftSaveStatus,
 } from "./components"
 export type { SelectOption, ProductOption } from "./components"
 

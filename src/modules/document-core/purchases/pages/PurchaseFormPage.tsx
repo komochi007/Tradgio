@@ -7,6 +7,7 @@ import {
   SectionCard,
   EmptyState, FormErrorSummary,
   DraftRestoreBanner,
+  DraftSaveStatus,
   useFormDraft,
   useToast,
   ProductSearchSelect,
@@ -236,7 +237,7 @@ export function PurchaseFormPage() {
   }))
 
   return (
-    <div className="list-page">
+    <div className="form-page">
       <div className="page-header">
         <h1 className="page-title">{isEdit ? "编辑进货单" : "新建进货单"}</h1>
         <Button variant="ghost" onClick={() => navigate("/purchases")}>
@@ -376,9 +377,12 @@ export function PurchaseFormPage() {
       </SectionCard>
 
       <div className="sticky-action-bar">
-        <div className="sticky-action-bar__total">
-          <span className="sticky-action-bar__label">合计</span>
-          <span className="sticky-action-bar__value">{formatCurrency(computeTotal())}</span>
+        <div className="sticky-action-bar__summary">
+          <div className="sticky-action-bar__total">
+            <span className="sticky-action-bar__label">合计</span>
+            <span className="sticky-action-bar__value">{formatCurrency(computeTotal())}</span>
+          </div>
+          {!isEdit && <DraftSaveStatus savedAt={draft.lastSavedAt} />}
         </div>
         <div className="sticky-action-bar__actions">
           {!isEdit && (

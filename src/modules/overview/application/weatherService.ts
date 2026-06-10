@@ -5,7 +5,7 @@ export type WeatherInfo = {
   icon: string
 }
 
-const SHANGHAI = { lat: 31.2304, lon: 121.4737, name: "上海" }
+const DONGGUAN = { lat: 23.0207, lon: 113.7518, name: "东莞" }
 
 const weatherCodeMap: Record<number, { description: string; icon: string }> = {
   0: { description: "晴", icon: "☀️" },
@@ -34,34 +34,6 @@ const weatherCodeMap: Record<number, { description: string; icon: string }> = {
   99: { description: "雷暴伴大冰雹", icon: "⛈" },
 }
 
-function getCurrentPosition(): Promise<{ lat: number; lon: number }> {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error("浏览器不支持定位"))
-      return
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-      (err) => reject(err),
-      { timeout: 5000, maximumAge: 600000 }
-    )
-  })
-}
-
-async function reverseGeocode(lat: number, lon: number): Promise<string> {
-  try {
-    const res = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?latitude=${lat}&longitude=${lon}&count=1&language=zh`
-    )
-    if (!res.ok) throw new Error("geocoding failed")
-    const data = await res.json()
-    if (data.results?.length > 0) {
-      return data.results[0].name || data.results[0].admin1 || SHANGHAI.name
-    }
-  } catch {}
-  return SHANGHAI.name
-}
-
 async function fetchWeather(
   lat: number,
   lon: number
@@ -78,17 +50,7 @@ async function fetchWeather(
 }
 
 export async function getWeather(): Promise<WeatherInfo> {
-  try {
-    const pos = await getCurrentPosition()
-    const [city, weather] = await Promise.all([
-      reverseGeocode(pos.lat, pos.lon),
-      fetchWeather(pos.lat, pos.lon),
-    ])
-    const info = weatherCodeMap[weather.code] ?? { description: "未知", icon: "🌤" }
-    return { city, temperature: weather.temperature, ...info }
-  } catch {
-    const weather = await fetchWeather(SHANGHAI.lat, SHANGHAI.lon)
-    const info = weatherCodeMap[weather.code] ?? { description: "未知", icon: "🌤" }
-    return { city: SHANGHAI.name, temperature: weather.temperature, ...info }
-  }
+  const weather = await fetchWeather(DONGGUAN.lat, DONGGUAN.lon)
+  const info = weatherCodeMap[weather.code] ?? { description: "未知", icon: "🌤" }
+  return { city: DONGGUAN.name, temperature: weather.temperature, ...info }
 }

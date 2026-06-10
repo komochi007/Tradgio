@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Button, Input, Select, SkeletonCard, EmptyState, FormErrorSummary, DraftRestoreBanner, useFormDraft, useToast, generateId } from "../../../../shared"
+import { Button, Input, Select, SkeletonCard, EmptyState, FormErrorSummary, DraftRestoreBanner, DraftSaveStatus, useFormDraft, useToast, generateId } from "../../../../shared"
 import { useAuth } from "../../../auth"
 import { productRepository } from "../infrastructure/productRepository"
 import {
@@ -188,7 +188,7 @@ export function ProductFormPage() {
         />
       )}
 
-      <form onSubmit={handleSubmit} className="form-card">
+      <form id="product-form" onSubmit={handleSubmit} className="form-card">
         <div className="form-card__body">
           <FormErrorSummary errors={errors} />
 
@@ -271,7 +271,11 @@ export function ProductFormPage() {
           />
         </div>
 
-        <div className="form-card__footer">
+      </form>
+
+      <div className={`sticky-action-bar${isEdit ? " sticky-action-bar--end" : ""}`}>
+        {!isEdit && <DraftSaveStatus savedAt={draft.lastSavedAt} />}
+        <div className="sticky-action-bar__actions">
           {!isEdit && (
             <Button
               variant="secondary"
@@ -294,11 +298,11 @@ export function ProductFormPage() {
           >
             取消
           </Button>
-          <Button variant="primary" type="submit" loading={submitting}>
+          <Button variant="primary" type="submit" form="product-form" loading={submitting}>
             {isEdit ? "保存修改" : "创建货品"}
           </Button>
         </div>
-      </form>
+      </div>
     </div>
   )
 }
