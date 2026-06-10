@@ -49,6 +49,48 @@ function setCellValue(
   cell.value = value ?? ""
 }
 
+function centerCell(cell: ExcelJS.Cell) {
+  cell.alignment = {
+    ...cell.alignment,
+    horizontal: "center",
+    vertical: "middle",
+  }
+}
+
+function setThinBorder(cell: ExcelJS.Cell) {
+  const border: Partial<ExcelJS.Border> = {
+    style: "thin",
+  }
+  cell.border = {
+    top: border,
+    left: border,
+    bottom: border,
+    right: border,
+  }
+}
+
+function styleDataRange(
+  worksheet: ExcelJS.Worksheet,
+  startRow: number,
+  rowCount: number,
+  startColumn: number,
+  endColumn: number,
+  includeBorder = false
+) {
+  for (let rowNumber = startRow; rowNumber < startRow + rowCount; rowNumber++) {
+    for (let column = startColumn; column <= endColumn; column++) {
+      const cell = worksheet.getCell(rowNumber, column)
+      centerCell(cell)
+      if (includeBorder) setThinBorder(cell)
+    }
+  }
+}
+
+function styleCurrencyCell(cell: ExcelJS.Cell, currency: "USD" | "RMB") {
+  centerCell(cell)
+  cell.numFmt = currency === "USD" ? "$#,##0.00" : "¥#,##0.00"
+}
+
 function cloneRowStyle(source: ExcelJS.Row, target: ExcelJS.Row) {
   target.height = source.height
   source.eachCell({ includeEmpty: true }, (cell, colNumber) => {
@@ -109,7 +151,14 @@ function fillSalesTemplate(workbook: ExcelJS.Workbook, payload: ExportPayload) {
     setCellValue(worksheet, `I${rowNumber}`, item?.lineRemark)
   }
 
+  styleDataRange(worksheet, lineStartRow, lineRows, 1, 9)
+  for (let rowNumber = lineStartRow; rowNumber < lineStartRow + lineRows; rowNumber++) {
+    styleCurrencyCell(worksheet.getCell(`G${rowNumber}`), "RMB")
+    styleCurrencyCell(worksheet.getCell(`H${rowNumber}`), "RMB")
+  }
+
   setCellValue(worksheet, `H${totalRow}`, payload.totals.totalAmount)
+  styleCurrencyCell(worksheet.getCell(`H${totalRow}`), "RMB")
 }
 
 function fillQuoteTemplate(workbook: ExcelJS.Workbook, payload: ExportPayload) {
@@ -144,6 +193,13 @@ function fillQuoteTemplate(workbook: ExcelJS.Workbook, payload: ExportPayload) {
     setCellValue(worksheet, `I${rowNumber}`, item?.dyeingFee)
     setCellValue(worksheet, `J${rowNumber}`, "")
     setCellValue(worksheet, `K${rowNumber}`, item?.leadTime)
+  }
+
+  styleDataRange(worksheet, lineStartRow, lineRows, 1, 11, true)
+
+  for (let rowNumber = lineStartRow; rowNumber < lineStartRow + lineRows; rowNumber++) {
+    styleCurrencyCell(worksheet.getCell(`G${rowNumber}`), "USD")
+    styleCurrencyCell(worksheet.getCell(`H${rowNumber}`), "RMB")
   }
 
   const noteRow = lineStartRow + lineRows + 1

@@ -34,7 +34,7 @@
 
 已存在：
 - React / Vite 前端应用代码
-- App Shell、Auth、本地 repository、库存引擎、搜索聚合、导出服务占位实现
+- App Shell、Auth、本地 repository、库存引擎、搜索聚合、打印导出与模板 Excel 导出
 - 产品文档、架构文档、用户流程文档、设计规范、前端落地规范
 - 用户提供的出货单、报价单模板原件
 - 已转换的标准 `.xlsx` 模板资产：`public/templates/`
@@ -43,7 +43,6 @@
 - 自动化测试体系
 - 部署配置
 - 真实后端 / 对象存储 / 服务端导出运行时
-- 固定模板 Excel 导出的字段映射与填充实现
 
 结论：
 - 不要把当前仓库当成空项目
@@ -232,7 +231,7 @@ Presentation -> Application -> Domain -> Infrastructure
 - 数据：当前通过 localStorage adapter 模拟 repository
 - 表单：结构化表单 + 领域层校验函数
 - 认证：本地 localStorage auth adapter
-- 导出：`Export Service` 占位实现，后续升级模板 Excel 导出
+- 导出：`Export Service` 提供打印版及出货单、报价单模板 Excel 导出
 
 未来生产方向仍保留托管 Auth / PostgreSQL / Object Storage / Serverless Function。
 
@@ -332,7 +331,7 @@ AI 首次进入项目时，建议阅读顺序：
 当前实现风险：
 - 当前数据仍是本地 localStorage，尚未接入真实数据库
 - 当前附件仍是本地持久化，尚未接入对象存储
-- 模板 Excel 导出尚未完成字段映射与填充实现
+- 模板 Excel 当前在浏览器端生成，生产环境仍需评估服务端导出运行时
 - 若 AI 不先读文档和现有代码，容易产生架构漂移
 
 实现时要明确区分：
