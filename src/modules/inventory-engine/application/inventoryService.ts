@@ -1,4 +1,4 @@
-import { AppError } from "../../../shared";
+import { AppError, requireCurrentAccountId } from "../../../shared";
 import type {
   InventoryLedger,
   CurrentStockSnapshot,
@@ -23,9 +23,16 @@ function sortByHappenedAt(a: InventoryLedger, b: InventoryLedger): number {
   return new Date(a.happenedAt).getTime() - new Date(b.happenedAt).getTime();
 }
 
+function assertCurrentAccount(order: InventoryOrderInput): void {
+  if (order.accountId !== requireCurrentAccountId()) {
+    throw new AppError("UNAUTHORIZED", "库存单据不属于当前账号")
+  }
+}
+
 export async function applyPurchaseOrder(
   order: InventoryOrderInput
 ): Promise<InventoryLedger[]> {
+  assertCurrentAccount(order);
   const error = validateOrderInput(order);
   if (error) {
     throw new AppError("VALIDATION_ERROR", error.message);
@@ -51,6 +58,7 @@ export async function applyPurchaseOrder(
 export async function applySalesOrder(
   order: InventoryOrderInput
 ): Promise<InventoryLedger[]> {
+  assertCurrentAccount(order);
   const error = validateOrderInput(order);
   if (error) {
     throw new AppError("VALIDATION_ERROR", error.message);
@@ -77,6 +85,8 @@ export async function recalculateOrderDelta(
   previousOrder: InventoryOrderInput,
   nextOrder: InventoryOrderInput
 ): Promise<InventoryLedger[]> {
+  assertCurrentAccount(previousOrder);
+  assertCurrentAccount(nextOrder);
   const previousError = validateOrderInput(previousOrder);
   const nextError = validateOrderInput(nextOrder);
   if (previousError || nextError) {
@@ -117,12 +127,14 @@ export async function getCurrentStock(
 }
 
 export async function getStockSnapshot(): Promise<CurrentStockSnapshot[]> {
+  const accountId = requireCurrentAccountId();
   const snapshots = await getAllSnapshots();
   const now = new Date().toISOString();
   const result: CurrentStockSnapshot[] = [];
   for (const [productId, quantity] of snapshots) {
     result.push({
       id: productId,
+      accountId,
       productId,
       quantity,
       updatedAt: now,

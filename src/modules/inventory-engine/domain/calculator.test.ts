@@ -15,6 +15,7 @@ function createOrder(
 ): InventoryOrderInput {
   return {
     documentId: `${documentType}-001`,
+    accountId: "account-test",
     documentType,
     happenedAt,
     lines,

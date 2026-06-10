@@ -1,7 +1,8 @@
-import { AppError, generateId } from "../../../../shared"
+import { AppError, generateId, requireCurrentAccountId } from "../../../../shared"
 import type { QuoteOrder, QuoteFormData } from "../domain/types"
 import { formDataToOrder, validateQuoteForm } from "../domain/types"
 import { quoteRepository, generateDocumentNo } from "../infrastructure/quoteRepository"
+import { validateDocumentReferences } from "../../application/validateReferences"
 
 export async function createQuoteOrder(
   data: QuoteFormData
@@ -11,7 +12,13 @@ export async function createQuoteOrder(
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
 
-  const order = formDataToOrder(data)
+  await validateDocumentReferences(
+    data.customerId,
+    "customer",
+    data.lines.map((line) => line.productId)
+  )
+
+  const order = formDataToOrder(data, undefined, requireCurrentAccountId())
   order.id = generateId()
   order.documentNo = await generateDocumentNo()
 
@@ -27,6 +34,12 @@ export async function updateQuoteOrder(
   if (Object.keys(validationErrors).length > 0) {
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
+
+  await validateDocumentReferences(
+    data.customerId,
+    "customer",
+    data.lines.map((line) => line.productId)
+  )
 
   const existing = await quoteRepository.getById(id)
   if (!existing) {

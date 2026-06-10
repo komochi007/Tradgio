@@ -14,6 +14,7 @@ export type SalesLine = {
 
 export type SalesOrder = {
   id: string
+  accountId: string
   type: "sales"
   documentNo: string
   customerId: string
@@ -137,7 +138,8 @@ export function orderToFormData(order: SalesOrder): SalesFormData {
 
 export function formDataToOrder(
   data: SalesFormData,
-  existing?: SalesOrder
+  existing?: SalesOrder,
+  accountId = existing?.accountId ?? ""
 ): SalesOrder {
   const now = new Date().toISOString()
   const lines: SalesLine[] = data.lines.map((l) => {
@@ -162,6 +164,7 @@ export function formDataToOrder(
 
   return {
     id: existing?.id ?? "",
+    accountId,
     type: "sales",
     documentNo: existing?.documentNo ?? "",
     customerId: data.customerId,

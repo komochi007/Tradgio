@@ -123,6 +123,9 @@ type AuthState = {
 - 必须通过 Auth adapter 暴露，不允许页面直接操作 localStorage
 - session 与 account 分开存储
 - 为真实托管 Auth 预留替换点
+- 业务 Repository 只能从有效 session 获取当前 `accountId`
+- 登录和会话恢复会触发一次性账号归属迁移
+- 无有效 session 时禁止业务数据读写
 
 ## 9. 异常与反馈
 

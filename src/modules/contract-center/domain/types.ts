@@ -9,6 +9,7 @@ export type ContractAttachment = {
 
 export type ContractRecord = {
   id: string
+  accountId: string
   contractNo: string
   title: string
   customerId: string

@@ -2,6 +2,7 @@ import type { AuthService } from "../domain/AuthService"
 import type { Account, AuthSession, LoginInput, RegisterInput } from "../domain/types"
 import { AppError } from "../../../shared/errors"
 import { generateId } from "../../../shared/utils"
+import { migrateLegacyBusinessData } from "../../../shared/account"
 
 const ACCOUNTS_KEY = "tradgio_accounts"
 const SESSION_KEY = "tradgio_session"
@@ -118,6 +119,7 @@ export function createLocalStorageAuthAdapter(): AuthService {
       }
 
       writeSession(session)
+      migrateLegacyBusinessData(account.id)
       return session
     },
 
@@ -143,6 +145,7 @@ export function createLocalStorageAuthAdapter(): AuthService {
         issuedAt: new Date().toISOString(),
       }
       writeSession(refreshed)
+      migrateLegacyBusinessData(account.id)
       return refreshed
     },
 

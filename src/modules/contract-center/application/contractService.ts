@@ -1,7 +1,15 @@
-import { AppError, generateId } from "../../../shared"
+import { AppError, generateId, requireCurrentAccountId } from "../../../shared"
 import type { ContractRecord, ContractAttachment, ContractFormData } from "../domain/types"
 import { validateContractForm, validateFile } from "../domain/types"
 import { contractRepository, generateDocumentNo } from "../infrastructure/contractRepository"
+import { counterpartyRepository } from "../../master-data/counterparties"
+
+async function validateCustomerReference(customerId: string): Promise<void> {
+  const customer = await counterpartyRepository.getById(customerId)
+  if (!customer || customer.type !== "customer") {
+    throw new AppError("VALIDATION_ERROR", "客户不存在或不属于当前账号")
+  }
+}
 
 function fileToAttachment(file: File): Promise<ContractAttachment> {
   return new Promise((resolve, reject) => {
@@ -38,6 +46,8 @@ export async function createContractRecord(
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
 
+  await validateCustomerReference(data.customerId)
+
   for (const file of files) {
     const fileError = validateFile(file)
     if (fileError) {
@@ -55,6 +65,7 @@ export async function createContractRecord(
   const now = new Date().toISOString()
   const record: ContractRecord = {
     id: generateId(),
+    accountId: requireCurrentAccountId(),
     contractNo: await generateDocumentNo(),
     title: data.title.trim(),
     customerId: data.customerId,
@@ -79,6 +90,8 @@ export async function updateContractRecord(
   if (Object.keys(validationErrors).length > 0) {
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
+
+  await validateCustomerReference(data.customerId)
 
   const existing = await contractRepository.getById(id)
   if (!existing) {

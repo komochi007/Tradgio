@@ -20,7 +20,7 @@ export type PersistenceConfig = {
 
 export type AuthAdapter = AuthService
 
-export type DataAdapter<T extends { id: string }> = Repository<T>
+export type DataAdapter<T extends { id: string; accountId: string }> = Repository<T>
 
 export interface FileAdapter {
   upload(file: File, metadata: Record<string, string>): Promise<{ url: string; key: string }>

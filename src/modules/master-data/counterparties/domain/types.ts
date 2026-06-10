@@ -4,6 +4,7 @@ export type CounterpartyStatus = "active" | "inactive"
 
 export type Counterparty = {
   id: string
+  accountId: string
   name: string
   type: CounterpartyType
   contactPerson: string

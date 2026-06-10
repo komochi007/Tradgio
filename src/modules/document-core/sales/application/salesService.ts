@@ -1,4 +1,9 @@
-import { AppError, generateId, runLocalAtomicSave } from "../../../../shared"
+import {
+  AppError,
+  generateId,
+  requireCurrentAccountId,
+  runLocalAtomicSave,
+} from "../../../../shared"
 import {
   applySalesOrder,
   getStockAlerts,
@@ -10,6 +15,7 @@ import type { InventoryOrderInput } from "../../../inventory-engine"
 import type { SalesOrder, SalesFormData } from "../domain/types"
 import { formDataToOrder, validateSalesForm } from "../domain/types"
 import { salesRepository, generateDocumentNo } from "../infrastructure/salesRepository"
+import { validateDocumentReferences } from "../../application/validateReferences"
 
 export async function createSalesOrder(
   data: SalesFormData
@@ -19,16 +25,25 @@ export async function createSalesOrder(
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
 
+  await validateDocumentReferences(
+    data.customerId,
+    "customer",
+    data.lines.map((line) => line.productId)
+  )
+
+  const accountId = requireCurrentAccountId()
+
   return runLocalAtomicSave(
-    `sales:create:${JSON.stringify(data)}`,
+    `${accountId}:sales:create:${JSON.stringify(data)}`,
     [salesRepository, ledgerRepository, snapshotRepository],
     async () => {
-      const order = formDataToOrder(data)
+      const order = formDataToOrder(data, undefined, accountId)
       order.id = generateId()
       order.documentNo = await generateDocumentNo()
 
       const inventoryInput: InventoryOrderInput = {
         documentId: order.id,
+        accountId,
         documentType: "sales",
         happenedAt: order.happenedAt,
         lines: order.lines.map((l) => ({
@@ -54,8 +69,16 @@ export async function updateSalesOrder(
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
 
+  await validateDocumentReferences(
+    data.customerId,
+    "customer",
+    data.lines.map((line) => line.productId)
+  )
+
+  const accountId = requireCurrentAccountId()
+
   return runLocalAtomicSave(
-    `sales:update:${id}:${JSON.stringify(data)}`,
+    `${accountId}:sales:update:${id}:${JSON.stringify(data)}`,
     [salesRepository, ledgerRepository, snapshotRepository],
     async () => {
       const existing = await salesRepository.getById(id)
@@ -65,6 +88,7 @@ export async function updateSalesOrder(
 
       const prevInventoryInput: InventoryOrderInput = {
         documentId: existing.id,
+        accountId: existing.accountId,
         documentType: "sales",
         happenedAt: existing.happenedAt,
         lines: existing.lines.map((l) => ({
@@ -76,6 +100,7 @@ export async function updateSalesOrder(
       const nextOrder = formDataToOrder(data, existing)
       const nextInventoryInput: InventoryOrderInput = {
         documentId: nextOrder.id,
+        accountId: nextOrder.accountId,
         documentType: "sales",
         happenedAt: nextOrder.happenedAt,
         lines: nextOrder.lines.map((l) => ({

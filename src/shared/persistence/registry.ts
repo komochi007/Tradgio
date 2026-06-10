@@ -21,11 +21,11 @@ export const persistenceConfig: PersistenceConfig = {
  *   auth          → tradgio_accounts / tradgio_passwords / tradgio_session
  *   products      → tradgio_products
  *   counterparties → tradgio_counterparties
- *   purchases     → tradgio_purchases
- *   sales         → tradgio_sales
- *   quotes        → tradgio_quotes
+ *   purchases     → tradgio_purchase_orders
+ *   sales         → tradgio_sales_orders
+ *   quotes        → tradgio_quote_orders
  *   contracts     → tradgio_contracts
- *   inventory     → tradgio_inventory_ledger / tradgio_inventory_snapshot
+ *   inventory     → tradgio_inventory_ledger / tradgio_inventory_snapshots
  *   drafts        → tradgio_drafts
  */
 export const STORAGE_KEYS = {
@@ -37,12 +37,12 @@ export const STORAGE_KEYS = {
   data: {
     products: "tradgio_products",
     counterparties: "tradgio_counterparties",
-    purchases: "tradgio_purchases",
-    sales: "tradgio_sales",
-    quotes: "tradgio_quotes",
+    purchases: "tradgio_purchase_orders",
+    sales: "tradgio_sales_orders",
+    quotes: "tradgio_quote_orders",
     contracts: "tradgio_contracts",
     inventoryLedger: "tradgio_inventory_ledger",
-    inventorySnapshot: "tradgio_inventory_snapshot",
+    inventorySnapshot: "tradgio_inventory_snapshots",
   },
   drafts: "tradgio_drafts",
 } as const
@@ -57,6 +57,7 @@ export function getAllStorageKeys(): string[] {
     STORAGE_KEYS.auth.session,
     ...Object.values(STORAGE_KEYS.data),
     STORAGE_KEYS.drafts,
+    "tradgio_migration_account_scope_v1",
   ]
 }
 

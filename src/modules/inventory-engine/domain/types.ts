@@ -2,6 +2,7 @@ export type InventoryChangeType = "purchase" | "sales" | "adjustment";
 
 export type InventoryLedger = {
   id: string;
+  accountId: string;
   productId: string;
   documentType: "purchase" | "sales";
   documentId: string;
@@ -13,6 +14,7 @@ export type InventoryLedger = {
 
 export type CurrentStockSnapshot = {
   id: string;
+  accountId: string;
   productId: string;
   quantity: number;
   updatedAt: string;
@@ -25,6 +27,7 @@ export type OrderLineInput = {
 
 export type InventoryOrderInput = {
   documentId: string;
+  accountId: string;
   documentType: "purchase" | "sales";
   happenedAt: string;
   lines: OrderLineInput[];
@@ -32,6 +35,7 @@ export type InventoryOrderInput = {
 
 export type InventoryOrderDelta = {
   documentId: string;
+  accountId: string;
   documentType: InventoryOrderInput["documentType"];
   happenedAt: string;
   lines: Array<{

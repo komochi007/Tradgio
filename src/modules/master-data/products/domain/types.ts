@@ -5,6 +5,7 @@ export type ProductStatus = "active" | "inactive"
 
 export type Product = {
   id: string
+  accountId: string
   productCode: string
   name: string
   spec: string

@@ -2,6 +2,13 @@ import type { ExportPayload, ExportHeader, ExportLineItem, ExportTotals } from "
 import type { PurchaseOrder } from "../../document-core/purchases/domain/types"
 import type { SalesOrder } from "../../document-core/sales/domain/types"
 import type { QuoteOrder } from "../../document-core/quotes/domain/types"
+import { AppError, requireCurrentAccountId } from "../../../shared"
+
+function assertExportOwnership(order: { accountId: string }): void {
+  if (order.accountId !== requireCurrentAccountId()) {
+    throw new AppError("UNAUTHORIZED", "不能导出其他账号的单据")
+  }
+}
 
 function buildHeader(
   documentNo: string,
@@ -57,6 +64,7 @@ export function buildPurchaseExportPayload(
   order: PurchaseOrder,
   exportedBy?: string
 ): ExportPayload {
+  assertExportOwnership(order)
   return {
     documentType: "purchase",
     documentNo: order.documentNo,
@@ -80,6 +88,7 @@ export function buildSalesExportPayload(
   order: SalesOrder,
   exportedBy?: string
 ): ExportPayload {
+  assertExportOwnership(order)
   return {
     documentType: "sales",
     documentNo: order.documentNo,
@@ -103,6 +112,7 @@ export function buildQuoteExportPayload(
   order: QuoteOrder,
   exportedBy?: string
 ): ExportPayload {
+  assertExportOwnership(order)
   return {
     documentType: "quote",
     documentNo: order.documentNo,

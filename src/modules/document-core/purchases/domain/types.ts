@@ -11,6 +11,7 @@ export type PurchaseLine = {
 
 export type PurchaseOrder = {
   id: string
+  accountId: string
   type: "purchase"
   documentNo: string
   supplierId: string
@@ -116,7 +117,8 @@ export function orderToFormData(order: PurchaseOrder): PurchaseFormData {
 
 export function formDataToOrder(
   data: PurchaseFormData,
-  existing?: PurchaseOrder
+  existing?: PurchaseOrder,
+  accountId = existing?.accountId ?? ""
 ): PurchaseOrder {
   const now = new Date().toISOString()
   const lines: PurchaseLine[] = data.lines.map((l) => {
@@ -138,6 +140,7 @@ export function formDataToOrder(
 
   return {
     id: existing?.id ?? "",
+    accountId,
     type: "purchase",
     documentNo: existing?.documentNo ?? "",
     supplierId: data.supplierId,

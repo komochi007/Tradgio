@@ -36,6 +36,7 @@ type DocumentLine = {
 
 type BaseDocument = {
   id: string;
+  accountId: string;
   type: DocumentType;
   documentNo: string;
   happenedAt: string;
@@ -64,6 +65,12 @@ type QuoteOrder = BaseDocument & {
   customerName: string;
 };
 ```
+
+账号约束：
+- 列表、详情、创建、编辑和编号生成只能作用于当前账号
+- 保存时必须校验客户、供应商和货品引用属于当前账号
+- 页面传入的名称不能替代账号归属校验
+- 导出 payload 必须再次校验单据属于当前账号
 
 ## 4. 对外接口
 

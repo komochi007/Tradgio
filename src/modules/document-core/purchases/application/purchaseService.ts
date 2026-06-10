@@ -1,4 +1,9 @@
-import { AppError, generateId, runLocalAtomicSave } from "../../../../shared"
+import {
+  AppError,
+  generateId,
+  requireCurrentAccountId,
+  runLocalAtomicSave,
+} from "../../../../shared"
 import {
   applyPurchaseOrder,
   ledgerRepository,
@@ -9,6 +14,7 @@ import type { InventoryOrderInput } from "../../../inventory-engine"
 import type { PurchaseOrder, PurchaseFormData } from "../domain/types"
 import { formDataToOrder, validatePurchaseForm } from "../domain/types"
 import { purchaseRepository, generateDocumentNo } from "../infrastructure/purchaseRepository"
+import { validateDocumentReferences } from "../../application/validateReferences"
 
 export async function createPurchaseOrder(
   data: PurchaseFormData
@@ -18,16 +24,25 @@ export async function createPurchaseOrder(
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
 
+  await validateDocumentReferences(
+    data.supplierId,
+    "supplier",
+    data.lines.map((line) => line.productId)
+  )
+
+  const accountId = requireCurrentAccountId()
+
   return runLocalAtomicSave(
-    `purchase:create:${JSON.stringify(data)}`,
+    `${accountId}:purchase:create:${JSON.stringify(data)}`,
     [purchaseRepository, ledgerRepository, snapshotRepository],
     async () => {
-      const order = formDataToOrder(data)
+      const order = formDataToOrder(data, undefined, accountId)
       order.id = generateId()
       order.documentNo = await generateDocumentNo()
 
       const inventoryInput: InventoryOrderInput = {
         documentId: order.id,
+        accountId,
         documentType: "purchase",
         happenedAt: order.happenedAt,
         lines: order.lines.map((l) => ({
@@ -53,8 +68,16 @@ export async function updatePurchaseOrder(
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
 
+  await validateDocumentReferences(
+    data.supplierId,
+    "supplier",
+    data.lines.map((line) => line.productId)
+  )
+
+  const accountId = requireCurrentAccountId()
+
   return runLocalAtomicSave(
-    `purchase:update:${id}:${JSON.stringify(data)}`,
+    `${accountId}:purchase:update:${id}:${JSON.stringify(data)}`,
     [purchaseRepository, ledgerRepository, snapshotRepository],
     async () => {
       const existing = await purchaseRepository.getById(id)
@@ -64,6 +87,7 @@ export async function updatePurchaseOrder(
 
       const prevInventoryInput: InventoryOrderInput = {
         documentId: existing.id,
+        accountId: existing.accountId,
         documentType: "purchase",
         happenedAt: existing.happenedAt,
         lines: existing.lines.map((l) => ({
@@ -75,6 +99,7 @@ export async function updatePurchaseOrder(
       const nextOrder = formDataToOrder(data, existing)
       const nextInventoryInput: InventoryOrderInput = {
         documentId: nextOrder.id,
+        accountId: nextOrder.accountId,
         documentType: "purchase",
         happenedAt: nextOrder.happenedAt,
         lines: nextOrder.lines.map((l) => ({

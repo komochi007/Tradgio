@@ -44,6 +44,7 @@ export function computeLedgerEntries(
 
     entries.push({
       id: generateId(),
+      accountId: order.accountId,
       productId: line.productId,
       documentType: order.documentType,
       documentId: order.documentId,
@@ -80,6 +81,7 @@ export function computeSnapshotUpdates(
   for (const [productId, quantity] of productMap) {
     snapshots.push({
       id: productId,
+      accountId: entries[0]?.accountId ?? "",
       productId,
       quantity,
       updatedAt: now,
@@ -130,6 +132,7 @@ export function computeRecalcOrder(
 
   return {
     documentId: nextOrder.documentId,
+    accountId: nextOrder.accountId,
     documentType: nextOrder.documentType,
     happenedAt: nextOrder.happenedAt,
     lines: deltas.map((line) => ({
@@ -153,6 +156,7 @@ export function computeRecalcLedgerEntries(
 
     entries.push({
       id: generateId(),
+      accountId: orderDelta.accountId,
       productId: line.productId,
       documentType: orderDelta.documentType,
       documentId: orderDelta.documentId,
@@ -172,6 +176,7 @@ export function reverseOrderSign(order: InventoryOrderInput): InventoryOrderInpu
   const reversedType = order.documentType === "purchase" ? "sales" : "purchase";
   return {
     documentId: order.documentId,
+    accountId: order.accountId,
     documentType: reversedType,
     happenedAt: order.happenedAt,
     lines: order.lines,

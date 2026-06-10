@@ -17,6 +17,7 @@ export type QuoteLine = {
 
 export type QuoteOrder = {
   id: string
+  accountId: string
   type: "quote"
   documentNo: string
   customerId: string
@@ -161,7 +162,8 @@ export function orderToFormData(order: QuoteOrder): QuoteFormData {
 
 export function formDataToOrder(
   data: QuoteFormData,
-  existing?: QuoteOrder
+  existing?: QuoteOrder,
+  accountId = existing?.accountId ?? ""
 ): QuoteOrder {
   const now = new Date().toISOString()
   const lines: QuoteLine[] = data.lines.map((l) => {
@@ -191,6 +193,7 @@ export function formDataToOrder(
 
   return {
     id: existing?.id ?? "",
+    accountId,
     type: "quote",
     documentNo: existing?.documentNo ?? "",
     customerId: data.customerId,

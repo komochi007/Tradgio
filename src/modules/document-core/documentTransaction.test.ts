@@ -16,6 +16,9 @@ const PURCHASES_KEY = "tradgio_purchase_orders"
 const SALES_KEY = "tradgio_sales_orders"
 const LEDGER_KEY = "tradgio_inventory_ledger"
 const SNAPSHOTS_KEY = "tradgio_inventory_snapshots"
+const SESSION_KEY = "tradgio_session"
+const PRODUCTS_KEY = "tradgio_products"
+const COUNTERPARTIES_KEY = "tradgio_counterparties"
 
 class FaultInjectableStorage implements Storage {
   private data = new Map<string, string>()
@@ -121,6 +124,67 @@ function readBusinessState() {
 
 beforeEach(() => {
   storage.clear()
+  storage.setItem(
+    SESSION_KEY,
+    JSON.stringify({
+      account: {
+        id: "account-test",
+        username: "test",
+        createdAt: "2026-06-10T00:00:00.000Z",
+      },
+      token: "test-token",
+      issuedAt: "2026-06-10T00:00:00.000Z",
+    })
+  )
+  storage.setItem(
+    PRODUCTS_KEY,
+    JSON.stringify([
+      {
+        id: "product-1",
+        productCode: "P-001",
+        name: "测试货品",
+        spec: "A1",
+        unit: "件",
+        productType: "测试",
+        material: "",
+        defaultPurchasePrice: 10,
+        defaultSalesPrice: 20,
+        notes: "",
+        status: "active",
+        createdAt: "2026-06-10T00:00:00.000Z",
+        updatedAt: "2026-06-10T00:00:00.000Z",
+      },
+    ])
+  )
+  storage.setItem(
+    COUNTERPARTIES_KEY,
+    JSON.stringify([
+      {
+        id: "supplier-1",
+        name: "测试供应商",
+        type: "supplier",
+        contactPerson: "",
+        phone: "",
+        address: "",
+        notes: "",
+        status: "active",
+        createdAt: "2026-06-10T00:00:00.000Z",
+        updatedAt: "2026-06-10T00:00:00.000Z",
+      },
+      {
+        id: "customer-1",
+        name: "测试客户",
+        type: "customer",
+        contactPerson: "",
+        phone: "",
+        address: "",
+        notes: "",
+        status: "active",
+        createdAt: "2026-06-10T00:00:00.000Z",
+        updatedAt: "2026-06-10T00:00:00.000Z",
+      },
+    ])
+  )
 })
 
 describe("单据与库存本地原子保存", () => {

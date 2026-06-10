@@ -3,6 +3,14 @@ export { appConfig } from "./config"
 export { QueryProvider, queryClient, createLocalStorageRepository } from "./query"
 export type { LocalTransactionalRepository, Repository } from "./query"
 
+export {
+  ACCOUNT_SCOPED_STORAGE_KEYS,
+  getAccountScopeMigrationKey,
+  getCurrentAccountId,
+  migrateLegacyBusinessData,
+  requireCurrentAccountId,
+} from "./account"
+
 export { runLocalAtomicSave } from "./transaction"
 
 export { AppError, mapError, getUserFacingMessage } from "./errors"
