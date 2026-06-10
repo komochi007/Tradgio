@@ -205,10 +205,12 @@ Export Service -> Shared Platform
 用户填写进货单
 -> createPurchaseOrder(input)
 -> 校验日期、供应商、明细
+-> Local Atomic Save 保存单据、流水和快照前态
 -> 持久化 PurchaseOrder + PurchaseLine
 -> Inventory Engine.applyPurchaseOrder(order)
 -> 写入 InventoryLedger
 -> 更新 CurrentStockSnapshot
+-> 任一步失败则恢复单据、流水和快照前态
 -> 刷新 Overview 最近记录
 -> 刷新 SearchDocument 投影
 -> Query 失效重取
@@ -218,7 +220,10 @@ Export Service -> Shared Platform
 规则：
 - 单据必须整单提交
 - 库存更新必须跟随单据保存成功
-- 库存流水失败时应整体失败或回滚
+- 本地适配器通过集合快照和逆序恢复保证单次保存不留下半成品
+- 相同保存请求并发触发时复用进行中的结果，不重复应用库存
+- 不同本地保存请求必须串行执行，避免失败回滚覆盖其他成功提交
+- 生产远程适配器不得依赖客户端快照补偿，单据、流水和快照必须在同一数据库事务中提交
 
 ### 3.3 场景二：编辑出货单并触发库存不足提醒
 
@@ -230,10 +235,13 @@ Export Service -> Shared Platform
 -> updateSalesOrder(id, input)
 -> 读取 previousOrder
 -> 校验 nextOrder
+-> Local Atomic Save 保存单据、流水和快照前态
+-> 更新 SalesOrder + SalesLine
 -> 反算 previousOrder 库存影响
 -> 应用 nextOrder 库存影响
 -> 写入 InventoryLedger
 -> 更新 CurrentStockSnapshot
+-> 任一步失败则恢复单据、流水和快照前态
 -> 刷新详情、列表、库存摘要、搜索投影
 -> UI 显示“出货单已更新，部分货品库存不足”
 ```
@@ -242,6 +250,20 @@ Export Service -> Shared Platform
 - 库存不足是警告，不是硬阻断
 - 允许负库存，但只能来自出货保存
 - 改单必须做差额回算，不能直接覆盖库存快照
+- 进货单和出货单删除暂不开放，除非同步实现库存冲销并纳入同一事务
+
+### 3.3.1 单据与库存事务契约
+
+本地适配器：
+- 事务参与集合固定包含当前单据、`InventoryLedger` 和 `CurrentStockSnapshot`
+- 提交前读取三类完整前态，失败时按快照、流水、单据的逆序恢复
+- 所有本地单据保存串行执行，相同请求在进行中时复用同一结果
+
+远程适配器：
+- 创建和编辑必须由服务端事务入口统一编排
+- 单据主从记录、库存流水和库存快照必须使用同一数据库事务与连接上下文
+- 任一写入或约束校验失败必须整体回滚，客户端不得自行补偿为生产一致性保证
+- 重试必须使用稳定幂等键或数据库唯一约束，不能重复建单或重复应用库存
 
 ### 3.4 场景三：合同上传
 

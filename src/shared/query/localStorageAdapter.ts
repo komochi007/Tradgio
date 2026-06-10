@@ -9,9 +9,14 @@ export interface Repository<T extends { id: string }> {
   query(predicate: (item: T) => boolean): Promise<T[]>
 }
 
+export interface LocalTransactionalRepository<T extends { id: string }>
+  extends Repository<T> {
+  replaceAll(items: T[]): Promise<void>
+}
+
 export function createLocalStorageRepository<T extends { id: string }>(
   collectionKey: string
-): Repository<T> {
+): LocalTransactionalRepository<T> {
   function readAll(): T[] {
     try {
       const raw = localStorage.getItem(collectionKey)
@@ -62,6 +67,10 @@ export function createLocalStorageRepository<T extends { id: string }>(
     async query(predicate: (item: T) => boolean) {
       const items = readAll()
       return items.filter(predicate)
+    },
+
+    async replaceAll(items: T[]) {
+      writeAll(items)
     },
   }
 }

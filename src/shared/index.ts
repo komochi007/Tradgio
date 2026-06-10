@@ -1,7 +1,9 @@
 export { appConfig } from "./config"
 
 export { QueryProvider, queryClient, createLocalStorageRepository } from "./query"
-export type { Repository } from "./query"
+export type { LocalTransactionalRepository, Repository } from "./query"
+
+export { runLocalAtomicSave } from "./transaction"
 
 export { AppError, mapError, getUserFacingMessage } from "./errors"
 export type { AppErrorCode } from "./errors"

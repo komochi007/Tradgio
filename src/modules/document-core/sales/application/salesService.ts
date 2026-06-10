@@ -1,5 +1,11 @@
-import { AppError, generateId } from "../../../../shared"
-import { applySalesOrder, recalculateOrderDelta, getStockAlerts } from "../../../inventory-engine"
+import { AppError, generateId, runLocalAtomicSave } from "../../../../shared"
+import {
+  applySalesOrder,
+  getStockAlerts,
+  ledgerRepository,
+  recalculateOrderDelta,
+  snapshotRepository,
+} from "../../../inventory-engine"
 import type { InventoryOrderInput } from "../../../inventory-engine"
 import type { SalesOrder, SalesFormData } from "../domain/types"
 import { formDataToOrder, validateSalesForm } from "../domain/types"
@@ -13,24 +19,30 @@ export async function createSalesOrder(
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
 
-  const order = formDataToOrder(data)
-  order.id = generateId()
-  order.documentNo = await generateDocumentNo()
+  return runLocalAtomicSave(
+    `sales:create:${JSON.stringify(data)}`,
+    [salesRepository, ledgerRepository, snapshotRepository],
+    async () => {
+      const order = formDataToOrder(data)
+      order.id = generateId()
+      order.documentNo = await generateDocumentNo()
 
-  const inventoryInput: InventoryOrderInput = {
-    documentId: order.id,
-    documentType: "sales",
-    happenedAt: order.happenedAt,
-    lines: order.lines.map((l) => ({
-      productId: l.productId,
-      quantity: l.quantity,
-    })),
-  }
+      const inventoryInput: InventoryOrderInput = {
+        documentId: order.id,
+        documentType: "sales",
+        happenedAt: order.happenedAt,
+        lines: order.lines.map((l) => ({
+          productId: l.productId,
+          quantity: l.quantity,
+        })),
+      }
 
-  await applySalesOrder(inventoryInput)
-  await salesRepository.create(order)
+      await salesRepository.create(order)
+      await applySalesOrder(inventoryInput)
 
-  return order
+      return order
+    }
+  )
 }
 
 export async function updateSalesOrder(
@@ -42,36 +54,41 @@ export async function updateSalesOrder(
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
   }
 
-  const existing = await salesRepository.getById(id)
-  if (!existing) {
-    throw new AppError("NOT_FOUND", `出货单不存在: ${id}`)
-  }
+  return runLocalAtomicSave(
+    `sales:update:${id}:${JSON.stringify(data)}`,
+    [salesRepository, ledgerRepository, snapshotRepository],
+    async () => {
+      const existing = await salesRepository.getById(id)
+      if (!existing) {
+        throw new AppError("NOT_FOUND", `出货单不存在: ${id}`)
+      }
 
-  const prevInventoryInput: InventoryOrderInput = {
-    documentId: existing.id,
-    documentType: "sales",
-    happenedAt: existing.happenedAt,
-    lines: existing.lines.map((l) => ({
-      productId: l.productId,
-      quantity: l.quantity,
-    })),
-  }
+      const prevInventoryInput: InventoryOrderInput = {
+        documentId: existing.id,
+        documentType: "sales",
+        happenedAt: existing.happenedAt,
+        lines: existing.lines.map((l) => ({
+          productId: l.productId,
+          quantity: l.quantity,
+        })),
+      }
 
-  const nextOrder = formDataToOrder(data, existing)
-  const nextInventoryInput: InventoryOrderInput = {
-    documentId: nextOrder.id,
-    documentType: "sales",
-    happenedAt: nextOrder.happenedAt,
-    lines: nextOrder.lines.map((l) => ({
-      productId: l.productId,
-      quantity: l.quantity,
-    })),
-  }
+      const nextOrder = formDataToOrder(data, existing)
+      const nextInventoryInput: InventoryOrderInput = {
+        documentId: nextOrder.id,
+        documentType: "sales",
+        happenedAt: nextOrder.happenedAt,
+        lines: nextOrder.lines.map((l) => ({
+          productId: l.productId,
+          quantity: l.quantity,
+        })),
+      }
 
-  await recalculateOrderDelta(prevInventoryInput, nextInventoryInput)
-
-  const saved = await salesRepository.update(id, nextOrder)
-  return saved
+      const saved = await salesRepository.update(id, nextOrder)
+      await recalculateOrderDelta(prevInventoryInput, nextInventoryInput)
+      return saved
+    }
+  )
 }
 
 export async function getSalesOrder(id: string): Promise<SalesOrder | undefined> {
@@ -104,7 +121,10 @@ export async function listSalesOrders(
 }
 
 export async function deleteSalesOrder(id: string): Promise<void> {
-  await salesRepository.remove(id)
+  throw new AppError(
+    "VALIDATION_ERROR",
+    `出货单删除暂未开放，无法安全冲销库存: ${id}`
+  )
 }
 
 export async function checkStockShortage(
