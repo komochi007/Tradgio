@@ -4,6 +4,7 @@ export type {
   CurrentStockSnapshot,
   OrderLineInput,
   InventoryOrderInput,
+  InventoryOrderDelta,
   LedgerWriteError,
 } from "./domain/types";
 
@@ -13,6 +14,7 @@ export {
   computeSnapshotUpdates,
   computeOrderLineDelta,
   computeRecalcOrder,
+  computeRecalcLedgerEntries,
   reverseOrderSign,
 } from "./domain/calculator";
 

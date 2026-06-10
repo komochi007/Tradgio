@@ -9,6 +9,7 @@ import {
   computeLedgerEntries,
   computeSnapshotUpdates,
   computeRecalcOrder,
+  computeRecalcLedgerEntries,
 } from "../domain/calculator";
 import {
   ledgerRepository,
@@ -76,19 +77,23 @@ export async function recalculateOrderDelta(
   previousOrder: InventoryOrderInput,
   nextOrder: InventoryOrderInput
 ): Promise<InventoryLedger[]> {
+  const previousError = validateOrderInput(previousOrder);
+  const nextError = validateOrderInput(nextOrder);
+  if (previousError || nextError) {
+    throw new AppError(
+      "VALIDATION_ERROR",
+      previousError?.message ?? nextError?.message ?? "单据数据非法"
+    );
+  }
+
   const deltaOrder = computeRecalcOrder(previousOrder, nextOrder);
 
   if (!deltaOrder) {
     return [];
   }
 
-  const error = validateOrderInput(deltaOrder);
-  if (error) {
-    throw new AppError("VALIDATION_ERROR", error.message);
-  }
-
   const currentSnapshots = await getAllSnapshots();
-  const entries = computeLedgerEntries(deltaOrder, currentSnapshots);
+  const entries = computeRecalcLedgerEntries(deltaOrder, currentSnapshots);
 
   if (entries.length === 0) {
     return [];

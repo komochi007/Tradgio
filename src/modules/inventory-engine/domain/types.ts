@@ -30,6 +30,16 @@ export type InventoryOrderInput = {
   lines: OrderLineInput[];
 };
 
+export type InventoryOrderDelta = {
+  documentId: string;
+  documentType: InventoryOrderInput["documentType"];
+  happenedAt: string;
+  lines: Array<{
+    productId: string;
+    quantityDelta: number;
+  }>;
+};
+
 export type LedgerWriteError = {
   type: "EMPTY_ORDER" | "INVALID_QUANTITY" | "MISSING_PRODUCT" | "LEDGER_WRITE_FAILED" | "SNAPSHOT_FAILED" | "ORDER_NOT_FOUND";
   message: string;

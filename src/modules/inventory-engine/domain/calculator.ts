@@ -1,6 +1,7 @@
 import type {
   InventoryLedger,
   CurrentStockSnapshot,
+  InventoryOrderDelta,
   InventoryOrderInput,
   OrderLineInput,
   LedgerWriteError,
@@ -91,7 +92,7 @@ export function computeSnapshotUpdates(
 export function computeOrderLineDelta(
   prevLines: OrderLineInput[],
   nextLines: OrderLineInput[]
-): OrderLineInput[] {
+): InventoryOrderDelta["lines"] {
   const prevMap = new Map<string, number>();
   for (const line of prevLines) {
     prevMap.set(line.productId, (prevMap.get(line.productId) ?? 0) + line.quantity);
@@ -103,14 +104,14 @@ export function computeOrderLineDelta(
   }
 
   const allProductIds = new Set([...prevMap.keys(), ...nextMap.keys()]);
-  const deltas: OrderLineInput[] = [];
+  const deltas: InventoryOrderDelta["lines"] = [];
 
   for (const productId of allProductIds) {
     const prevQty = prevMap.get(productId) ?? 0;
     const nextQty = nextMap.get(productId) ?? 0;
     const diff = nextQty - prevQty;
     if (diff !== 0) {
-      deltas.push({ productId, quantity: Math.abs(diff) });
+      deltas.push({ productId, quantityDelta: diff });
     }
   }
 
@@ -120,17 +121,51 @@ export function computeOrderLineDelta(
 export function computeRecalcOrder(
   previousOrder: InventoryOrderInput,
   nextOrder: InventoryOrderInput
-): InventoryOrderInput | null {
+): InventoryOrderDelta | null {
   const deltas = computeOrderLineDelta(previousOrder.lines, nextOrder.lines);
 
   if (deltas.length === 0) return null;
+
+  const sign = nextOrder.documentType === "purchase" ? 1 : -1;
 
   return {
     documentId: nextOrder.documentId,
     documentType: nextOrder.documentType,
     happenedAt: nextOrder.happenedAt,
-    lines: deltas,
+    lines: deltas.map((line) => ({
+      productId: line.productId,
+      quantityDelta: line.quantityDelta * sign,
+    })),
   };
+}
+
+export function computeRecalcLedgerEntries(
+  orderDelta: InventoryOrderDelta,
+  currentSnapshots: Map<string, number>
+): InventoryLedger[] {
+  const now = new Date().toISOString();
+  const entries: InventoryLedger[] = [];
+  const runningBalance = new Map(currentSnapshots);
+
+  for (const line of orderDelta.lines) {
+    const prevBalance = runningBalance.get(line.productId) ?? 0;
+    const balanceAfter = prevBalance + line.quantityDelta;
+
+    entries.push({
+      id: generateId(),
+      productId: line.productId,
+      documentType: orderDelta.documentType,
+      documentId: orderDelta.documentId,
+      quantityDelta: line.quantityDelta,
+      balanceAfter,
+      happenedAt: orderDelta.happenedAt,
+      createdAt: now,
+    });
+
+    runningBalance.set(line.productId, balanceAfter);
+  }
+
+  return entries;
 }
 
 export function reverseOrderSign(order: InventoryOrderInput): InventoryOrderInput {

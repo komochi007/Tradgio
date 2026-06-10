@@ -220,7 +220,7 @@ npm run build
 npm run preview
 ```
 
-库存领域测试位于 `src/modules/inventory-engine/domain/calculator.test.ts`。`npm run test` 使用 Node 环境非交互执行，不依赖浏览器或 localStorage；标记为预期失败的用例用于固定任务 27 待修复的库存差额缺陷。
+库存领域测试位于 `src/modules/inventory-engine/domain/calculator.test.ts`。`npm run test` 使用 Node 环境非交互执行，不依赖浏览器或 localStorage，覆盖库存创建、负库存和改单差额回算。
 
 ## 8. Environment Variables
 当前状态：
