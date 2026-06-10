@@ -185,10 +185,15 @@ AI Agent 约束：
 - [ ] 不把导出逻辑散落到页面
 - [ ] 不把整张单据放入全局 store 作为唯一真相
 
-第二阶段优化入口：
+已完成优化入口：
 - 视觉与交互优化方案：`docs/frontend-spec.md` §16
 - 优化开发任务：`tasks/development-tasks.md`（任务 21-25）
-- 优化阶段状态：`tasks/development-progress.md` §6
+- 第三轮优化与验收：`docs/optimization-plan.md`（`OPT3-01` 至 `OPT3-09`）
+
+生产化推进入口：
+- 详细路线图：`tasks/production-roadmap.md`（任务 26-46）
+- 上线检查清单：`tasks/production-readiness-checklist.md`
+- 当前进度：`tasks/development-progress.md`
 
 ## 7. Local Development Setup
 当前可直接本地启动，当前脚本：
@@ -318,8 +323,10 @@ npm run preview
 - [x] 合同上传链路（本地持久化）
 - [x] 导出服务（打印版 + 出货单/报价单模板 Excel）
 - [x] 搜索聚合层
+- [x] 生产化任务 26-46 路线图与上线检查清单
 
 未完成：
+- [ ] P0 业务正确性修复与自动化回归
 - [ ] 自动化测试体系
 - [ ] 部署配置
 - [ ] 真实后端 / 对象存储 / 导出服务接入
@@ -330,6 +337,7 @@ npm run preview
 - 当前认证、数据和附件基于本地 `localStorage`
 - 任何后续交付都应区分“本地 MVP 已落地”与“生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
+- 当前下一任务为任务 26，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
@@ -362,6 +370,22 @@ npm run preview
 - [x] 空状态 / 错误状态补齐
 - [ ] 部署与运行文档
 
+### Phase 6: Business Correctness
+- [ ] 库存差额回算与写入一致性
+- [ ] 账号业务数据隔离
+- [ ] 单据编号生成加固
+- [ ] P0 综合回归验收
+
+### Phase 7: Production Integration
+- [ ] 生产平台 ADR 与数据/API 契约
+- [ ] 真实 Auth、PostgreSQL、对象存储和导出运行时
+- [ ] 本地数据迁移工具
+
+### Phase 8: Release Readiness
+- [ ] 生产适配层回归与部署流水线
+- [ ] 监控、备份和恢复演练
+- [ ] UAT 与正式上线验收
+
 ## Quick Start For Agents
 开始任何实现前，先完成这份 checklist：
 - [x] 确认仓库当前已进入可运行代码阶段
@@ -370,5 +394,6 @@ npm run preview
 - [ ] 判断代码应落在哪个技术分层
 - [ ] 检查是否涉及库存、导出、附件、搜索等跨模块规则
 - [ ] 若要突破架构约束，先更新文档再修改实现
+- [ ] 生产化任务先读 `tasks/production-roadmap.md` 和上线检查清单
 
-如果你接手后续迭代，优先补自动化测试、生产适配器和部署链路，不要再把仓库按“纯文档项目”处理。
+如果你接手后续迭代，从任务 26 开始推进；P0 验收通过前，不应提前接入真实后端或部署平台。

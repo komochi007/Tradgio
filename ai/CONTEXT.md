@@ -40,6 +40,7 @@
 - 已转换的标准 `.xlsx` 模板资产：`public/templates/`
 
 当前仍未完成：
+- P0 业务正确性修复与自动化回归
 - 自动化测试体系
 - 部署配置
 - 真实后端 / 对象存储 / 服务端导出运行时
@@ -48,6 +49,7 @@
 - 不要把当前仓库当成空项目
 - 代码实现应优先沿用 `src/modules` 与 `src/shared` 的现有分层
 - 文档中如仍出现“没有代码/没有模板资产”的旧描述，应以当前代码和本文件为准
+- 生产化路线图已建立，当前从任务 26 开始，任务 31 通过前不进入真实后端实施
 
 ## 3. 业务范围
 
@@ -271,20 +273,14 @@ Presentation -> Application -> Domain -> Infrastructure
 
 ## 11. 推荐实现顺序
 
-如果要从零开始落地代码，建议顺序如下：
+当前后续工作按生产化路线图推进：
 
-1. 工程脚手架
-2. App Shell
-3. Auth 骨架
-4. Master Data
-5. Document Core
-6. Inventory Engine
-7. Contract Center
-8. Search
-9. Export Service
-10. 测试与部署配置
+1. 任务 26-31：业务正确性与 P0 回归
+2. 任务 32-37：工程保障、平台 ADR、数据与 Adapter 契约
+3. 任务 38-42：真实 Auth、数据库、对象存储、导出和迁移工具
+4. 任务 43-46：生产回归、部署、监控、备份、UAT 与上线
 
-如果任务较小，先判断它落在哪个模块和分层里，再决定是否可局部实施。
+详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。任务 31 通过前，只允许开展平台资料调研，不实施供应商 SDK 接入。
 
 ## 12. 任务路由提示
 
@@ -315,7 +311,9 @@ AI 首次进入项目时，建议阅读顺序：
 - 做页面流程：`docs/USER-FLOW.md`
 - 做前端结构：`docs/frontend-spec.md`
 - 做视觉实现：`docs/design.md`
-- 做本轮优化：`docs/optimization-plan.md`
+- 查第三轮优化历史：`docs/optimization-plan.md`
+- 做生产化任务：`tasks/production-roadmap.md`
+- 判断是否可上线：`tasks/production-readiness-checklist.md`
 
 各文档用途：
 - `docs/brief.md`: 最短项目边界说明
@@ -324,11 +322,15 @@ AI 首次进入项目时，建议阅读顺序：
 - `docs/USER-FLOW.md`: 用户从入口到结果的流程
 - `docs/frontend-spec.md`: 路由、页面模板、组件落地
 - `docs/design.md`: token、布局、视觉方向
-- `docs/optimization-plan.md`: 本轮 UI、草稿、看板、模板导出的任务边界
+- `docs/optimization-plan.md`: 第三轮 UI、草稿、看板、模板导出的需求与验收记录
+- `tasks/production-roadmap.md`: 任务 26-46 的实施、依赖与验收依据
+- `tasks/production-readiness-checklist.md`: 生产发布 Gate 与阻断条件
 
 ## 14. 实施风险与注意事项
 
 当前实现风险：
+- 库存改单差额方向、单据与库存写入一致性需要先由任务 26-28 加固
+- 当前业务数据尚未按账号完整隔离，编号生成也需加固
 - 当前数据仍是本地 localStorage，尚未接入真实数据库
 - 当前附件仍是本地持久化，尚未接入对象存储
 - 模板 Excel 当前在浏览器端生成，生产环境仍需评估服务端导出运行时
