@@ -331,9 +331,9 @@ npm run preview
 - [x] 导出服务（打印版 + 出货单/报价单模板 Excel）
 - [x] 搜索聚合层
 - [x] 生产化任务 26-46 路线图与上线检查清单
+- [x] P0 业务正确性修复与自动化回归
 
 未完成：
-- [ ] P0 业务正确性修复与自动化回归
 - [ ] 自动化测试体系
 - [ ] 部署配置
 - [ ] 真实后端 / 对象存储 / 导出服务接入
@@ -344,7 +344,7 @@ npm run preview
 - 当前认证、数据和附件基于本地 `localStorage`
 - 任何后续交付都应区分“本地 MVP 已落地”与“生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 31，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 32，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
@@ -381,7 +381,7 @@ npm run preview
 - [x] 库存差额回算与本地写入一致性
 - [x] 账号业务数据隔离
 - [x] 单据编号生成加固
-- [ ] P0 综合回归验收
+- [x] P0 综合回归验收
 
 ### Phase 7: Production Integration
 - [ ] 生产平台 ADR 与数据/API 契约
