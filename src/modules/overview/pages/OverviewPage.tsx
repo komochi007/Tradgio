@@ -13,12 +13,7 @@ import {
   Select,
 } from "../../../shared"
 import { useAuth } from "../../auth"
-import {
-  PurchaseIcon,
-  SalesIcon,
-  QuoteIcon,
-  SearchIcon,
-} from "../../../shared/icons"
+import { PurchaseIcon, SalesIcon, QuoteIcon, SearchIcon } from "../../../shared/icons"
 import { fetchOverviewData } from "../application/overviewService"
 import { getWeather } from "../application/weatherService"
 import { searchDocuments } from "../../search/application/searchService"
@@ -101,10 +96,7 @@ function ChartTooltipLayer({ tooltip }: { tooltip: ChartTooltip | null }) {
   if (!tooltip) return null
 
   return (
-    <div
-      className="overview-chart__tooltip"
-      style={{ left: tooltip.x, top: tooltip.y }}
-    >
+    <div className="overview-chart__tooltip" style={{ left: tooltip.x, top: tooltip.y }}>
       <span className="overview-chart__tooltip-title">{tooltip.title}</span>
       <span className="overview-chart__tooltip-value">{tooltip.value}</span>
       {tooltip.meta && <span className="overview-chart__tooltip-meta">{tooltip.meta}</span>}
@@ -130,15 +122,13 @@ function ProductTypeDonutChart({ items }: { items: ProductTypeSkuItem[] }) {
 
   return (
     <div className="overview-chart overview-chart--donut">
-      <svg className="overview-chart__donut" viewBox="0 0 180 180" role="img" aria-label="按产品类型展示 SKU 数量">
-        <circle
-          cx="90"
-          cy="90"
-          r={radius}
-          fill="none"
-          stroke="#EEF2F7"
-          strokeWidth="18"
-        />
+      <svg
+        className="overview-chart__donut"
+        viewBox="0 0 180 180"
+        role="img"
+        aria-label="按产品类型展示 SKU 数量"
+      >
+        <circle cx="90" cy="90" r={radius} fill="none" stroke="#EEF2F7" strokeWidth="18" />
         {items.map((item, index) => {
           const dash = (item.skuCount / total) * circumference
           const dashOffset = -offset
@@ -167,7 +157,7 @@ function ProductTypeDonutChart({ items }: { items: ProductTypeSkuItem[] }) {
               }}
               onMouseMove={(e) => {
                 const point = getTooltipPoint(e)
-                setTooltip((prev) => prev ? { ...prev, ...point } : prev)
+                setTooltip((prev) => (prev ? { ...prev, ...point } : prev))
               }}
               onMouseLeave={() => setTooltip(null)}
             >
@@ -206,13 +196,18 @@ function getSelectedSalesSeries(
   if (salesSeries.length === 0) return []
 
   if (selectedType !== ALL_PRODUCT_TYPES) {
-    return salesSeries.find((series) => series.productType === selectedType)?.months ?? salesSeries[0].months.map((month) => ({ ...month, quantity: 0, amount: 0 }))
+    return (
+      salesSeries.find((series) => series.productType === selectedType)?.months ??
+      salesSeries[0].months.map((month) => ({ ...month, quantity: 0, amount: 0 }))
+    )
   }
 
   return salesSeries[0].months.map((month, index) => ({
     ...month,
     quantity: salesSeries.reduce((sum, series) => sum + series.months[index].quantity, 0),
-    amount: Math.round(salesSeries.reduce((sum, series) => sum + series.months[index].amount, 0) * 100) / 100,
+    amount:
+      Math.round(salesSeries.reduce((sum, series) => sum + series.months[index].amount, 0) * 100) /
+      100,
   }))
 }
 
@@ -235,23 +230,24 @@ function MonthlyBarChart({
   const barSlot = data.length > 0 ? chartWidth / data.length : chartWidth
   const barWidth = Math.min(22, barSlot * 0.48)
   const formatValue = metric === "amount" ? formatCurrency : formatNumber
-  const formatAxisValue = metric === "amount"
-    ? (value: number) => `¥${Math.round(value).toLocaleString("zh-CN")}`
-    : formatNumber
+  const formatAxisValue =
+    metric === "amount"
+      ? (value: number) => `¥${Math.round(value).toLocaleString("zh-CN")}`
+      : formatNumber
   const emptyTitle = metric === "amount" ? "暂无出货金额数据" : "暂无出货数量数据"
 
   if (data.length === 0 || total === 0) {
-    return (
-      <EmptyState
-        title={emptyTitle}
-        description="完成出货单后，这里会按近 6 个月展示趋势。"
-      />
-    )
+    return <EmptyState title={emptyTitle} description="完成出货单后，这里会按近 6 个月展示趋势。" />
   }
 
   return (
     <div className="overview-chart overview-chart--bar">
-      <svg className="overview-chart__bar" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={metric === "amount" ? "近 6 个月出货金额" : "近 6 个月出货数量"}>
+      <svg
+        className="overview-chart__bar"
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={metric === "amount" ? "近 6 个月出货金额" : "近 6 个月出货数量"}
+      >
         {[0, 0.5, 1].map((scale) => {
           const y = padding.top + chartHeight - chartHeight * scale
           return (
@@ -282,7 +278,10 @@ function MonthlyBarChart({
           const tooltipPayload = {
             title: item.monthLabel,
             value: formatValue(value),
-            meta: metric === "amount" ? `${formatNumber(item.quantity)} 件出货` : formatCurrency(item.amount),
+            meta:
+              metric === "amount"
+                ? `${formatNumber(item.quantity)} 件出货`
+                : formatCurrency(item.amount),
           }
 
           return (
@@ -318,7 +317,7 @@ function MonthlyBarChart({
                 }}
                 onMouseMove={(e) => {
                   const point = getTooltipPoint(e)
-                  setTooltip((prev) => prev ? { ...prev, ...point } : prev)
+                  setTooltip((prev) => (prev ? { ...prev, ...point } : prev))
                 }}
                 onMouseLeave={() => setTooltip(null)}
               >
@@ -354,7 +353,9 @@ export function OverviewPage() {
 
   const [searchKeyword, setSearchKeyword] = useState("")
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
-  const [searchState, setSearchState] = useState<"idle" | "loading" | "results" | "empty" | "error">("idle")
+  const [searchState, setSearchState] = useState<
+    "idle" | "loading" | "results" | "empty" | "error"
+  >("idle")
   const [searchError, setSearchError] = useState("")
   const [quantityProductType, setQuantityProductType] = useState(ALL_PRODUCT_TYPES)
   const [amountProductType, setAmountProductType] = useState(ALL_PRODUCT_TYPES)
@@ -362,12 +363,26 @@ export function OverviewPage() {
   useEffect(() => {
     let cancelled = false
     fetchOverviewData()
-      .then((d) => { if (!cancelled) { setData(d); setLoading(false) } })
-      .catch((e) => { if (!cancelled) { setError(e instanceof Error ? e.message : "加载失败"); setLoading(false) } })
+      .then((d) => {
+        if (!cancelled) {
+          setData(d)
+          setLoading(false)
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : "加载失败")
+          setLoading(false)
+        }
+      })
     getWeather()
-      .then((w) => { if (!cancelled) setWeather(w) })
+      .then((w) => {
+        if (!cancelled) setWeather(w)
+      })
       .catch(() => {})
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const handleSearch = useCallback(async () => {
@@ -409,8 +424,14 @@ export function OverviewPage() {
                 setLoading(true)
                 setError(null)
                 fetchOverviewData()
-                  .then((d) => { setData(d); setLoading(false) })
-                  .catch((e) => { setError(e instanceof Error ? e.message : "加载失败"); setLoading(false) })
+                  .then((d) => {
+                    setData(d)
+                    setLoading(false)
+                  })
+                  .catch((e) => {
+                    setError(e instanceof Error ? e.message : "加载失败")
+                    setLoading(false)
+                  })
               },
             }}
           />
@@ -456,7 +477,10 @@ export function OverviewPage() {
   ]
   const quantitySeries = getSelectedSalesSeries(data!.dashboard.salesSeries, quantityProductType)
   const amountSeries = getSelectedSalesSeries(data!.dashboard.salesSeries, amountProductType)
-  const totalSkuCount = data!.dashboard.productTypeSkuItems.reduce((sum, item) => sum + item.skuCount, 0)
+  const totalSkuCount = data!.dashboard.productTypeSkuItems.reduce(
+    (sum, item) => sum + item.skuCount,
+    0
+  )
   const totalSalesQuantity = quantitySeries.reduce((sum, item) => sum + item.quantity, 0)
   const totalSalesAmount = amountSeries.reduce((sum, item) => sum + item.amount, 0)
 
@@ -494,11 +518,7 @@ export function OverviewPage() {
               onChange={(e) => setSearchKeyword((e.target as HTMLInputElement).value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
-            <Button
-              variant="secondary"
-              loading={searchState === "loading"}
-              onClick={handleSearch}
-            >
+            <Button variant="secondary" loading={searchState === "loading"} onClick={handleSearch}>
               搜索
             </Button>
           </div>
@@ -527,9 +547,7 @@ export function OverviewPage() {
                       type="button"
                       onClick={() => handleResultClick(item)}
                     >
-                      <Tag variant={typeVariant[item.type]}>
-                        {typeLabel[item.type]}
-                      </Tag>
+                      <Tag variant={typeVariant[item.type]}>{typeLabel[item.type]}</Tag>
                       <span className="overview__search-item-main">
                         <span className="overview__search-item-title">{item.title}</span>
                         <span className="overview__search-item-subtitle">
@@ -646,9 +664,13 @@ export function OverviewPage() {
                           <td className="data-table__muted">{item.spec || "-"}</td>
                           <td className="data-table__num">
                             {isLow ? (
-                              <span className="overview__stock-low">{item.quantity} {item.unit}</span>
+                              <span className="overview__stock-low">
+                                {item.quantity} {item.unit}
+                              </span>
                             ) : (
-                              <span>{item.quantity} {item.unit}</span>
+                              <span>
+                                {item.quantity} {item.unit}
+                              </span>
                             )}
                           </td>
                         </tr>
@@ -691,9 +713,7 @@ export function OverviewPage() {
                           onClick={() => navigate(record.route)}
                         >
                           <td>
-                            <Tag variant={typeVariant[recType]}>
-                              {typeLabel[recType]}
-                            </Tag>
+                            <Tag variant={typeVariant[recType]}>{typeLabel[recType]}</Tag>
                           </td>
                           <td className="data-table__name">{record.documentNo}</td>
                           <td>{record.counterpartyName}</td>

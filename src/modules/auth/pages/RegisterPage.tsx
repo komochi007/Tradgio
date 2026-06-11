@@ -73,9 +73,7 @@ export function RegisterPage() {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
-          {generalError && (
-            <div className="auth-form__error-banner">{generalError}</div>
-          )}
+          {generalError && <div className="auth-form__error-banner">{generalError}</div>}
 
           <div className="auth-form__field">
             <label className="auth-form__label" htmlFor="username">
@@ -131,7 +129,8 @@ export function RegisterPage() {
               value={confirmPassword}
               onChange={(e) => {
                 setConfirmPassword(e.target.value)
-                if (fieldErrors.confirmPassword) setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }))
+                if (fieldErrors.confirmPassword)
+                  setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }))
               }}
               placeholder="请再次输入密码"
               autoComplete="new-password"
@@ -141,11 +140,7 @@ export function RegisterPage() {
             )}
           </div>
 
-          <button
-            className="auth-form__submit"
-            type="submit"
-            disabled={submitting}
-          >
+          <button className="auth-form__submit" type="submit" disabled={submitting}>
             {submitting ? "注册中…" : "注册"}
           </button>
         </form>

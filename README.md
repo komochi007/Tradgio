@@ -194,33 +194,36 @@ AI Agent 约束：
 - 详细路线图：`tasks/production-roadmap.md`（任务 26-46）
 - 上线检查清单：`tasks/production-readiness-checklist.md`
 - 当前进度：`tasks/development-progress.md`
+- 贡献与质量门禁：`CONTRIBUTING.md`
 
 ## 7. Local Development Setup
 当前可直接本地启动，当前脚本：
 - `npm run dev`
+- `npm run lint`
+- `npm run format`
+- `npm run format:check`
 - `npm run typecheck`
 - `npm run test`
 - `npm run test:watch`
 - `npm run build`
+- `npm run audit`
+- `npm run quality`
 - `npm run preview`
 
 当前仍建议后续补齐：
-- [ ] `lint` / `format` 命令
 - [ ] `.env.example`
-- [ ] CI 配置
+- [ ] 核心流程 E2E
 
 推荐目标命令：
 
 ```bash
 npm install
 npm run dev
-npm run typecheck
-npm run test
-npm run build
+npm run quality
 npm run preview
 ```
 
-库存领域测试位于 `src/modules/inventory-engine/domain/calculator.test.ts`。`npm run test` 使用 Node 环境非交互执行，不依赖浏览器或 localStorage，覆盖库存创建、负库存和改单差额回算。
+`npm run quality` 与 CI 使用相同命令，依次执行 lint、格式检查、类型检查、测试、生产构建和依赖审计。依赖风险处置记录位于 `docs/dependency-audit.md`。
 
 ## 8. Environment Variables
 当前状态：
@@ -332,6 +335,7 @@ npm run preview
 - [x] 搜索聚合层
 - [x] 生产化任务 26-46 路线图与上线检查清单
 - [x] P0 业务正确性修复与自动化回归
+- [x] Lint、Format、CI 与依赖审计门禁
 
 未完成：
 - [ ] 自动化测试体系
@@ -344,7 +348,7 @@ npm run preview
 - 当前认证、数据和附件基于本地 `localStorage`
 - 任何后续交付都应区分“本地 MVP 已落地”与“生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 32，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前任务 32 已完成实现并等待平台级分支保护条件，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation

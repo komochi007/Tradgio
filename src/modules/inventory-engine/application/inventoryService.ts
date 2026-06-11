@@ -1,26 +1,22 @@
-import { AppError, requireCurrentAccountId } from "../../../shared";
-import type {
-  InventoryLedger,
-  CurrentStockSnapshot,
-  InventoryOrderInput,
-} from "../domain/types";
+import { AppError, requireCurrentAccountId } from "../../../shared"
+import type { InventoryLedger, CurrentStockSnapshot, InventoryOrderInput } from "../domain/types"
 import {
   validateOrderInput,
   computeLedgerEntries,
   computeSnapshotUpdates,
   computeRecalcOrder,
   computeRecalcLedgerEntries,
-} from "../domain/calculator";
+} from "../domain/calculator"
 import {
   ledgerRepository,
   getAllSnapshots,
   upsertSnapshots,
   getLedgerByProductId,
   removeLedgerByDocumentId,
-} from "../infrastructure/inventoryRepository";
+} from "../infrastructure/inventoryRepository"
 
 function sortByHappenedAt(a: InventoryLedger, b: InventoryLedger): number {
-  return new Date(a.happenedAt).getTime() - new Date(b.happenedAt).getTime();
+  return new Date(a.happenedAt).getTime() - new Date(b.happenedAt).getTime()
 }
 
 function assertCurrentAccount(order: InventoryOrderInput): void {
@@ -29,108 +25,102 @@ function assertCurrentAccount(order: InventoryOrderInput): void {
   }
 }
 
-export async function applyPurchaseOrder(
-  order: InventoryOrderInput
-): Promise<InventoryLedger[]> {
-  assertCurrentAccount(order);
-  const error = validateOrderInput(order);
+export async function applyPurchaseOrder(order: InventoryOrderInput): Promise<InventoryLedger[]> {
+  assertCurrentAccount(order)
+  const error = validateOrderInput(order)
   if (error) {
-    throw new AppError("VALIDATION_ERROR", error.message);
+    throw new AppError("VALIDATION_ERROR", error.message)
   }
 
-  const currentSnapshots = await getAllSnapshots();
-  const entries = computeLedgerEntries(order, currentSnapshots);
+  const currentSnapshots = await getAllSnapshots()
+  const entries = computeLedgerEntries(order, currentSnapshots)
 
   if (entries.length === 0) {
-    throw new AppError("VALIDATION_ERROR", "无法生成库存流水");
+    throw new AppError("VALIDATION_ERROR", "无法生成库存流水")
   }
 
   for (const entry of entries) {
-    await ledgerRepository.create(entry);
+    await ledgerRepository.create(entry)
   }
 
-  const snapshots = computeSnapshotUpdates(entries, currentSnapshots);
-  await upsertSnapshots(snapshots);
+  const snapshots = computeSnapshotUpdates(entries, currentSnapshots)
+  await upsertSnapshots(snapshots)
 
-  return entries;
+  return entries
 }
 
-export async function applySalesOrder(
-  order: InventoryOrderInput
-): Promise<InventoryLedger[]> {
-  assertCurrentAccount(order);
-  const error = validateOrderInput(order);
+export async function applySalesOrder(order: InventoryOrderInput): Promise<InventoryLedger[]> {
+  assertCurrentAccount(order)
+  const error = validateOrderInput(order)
   if (error) {
-    throw new AppError("VALIDATION_ERROR", error.message);
+    throw new AppError("VALIDATION_ERROR", error.message)
   }
 
-  const currentSnapshots = await getAllSnapshots();
-  const entries = computeLedgerEntries(order, currentSnapshots);
+  const currentSnapshots = await getAllSnapshots()
+  const entries = computeLedgerEntries(order, currentSnapshots)
 
   if (entries.length === 0) {
-    throw new AppError("VALIDATION_ERROR", "无法生成库存流水");
+    throw new AppError("VALIDATION_ERROR", "无法生成库存流水")
   }
 
   for (const entry of entries) {
-    await ledgerRepository.create(entry);
+    await ledgerRepository.create(entry)
   }
 
-  const snapshots = computeSnapshotUpdates(entries, currentSnapshots);
-  await upsertSnapshots(snapshots);
+  const snapshots = computeSnapshotUpdates(entries, currentSnapshots)
+  await upsertSnapshots(snapshots)
 
-  return entries;
+  return entries
 }
 
 export async function recalculateOrderDelta(
   previousOrder: InventoryOrderInput,
   nextOrder: InventoryOrderInput
 ): Promise<InventoryLedger[]> {
-  assertCurrentAccount(previousOrder);
-  assertCurrentAccount(nextOrder);
-  const previousError = validateOrderInput(previousOrder);
-  const nextError = validateOrderInput(nextOrder);
+  assertCurrentAccount(previousOrder)
+  assertCurrentAccount(nextOrder)
+  const previousError = validateOrderInput(previousOrder)
+  const nextError = validateOrderInput(nextOrder)
   if (previousError || nextError) {
     throw new AppError(
       "VALIDATION_ERROR",
       previousError?.message ?? nextError?.message ?? "单据数据非法"
-    );
+    )
   }
 
-  const deltaOrder = computeRecalcOrder(previousOrder, nextOrder);
+  const deltaOrder = computeRecalcOrder(previousOrder, nextOrder)
 
   if (!deltaOrder) {
-    return [];
+    return []
   }
 
-  const currentSnapshots = await getAllSnapshots();
-  const entries = computeRecalcLedgerEntries(deltaOrder, currentSnapshots);
+  const currentSnapshots = await getAllSnapshots()
+  const entries = computeRecalcLedgerEntries(deltaOrder, currentSnapshots)
 
   if (entries.length === 0) {
-    return [];
+    return []
   }
 
   for (const entry of entries) {
-    await ledgerRepository.create(entry);
+    await ledgerRepository.create(entry)
   }
 
-  const snapshots = computeSnapshotUpdates(entries, currentSnapshots);
-  await upsertSnapshots(snapshots);
+  const snapshots = computeSnapshotUpdates(entries, currentSnapshots)
+  await upsertSnapshots(snapshots)
 
-  return entries;
+  return entries
 }
 
-export async function getCurrentStock(
-  productId: string
-): Promise<number> {
-  const snapshots = await getAllSnapshots();
-  return snapshots.get(productId) ?? 0;
+export async function getCurrentStock(productId: string): Promise<number> {
+  const snapshots = await getAllSnapshots()
+  return snapshots.get(productId) ?? 0
 }
 
 export async function getStockSnapshot(): Promise<CurrentStockSnapshot[]> {
-  const accountId = requireCurrentAccountId();
-  const snapshots = await getAllSnapshots();
-  const now = new Date().toISOString();
-  const result: CurrentStockSnapshot[] = [];
+  const accountId = requireCurrentAccountId()
+  const snapshots = await getAllSnapshots()
+  const now = new Date().toISOString()
+  const result: CurrentStockSnapshot[] = []
   for (const [productId, quantity] of snapshots) {
     result.push({
       id: productId,
@@ -138,41 +128,37 @@ export async function getStockSnapshot(): Promise<CurrentStockSnapshot[]> {
       productId,
       quantity,
       updatedAt: now,
-    });
+    })
   }
-  return result;
+  return result
 }
 
-export async function getStockHistory(
-  productId: string
-): Promise<InventoryLedger[]> {
-  const entries = await getLedgerByProductId(productId);
-  return entries.sort(sortByHappenedAt);
+export async function getStockHistory(productId: string): Promise<InventoryLedger[]> {
+  const entries = await getLedgerByProductId(productId)
+  return entries.sort(sortByHappenedAt)
 }
 
 export async function getStockAlerts(
   lines: Array<{ productId: string; quantity: number }>
 ): Promise<Array<{ productId: string; currentStock: number; shortage: number }>> {
-  const snapshots = await getAllSnapshots();
-  const alerts: Array<{ productId: string; currentStock: number; shortage: number }> = [];
+  const snapshots = await getAllSnapshots()
+  const alerts: Array<{ productId: string; currentStock: number; shortage: number }> = []
 
   for (const line of lines) {
-    const currentStock = snapshots.get(line.productId) ?? 0;
-    const shortage = line.quantity - currentStock;
+    const currentStock = snapshots.get(line.productId) ?? 0
+    const shortage = line.quantity - currentStock
     if (shortage > 0) {
       alerts.push({
         productId: line.productId,
         currentStock,
         shortage,
-      });
+      })
     }
   }
 
-  return alerts;
+  return alerts
 }
 
-export async function removeDocumentLedger(
-  documentId: string
-): Promise<void> {
-  await removeLedgerByDocumentId(documentId);
+export async function removeDocumentLedger(documentId: string): Promise<void> {
+  await removeLedgerByDocumentId(documentId)
 }

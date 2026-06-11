@@ -168,14 +168,15 @@ function buildDashboardData(
 
   const productTypeSkuItems = Array.from(skuCountByType.entries())
     .map(([productType, skuCount]) => ({ productType, skuCount }))
-    .sort((a, b) => b.skuCount - a.skuCount || a.productType.localeCompare(b.productType, "zh-Hans-CN"))
+    .sort(
+      (a, b) => b.skuCount - a.skuCount || a.productType.localeCompare(b.productType, "zh-Hans-CN")
+    )
 
-  const productTypes = Array.from(salesByType.keys())
-    .sort((a, b) => {
-      if (a === UNCATEGORIZED_PRODUCT_TYPE) return 1
-      if (b === UNCATEGORIZED_PRODUCT_TYPE) return -1
-      return a.localeCompare(b, "zh-Hans-CN")
-    })
+  const productTypes = Array.from(salesByType.keys()).sort((a, b) => {
+    if (a === UNCATEGORIZED_PRODUCT_TYPE) return 1
+    if (b === UNCATEGORIZED_PRODUCT_TYPE) return -1
+    return a.localeCompare(b, "zh-Hans-CN")
+  })
 
   const salesSeries = productTypes.map((productType) => ({
     productType,
@@ -190,20 +191,18 @@ function buildDashboardData(
 }
 
 export async function fetchOverviewData(): Promise<OverviewData> {
-  const [purchases, sales, quotes, products, counterparties, snapshots] =
-    await Promise.all([
-      listPurchaseOrders().catch(() => []),
-      listSalesOrders().catch(() => []),
-      listQuoteOrders().catch(() => []),
-      fetchProducts(),
-      fetchCounterparties(),
-      fetchStockSnapshots(),
-    ])
+  const [purchases, sales, quotes, products, counterparties, snapshots] = await Promise.all([
+    listPurchaseOrders().catch(() => []),
+    listSalesOrders().catch(() => []),
+    listQuoteOrders().catch(() => []),
+    fetchProducts(),
+    fetchCounterparties(),
+    fetchStockSnapshots(),
+  ])
 
   const productMap = new Map(products.map((p) => [p.id, p]))
   const activeProducts = products.filter((p) => p.status === "active")
   const activeCounterparties = counterparties.filter((c) => c.status === "active")
-
 
   const stockItems: StockItem[] = snapshots
     .filter((s) => s.quantity !== 0)

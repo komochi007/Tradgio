@@ -68,28 +68,29 @@ export function ExportDropdown({ onExport, loading }: ExportDropdownProps) {
       >
         导出
       </button>
-      {open && createPortal(
-        <div
-          className="export-dropdown__menu"
-          style={{ top: menuPosition.top, left: menuPosition.left }}
-        >
-          <button
-            type="button"
-            className="export-dropdown__item"
-            onClick={() => handleSelect("print")}
+      {open &&
+        createPortal(
+          <div
+            className="export-dropdown__menu"
+            style={{ top: menuPosition.top, left: menuPosition.left }}
           >
-            打印版
-          </button>
-          <button
-            type="button"
-            className="export-dropdown__item"
-            onClick={() => handleSelect("sheet")}
-          >
-            模板Excel
-          </button>
-        </div>,
-        document.body
-      )}
+            <button
+              type="button"
+              className="export-dropdown__item"
+              onClick={() => handleSelect("print")}
+            >
+              打印版
+            </button>
+            <button
+              type="button"
+              className="export-dropdown__item"
+              onClick={() => handleSelect("sheet")}
+            >
+              模板Excel
+            </button>
+          </div>,
+          document.body
+        )}
     </div>
   )
 }

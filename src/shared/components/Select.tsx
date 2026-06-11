@@ -115,19 +115,11 @@ export function Select({
         aria-expanded={open}
         aria-controls={listboxId}
         aria-invalid={!!error}
-        aria-describedby={
-          error
-            ? `${selectId}-error`
-            : helpText
-              ? `${selectId}-help`
-              : undefined
-        }
+        aria-describedby={error ? `${selectId}-error` : helpText ? `${selectId}-help` : undefined}
         onClick={() => setOpen((prev) => !prev)}
         onKeyDown={handleKeyDown}
       >
-        <span className="custom-select__value">
-          {selected?.label ?? placeholder ?? "请选择"}
-        </span>
+        <span className="custom-select__value">{selected?.label ?? placeholder ?? "请选择"}</span>
         <ChevronDown size={16} strokeWidth={2} className="custom-select__chevron" />
       </button>
       {open && (
@@ -150,7 +142,9 @@ export function Select({
                   "custom-select__option",
                   isSelected ? "custom-select__option--selected" : "",
                   isActive ? "custom-select__option--active" : "",
-                ].filter(Boolean).join(" ")}
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => handleSelect(opt.value)}
               >

@@ -17,11 +17,7 @@ import {
   QuoteFormPage,
   QuoteDetailPage,
 } from "../modules/document-core"
-import {
-  ContractListPage,
-  ContractFormPage,
-  ContractDetailPage,
-} from "../modules/contract-center"
+import { ContractListPage, ContractFormPage, ContractDetailPage } from "../modules/contract-center"
 import {
   OverviewIcon,
   ProductIcon,
@@ -52,10 +48,7 @@ export default function App() {
 
       <Route element={<RequireAuth />}>
         <Route element={<AppShell navigationItems={navigationItems} />}>
-          <Route
-            path="/"
-            element={<Navigate to="/overview" replace />}
-          />
+          <Route path="/" element={<Navigate to="/overview" replace />} />
           <Route path="/overview" element={<OverviewPage />} />
 
           <Route path="/products" element={<ProductListPage />} />

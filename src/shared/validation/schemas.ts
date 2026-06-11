@@ -10,13 +10,18 @@ export const searchQuerySchema = z.object({
   ...paginationSchema.shape,
 })
 
-export function validate<T>(schema: z.ZodSchema<T>, data: unknown): {
-  success: true
-  data: T
-} | {
-  success: false
-  errors: string[]
-} {
+export function validate<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown
+):
+  | {
+      success: true
+      data: T
+    }
+  | {
+      success: false
+      errors: string[]
+    } {
   const result = schema.safeParse(data)
   if (result.success) {
     return { success: true, data: result.data }

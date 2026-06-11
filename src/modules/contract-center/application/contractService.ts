@@ -1,9 +1,4 @@
-import {
-  AppError,
-  generateId,
-  requireCurrentAccountId,
-  runLocalAtomicSave,
-} from "../../../shared"
+import { AppError, generateId, requireCurrentAccountId, runLocalAtomicSave } from "../../../shared"
 import type { ContractRecord, ContractAttachment, ContractFormData } from "../domain/types"
 import { validateContractForm, validateFile } from "../domain/types"
 import { contractRepository, generateDocumentNo } from "../infrastructure/contractRepository"
@@ -63,7 +58,7 @@ export async function createContractRecord(
   let attachments: ContractAttachment[] = []
   try {
     attachments = await Promise.all(files.map((f) => fileToAttachment(f)))
-  } catch (e) {
+  } catch {
     throw new AppError("UPLOAD_ERROR", "文件上传失败，请重试")
   }
 
@@ -165,9 +160,10 @@ export async function getContractRecord(id: string): Promise<ContractRecord | un
   return contractRepository.getById(id)
 }
 
-export async function listContractRecords(
-  query?: { search?: string; customerId?: string }
-): Promise<ContractRecord[]> {
+export async function listContractRecords(query?: {
+  search?: string
+  customerId?: string
+}): Promise<ContractRecord[]> {
   const all = await contractRepository.getAll()
 
   let filtered = all
@@ -185,9 +181,7 @@ export async function listContractRecords(
     filtered = filtered.filter((r) => r.customerId === query.customerId)
   }
 
-  return filtered.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  )
+  return filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 }
 
 export async function deleteContractRecord(id: string): Promise<void> {

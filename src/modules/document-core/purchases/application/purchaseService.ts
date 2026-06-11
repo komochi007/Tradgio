@@ -16,9 +16,7 @@ import { formDataToOrder, validatePurchaseForm } from "../domain/types"
 import { purchaseRepository, generateDocumentNo } from "../infrastructure/purchaseRepository"
 import { validateDocumentReferences } from "../../application/validateReferences"
 
-export async function createPurchaseOrder(
-  data: PurchaseFormData
-): Promise<PurchaseOrder> {
+export async function createPurchaseOrder(data: PurchaseFormData): Promise<PurchaseOrder> {
   const validationErrors = validatePurchaseForm(data)
   if (Object.keys(validationErrors).length > 0) {
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
@@ -119,9 +117,10 @@ export async function getPurchaseOrder(id: string): Promise<PurchaseOrder | unde
   return purchaseRepository.getById(id)
 }
 
-export async function listPurchaseOrders(
-  query?: { search?: string; supplierId?: string }
-): Promise<PurchaseOrder[]> {
+export async function listPurchaseOrders(query?: {
+  search?: string
+  supplierId?: string
+}): Promise<PurchaseOrder[]> {
   const all = await purchaseRepository.getAll()
 
   let filtered = all
@@ -145,8 +144,5 @@ export async function listPurchaseOrders(
 }
 
 export async function deletePurchaseOrder(id: string): Promise<void> {
-  throw new AppError(
-    "VALIDATION_ERROR",
-    `进货单删除暂未开放，无法安全冲销库存: ${id}`
-  )
+  throw new AppError("VALIDATION_ERROR", `进货单删除暂未开放，无法安全冲销库存: ${id}`)
 }

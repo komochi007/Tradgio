@@ -23,21 +23,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       <input
         ref={ref}
         id={inputId}
-        className={[
-          "form-field__input",
-          error ? "form-field__input--error" : "",
-          className,
-        ]
+        className={["form-field__input", error ? "form-field__input--error" : "", className]
           .filter(Boolean)
           .join(" ")}
         aria-invalid={!!error}
-        aria-describedby={
-          error
-            ? `${inputId}-error`
-            : helpText
-              ? `${inputId}-help`
-              : undefined
-        }
+        aria-describedby={error ? `${inputId}-error` : helpText ? `${inputId}-help` : undefined}
         {...rest}
       />
       {helpText && !error && (

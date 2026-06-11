@@ -1,9 +1,4 @@
-export type {
-  SalesOrder,
-  SalesLine,
-  SalesFormData,
-  SalesFormLine,
-} from "./domain/types"
+export type { SalesOrder, SalesLine, SalesFormData, SalesFormLine } from "./domain/types"
 export {
   validateSalesForm,
   emptySalesForm,

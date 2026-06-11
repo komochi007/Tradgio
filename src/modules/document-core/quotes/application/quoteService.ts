@@ -9,9 +9,7 @@ import { formDataToOrder, validateQuoteForm } from "../domain/types"
 import { quoteRepository, generateDocumentNo } from "../infrastructure/quoteRepository"
 import { validateDocumentReferences } from "../../application/validateReferences"
 
-export async function createQuoteOrder(
-  data: QuoteFormData
-): Promise<QuoteOrder> {
+export async function createQuoteOrder(data: QuoteFormData): Promise<QuoteOrder> {
   const validationErrors = validateQuoteForm(data)
   if (Object.keys(validationErrors).length > 0) {
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
@@ -39,10 +37,7 @@ export async function createQuoteOrder(
   )
 }
 
-export async function updateQuoteOrder(
-  id: string,
-  data: QuoteFormData
-): Promise<QuoteOrder> {
+export async function updateQuoteOrder(id: string, data: QuoteFormData): Promise<QuoteOrder> {
   const validationErrors = validateQuoteForm(data)
   if (Object.keys(validationErrors).length > 0) {
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
@@ -68,9 +63,10 @@ export async function getQuoteOrder(id: string): Promise<QuoteOrder | undefined>
   return quoteRepository.getById(id)
 }
 
-export async function listQuoteOrders(
-  query?: { search?: string; customerId?: string }
-): Promise<QuoteOrder[]> {
+export async function listQuoteOrders(query?: {
+  search?: string
+  customerId?: string
+}): Promise<QuoteOrder[]> {
   const all = await quoteRepository.getAll()
 
   let filtered = all

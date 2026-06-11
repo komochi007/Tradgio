@@ -1,6 +1,13 @@
 import { useEffect, useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { Button, Input, EmptyState, SkeletonTable, ExportDropdown, useToast } from "../../../../shared"
+import {
+  Button,
+  Input,
+  EmptyState,
+  SkeletonTable,
+  ExportDropdown,
+  useToast,
+} from "../../../../shared"
 import { formatCurrency, formatDate } from "../../../../shared"
 import { listSalesOrders, getSalesOrder } from "../application/salesService"
 import { buildSalesExportPayload } from "../../../export-service/application/buildExportPayload"
@@ -42,24 +49,27 @@ export function SalesListPage() {
     setAppliedSearch("")
   }
 
-  const handleExport = useCallback(async (id: string, format: "print" | "sheet") => {
-    try {
-      const order = await getSalesOrder(id)
-      if (!order) {
-        toast.error("出货单不存在")
-        return
+  const handleExport = useCallback(
+    async (id: string, format: "print" | "sheet") => {
+      try {
+        const order = await getSalesOrder(id)
+        if (!order) {
+          toast.error("出货单不存在")
+          return
+        }
+        const payload = buildSalesExportPayload(order)
+        const result = format === "print" ? await exportPrint(payload) : await exportSheet(payload)
+        if (result.success) {
+          toast.success(result.message)
+        } else {
+          toast.error(result.message)
+        }
+      } catch {
+        toast.error("导出失败，请重试")
       }
-      const payload = buildSalesExportPayload(order)
-      const result = format === "print" ? await exportPrint(payload) : await exportSheet(payload)
-      if (result.success) {
-        toast.success(result.message)
-      } else {
-        toast.error(result.message)
-      }
-    } catch {
-      toast.error("导出失败，请重试")
-    }
-  }, [toast])
+    },
+    [toast]
+  )
 
   const filtered = items.filter((o) => {
     if (!appliedSearch) return true
@@ -157,7 +167,11 @@ export function SalesListPage() {
                     <Button variant="ghost" size="small" onClick={() => navigate(`/sales/${o.id}`)}>
                       查看
                     </Button>
-                    <Button variant="ghost" size="small" onClick={() => navigate(`/sales/${o.id}/edit`)}>
+                    <Button
+                      variant="ghost"
+                      size="small"
+                      onClick={() => navigate(`/sales/${o.id}/edit`)}
+                    >
                       编辑
                     </Button>
                     <ExportDropdown onExport={(f) => handleExport(o.id, f)} />

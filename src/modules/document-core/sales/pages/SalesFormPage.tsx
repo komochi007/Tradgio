@@ -6,7 +6,8 @@ import {
   Select,
   ProductSearchSelect,
   SectionCard,
-  EmptyState, FormErrorSummary,
+  EmptyState,
+  FormErrorSummary,
   DraftRestoreBanner,
   DraftSaveStatus,
   useFormDraft,
@@ -26,12 +27,7 @@ import {
   checkStockShortage,
 } from "../application/salesService"
 import type { SalesFormData, SalesFormLine } from "../domain/types"
-import {
-  emptySalesForm,
-  emptySalesLine,
-  orderToFormData,
-  validateSalesForm,
-} from "../domain/types"
+import { emptySalesForm, emptySalesLine, orderToFormData, validateSalesForm } from "../domain/types"
 
 type StockMap = Record<string, number>
 
@@ -73,12 +69,14 @@ export function SalesFormPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [customers, setCustomers] = useState<Counterparty[]>([])
   const [stockMap, setStockMap] = useState<StockMap>({})
-  const [stockWarnings, setStockWarnings] = useState<Array<{
-    productId: string
-    productName: string
-    currentStock: number
-    shortage: number
-  }>>([])
+  const [stockWarnings, setStockWarnings] = useState<
+    Array<{
+      productId: string
+      productName: string
+      currentStock: number
+      shortage: number
+    }>
+  >([])
   const draft = useFormDraft<SalesFormData>({
     accountId: account?.id,
     formKey: "sales-new",
@@ -138,11 +136,13 @@ export function SalesFormPage() {
       return
     }
 
-    checkStockShortage(lines).then((warnings) => {
-      setStockWarnings(warnings)
-    }).catch(() => {
-      setStockWarnings([])
-    })
+    checkStockShortage(lines)
+      .then((warnings) => {
+        setStockWarnings(warnings)
+      })
+      .catch(() => {
+        setStockWarnings([])
+      })
   }, [form.lines])
 
   function updateField(field: keyof SalesFormData, value: string) {
@@ -168,9 +168,7 @@ export function SalesFormPage() {
           lines[index].unit = product.unit
           if (!lines[index].unitPrice || lines[index].unitPrice === "") {
             lines[index].unitPrice =
-              product.defaultSalesPrice != null
-                ? String(product.defaultSalesPrice)
-                : ""
+              product.defaultSalesPrice != null ? String(product.defaultSalesPrice) : ""
           }
         }
       }
@@ -259,7 +257,15 @@ export function SalesFormPage() {
           <h1 className="page-title">{isEdit ? "编辑出货单" : "新建出货单"}</h1>
         </div>
         <SectionCard eyebrow="基本信息" title="客户与日期">
-          <div style={{ height: 120, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)" }}>
+          <div
+            style={{
+              height: 120,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--color-text-muted)",
+            }}
+          >
             加载中…
           </div>
         </SectionCard>
@@ -287,7 +293,6 @@ export function SalesFormPage() {
     value: c.id,
     label: c.name,
   }))
-
 
   return (
     <div className="form-page">
@@ -409,10 +414,7 @@ export function SalesFormPage() {
                       <Input value={line.unit} disabled />
                     </td>
                     <td>
-                      <Input
-                        value={currentStock != null ? String(currentStock) : "-"}
-                        disabled
-                      />
+                      <Input value={currentStock != null ? String(currentStock) : "-"} disabled />
                     </td>
                     <td>
                       <Input
@@ -423,7 +425,13 @@ export function SalesFormPage() {
                         error={errors[`line_${i}_quantity`]}
                       />
                       {warning && (
-                        <p style={{ fontSize: "var(--font-size-xs)", color: "var(--state-warning)", marginTop: 4 }}>
+                        <p
+                          style={{
+                            fontSize: "var(--font-size-xs)",
+                            color: "var(--state-warning)",
+                            marginTop: 4,
+                          }}
+                        >
                           缺 {warning.shortage}
                         </p>
                       )}
@@ -467,24 +475,33 @@ export function SalesFormPage() {
         </div>
 
         {stockWarnings.length > 0 && (
-          <div style={{
-            marginTop: "var(--space-4)",
-            padding: "var(--space-3) var(--space-4)",
-            background: "var(--color-warning-bg, #fef3c7)",
-            border: "1px solid var(--color-warning-border, #f59e0b)",
-            borderRadius: "var(--radius-md)",
-            fontSize: "var(--font-size-sm)",
-            color: "var(--color-text)",
-          }}>
+          <div
+            style={{
+              marginTop: "var(--space-4)",
+              padding: "var(--space-3) var(--space-4)",
+              background: "var(--color-warning-bg, #fef3c7)",
+              border: "1px solid var(--color-warning-border, #f59e0b)",
+              borderRadius: "var(--radius-md)",
+              fontSize: "var(--font-size-sm)",
+              color: "var(--color-text)",
+            }}
+          >
             <strong>库存不足警告：</strong>
             <ul style={{ margin: "4px 0 0", paddingLeft: 20 }}>
               {stockWarnings.map((w) => (
                 <li key={w.productId}>
-                  {w.productName}：当前库存 {w.currentStock}，本单出货 {w.currentStock + w.shortage}，超出 {w.shortage}
+                  {w.productName}：当前库存 {w.currentStock}，本单出货 {w.currentStock + w.shortage}
+                  ，超出 {w.shortage}
                 </li>
               ))}
             </ul>
-            <p style={{ marginTop: 4, fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)" }}>
+            <p
+              style={{
+                marginTop: 4,
+                fontSize: "var(--font-size-xs)",
+                color: "var(--color-text-muted)",
+              }}
+            >
               保存后超出库存部分将产生负库存记录
             </p>
           </div>

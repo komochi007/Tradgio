@@ -42,10 +42,7 @@ export function QuoteDetailPage() {
       setExporting(format)
       try {
         const payload = buildQuoteExportPayload(order)
-        const result =
-          format === "print"
-            ? await exportPrint(payload)
-            : await exportSheet(payload)
+        const result = format === "print" ? await exportPrint(payload) : await exportSheet(payload)
         if (result.success) {
           addToast("success", result.message)
         } else {
@@ -180,7 +177,9 @@ export function QuoteDetailPage() {
                   <td className="data-table__muted">{line.unit || "-"}</td>
                   <td className="data-table__num">{line.quantity}</td>
                   <td className="data-table__num">
-                    {line.taxExcludedUnitPrice != null ? `$${line.taxExcludedUnitPrice.toFixed(2)}` : "-"}
+                    {line.taxExcludedUnitPrice != null
+                      ? `$${line.taxExcludedUnitPrice.toFixed(2)}`
+                      : "-"}
                   </td>
                   <td className="data-table__num">{formatCurrency(line.unitPrice)}</td>
                   <td className="data-table__num">{formatCurrency(line.lineAmount)}</td>

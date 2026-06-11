@@ -15,9 +15,7 @@ export function runLocalAtomicSave<T>(
   }
 
   const executeSave = async () => {
-    const snapshots = await Promise.all(
-      repositories.map((repository) => repository.getAll())
-    )
+    const snapshots = await Promise.all(repositories.map((repository) => repository.getAll()))
 
     try {
       return await operation()

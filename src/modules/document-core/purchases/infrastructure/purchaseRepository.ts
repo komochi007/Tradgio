@@ -1,7 +1,4 @@
-import {
-  createLocalStorageRepository,
-  generateNextDocumentNumber,
-} from "../../../../shared"
+import { createLocalStorageRepository, generateNextDocumentNumber } from "../../../../shared"
 import type { PurchaseOrder } from "../domain/types"
 
 export const purchaseRepository = createLocalStorageRepository<PurchaseOrder>(

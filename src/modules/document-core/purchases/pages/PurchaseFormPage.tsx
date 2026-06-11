@@ -5,7 +5,8 @@ import {
   Input,
   Select,
   SectionCard,
-  EmptyState, FormErrorSummary,
+  EmptyState,
+  FormErrorSummary,
   DraftRestoreBanner,
   DraftSaveStatus,
   useFormDraft,
@@ -126,9 +127,7 @@ export function PurchaseFormPage() {
           lines[index].unit = product.unit
           if (!lines[index].unitPrice || lines[index].unitPrice === "") {
             lines[index].unitPrice =
-              product.defaultPurchasePrice != null
-                ? String(product.defaultPurchasePrice)
-                : ""
+              product.defaultPurchasePrice != null ? String(product.defaultPurchasePrice) : ""
           }
         }
       }
@@ -253,9 +252,7 @@ export function PurchaseFormPage() {
         />
       )}
 
-      {Object.keys(errors).length > 0 && (
-        <FormErrorSummary errors={errors} />
-      )}
+      {Object.keys(errors).length > 0 && <FormErrorSummary errors={errors} />}
 
       <SectionCard eyebrow="基本信息" title="供应商与日期">
         <div className="form-row">

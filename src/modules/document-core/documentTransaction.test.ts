@@ -1,15 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import {
-  createPurchaseOrder,
-  deletePurchaseOrder,
-  updatePurchaseOrder,
-} from "./purchases"
+import { createPurchaseOrder, deletePurchaseOrder, updatePurchaseOrder } from "./purchases"
 import type { PurchaseFormData } from "./purchases"
-import {
-  createSalesOrder,
-  deleteSalesOrder,
-  updateSalesOrder,
-} from "./sales"
+import { createSalesOrder, deleteSalesOrder, updateSalesOrder } from "./sales"
 import type { SalesFormData } from "./sales"
 
 const PURCHASES_KEY = "tradgio_purchase_orders"
@@ -208,9 +200,7 @@ describe("单据与库存本地原子保存", () => {
       const before = readBusinessState()
       storage.failNextWrite(failureKey)
 
-      await expect(updatePurchaseOrder(order.id, purchaseForm("8"))).rejects.toThrow(
-        "注入写入失败"
-      )
+      await expect(updatePurchaseOrder(order.id, purchaseForm("8"))).rejects.toThrow("注入写入失败")
       expect(readBusinessState()).toEqual(before)
     })
   }
@@ -260,9 +250,7 @@ describe("单据与库存本地原子保存", () => {
     const before = readBusinessState()
     storage.failNextWrite(SNAPSHOTS_KEY)
 
-    await expect(updateSalesOrder(order.id, salesForm("3"))).rejects.toThrow(
-      "注入写入失败"
-    )
+    await expect(updateSalesOrder(order.id, salesForm("3"))).rejects.toThrow("注入写入失败")
     expect(readBusinessState()).toEqual(before)
   })
 

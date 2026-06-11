@@ -6,7 +6,7 @@ export type {
   InventoryOrderInput,
   InventoryOrderDelta,
   LedgerWriteError,
-} from "./domain/types";
+} from "./domain/types"
 
 export {
   validateOrderInput,
@@ -16,7 +16,7 @@ export {
   computeRecalcOrder,
   computeRecalcLedgerEntries,
   reverseOrderSign,
-} from "./domain/calculator";
+} from "./domain/calculator"
 
 export {
   applyPurchaseOrder,
@@ -27,7 +27,7 @@ export {
   getStockHistory,
   getStockAlerts,
   removeDocumentLedger,
-} from "./application/inventoryService";
+} from "./application/inventoryService"
 
 export {
   ledgerRepository,
@@ -37,4 +37,4 @@ export {
   getLedgerByProductId,
   getLedgerByDocumentId,
   removeLedgerByDocumentId,
-} from "./infrastructure/inventoryRepository";
+} from "./infrastructure/inventoryRepository"

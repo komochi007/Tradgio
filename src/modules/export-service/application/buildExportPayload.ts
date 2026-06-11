@@ -84,10 +84,7 @@ export function buildPurchaseExportPayload(
   }
 }
 
-export function buildSalesExportPayload(
-  order: SalesOrder,
-  exportedBy?: string
-): ExportPayload {
+export function buildSalesExportPayload(order: SalesOrder, exportedBy?: string): ExportPayload {
   assertExportOwnership(order)
   return {
     documentType: "sales",
@@ -108,10 +105,7 @@ export function buildSalesExportPayload(
   }
 }
 
-export function buildQuoteExportPayload(
-  order: QuoteOrder,
-  exportedBy?: string
-): ExportPayload {
+export function buildQuoteExportPayload(order: QuoteOrder, exportedBy?: string): ExportPayload {
   assertExportOwnership(order)
   return {
     documentType: "quote",

@@ -23,9 +23,7 @@ export function EmptyState({
     <div className={`empty-state empty-state--${variant}`}>
       {icon && <div className="empty-state__icon">{icon}</div>}
       <h3 className="empty-state__title">{title}</h3>
-      {description && (
-        <p className="empty-state__description">{description}</p>
-      )}
+      {description && <p className="empty-state__description">{description}</p>}
       {primaryAction && (
         <div className="empty-state__action">
           <Button variant="primary" onClick={primaryAction.onClick}>

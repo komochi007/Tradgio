@@ -39,11 +39,7 @@ type SkeletonTableProps = {
   className?: string
 }
 
-export function SkeletonTable({
-  rows = 5,
-  cols = 4,
-  className = "",
-}: SkeletonTableProps) {
+export function SkeletonTable({ rows = 5, cols = 4, className = "" }: SkeletonTableProps) {
   return (
     <div className={`skeleton skeleton--table ${className}`} role="status" aria-label="加载中">
       <div className="skeleton__table-header">

@@ -1,13 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import {
-  Button,
-  Tag,
-  EmptyState,
-  SkeletonCard,
-  formatDate,
-  formatFileSize,
-} from "../../../shared"
+import { Button, Tag, EmptyState, SkeletonCard, formatDate, formatFileSize } from "../../../shared"
 import { getContractRecord } from "../application/contractService"
 import type { ContractRecord } from "../domain/types"
 
@@ -62,16 +55,10 @@ export function ContractDetailPage() {
       <div className="page-header">
         <h2 className="page-header__title">{record.title}</h2>
         <div className="page-header__actions">
-          <Button
-            variant="secondary"
-            onClick={() => navigate(`/contracts/${record.id}/edit`)}
-          >
+          <Button variant="secondary" onClick={() => navigate(`/contracts/${record.id}/edit`)}>
             编辑
           </Button>
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/contracts")}
-          >
+          <Button variant="ghost" onClick={() => navigate("/contracts")}>
             返回列表
           </Button>
         </div>
@@ -94,9 +81,7 @@ export function ContractDetailPage() {
             </div>
             <div className="detail-item">
               <span className="detail-item__label">签订日期</span>
-              <span className="detail-item__value">
-                {formatDate(record.signDate)}
-              </span>
+              <span className="detail-item__value">{formatDate(record.signDate)}</span>
             </div>
             {record.remark && (
               <div className="detail-item">
@@ -113,7 +98,14 @@ export function ContractDetailPage() {
           <h3 className="section-card__title">
             合同附件
             {record.attachments.length > 0 && (
-              <span style={{ fontSize: 14, fontWeight: 400, color: "var(--text-tertiary)", marginLeft: 8 }}>
+              <span
+                style={{
+                  fontSize: 14,
+                  fontWeight: 400,
+                  color: "var(--text-tertiary)",
+                  marginLeft: 8,
+                }}
+              >
                 ({record.attachments.length} 个文件)
               </span>
             )}
@@ -140,12 +132,8 @@ export function ContractDetailPage() {
                           {att.mimeType.split("/")[1]?.toUpperCase() ?? "FILE"}
                         </Tag>
                       </td>
-                      <td className="data-table__muted">
-                        {formatFileSize(att.fileSize)}
-                      </td>
-                      <td className="data-table__muted">
-                        {formatDate(att.uploadedAt)}
-                      </td>
+                      <td className="data-table__muted">{formatFileSize(att.fileSize)}</td>
+                      <td className="data-table__muted">{formatDate(att.uploadedAt)}</td>
                       <td className="data-table__actions">
                         <Button
                           variant="ghost"
@@ -166,9 +154,7 @@ export function ContractDetailPage() {
               </table>
             </div>
           ) : (
-            <p className="section-card__description">
-              暂无附件，可编辑合同并上传文件。
-            </p>
+            <p className="section-card__description">暂无附件，可编辑合同并上传文件。</p>
           )}
         </div>
       </div>

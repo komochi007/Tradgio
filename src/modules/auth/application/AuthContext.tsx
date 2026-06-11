@@ -55,7 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     restore()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [authService])
 
   const login = useCallback(

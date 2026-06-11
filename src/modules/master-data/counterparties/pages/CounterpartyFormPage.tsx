@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Button, Input, Select, SkeletonCard, EmptyState, FormErrorSummary, DraftRestoreBanner, DraftSaveStatus, useFormDraft, useToast, generateId } from "../../../../shared"
+import {
+  Button,
+  Input,
+  Select,
+  SkeletonCard,
+  EmptyState,
+  FormErrorSummary,
+  DraftRestoreBanner,
+  DraftSaveStatus,
+  useFormDraft,
+  useToast,
+  generateId,
+} from "../../../../shared"
 import { useAuth } from "../../../auth"
 import { counterpartyRepository } from "../infrastructure/counterpartyRepository"
 import {
@@ -143,7 +155,10 @@ export function CounterpartyFormPage() {
         <EmptyState
           title="单位不存在"
           description="该往来单位可能已被删除"
-          primaryAction={{ label: "返回列表", onClick: () => navigate("/counterparties", { replace: true }) }}
+          primaryAction={{
+            label: "返回列表",
+            onClick: () => navigate("/counterparties", { replace: true }),
+          }}
         />
       </div>
     )
@@ -156,7 +171,10 @@ export function CounterpartyFormPage() {
           title="加载失败"
           variant="error"
           description={loadError}
-          primaryAction={{ label: "返回列表", onClick: () => navigate("/counterparties", { replace: true }) }}
+          primaryAction={{
+            label: "返回列表",
+            onClick: () => navigate("/counterparties", { replace: true }),
+          }}
         />
       </div>
     )
@@ -236,7 +254,6 @@ export function CounterpartyFormPage() {
             error={errors.notes}
           />
         </div>
-
       </form>
 
       <div className={`sticky-action-bar${isEdit ? " sticky-action-bar--end" : ""}`}>

@@ -6,11 +6,7 @@ type DraftRestoreBannerProps = {
   onDiscard: () => void
 }
 
-export function DraftRestoreBanner({
-  updatedAt,
-  onRestore,
-  onDiscard,
-}: DraftRestoreBannerProps) {
+export function DraftRestoreBanner({ updatedAt, onRestore, onDiscard }: DraftRestoreBannerProps) {
   const savedAt = new Date(updatedAt).toLocaleString("zh-CN", {
     month: "2-digit",
     day: "2-digit",

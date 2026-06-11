@@ -19,12 +19,9 @@ type ProductSearchSelectProps = {
 }
 
 function getProductMeta(product: ProductOption): string {
-  return [
-    product.productCode,
-    product.spec || "-",
-    product.material,
-    product.unit,
-  ].filter(Boolean).join(" / ")
+  return [product.productCode, product.spec || "-", product.material, product.unit]
+    .filter(Boolean)
+    .join(" / ")
 }
 
 export function ProductSearchSelect({
@@ -130,9 +127,7 @@ export function ProductSearchSelect({
           tabIndex={0}
           onKeyDown={(e) => e.key === "Enter" && handleSelectedClick()}
         >
-          <span className="product-search-select__selected-name">
-            {selectedProduct.name}
-          </span>
+          <span className="product-search-select__selected-name">{selectedProduct.name}</span>
           <button
             type="button"
             className="product-search-select__clear"
@@ -157,37 +152,37 @@ export function ProductSearchSelect({
         />
       )}
 
-      {open && createPortal(
-        <div
-          className="product-search-select__dropdown"
-          style={{
-            top: menuPosition.top,
-            left: menuPosition.left,
-            width: menuPosition.width,
-          }}
-        >
-          {filtered.length === 0 ? (
-            <div className="product-search-select__empty">未找到匹配的货品</div>
-          ) : (
-            filtered.map((product) => (
-              <div
-                key={product.id}
-                className="product-search-select__option"
-                onClick={() => handleSelect(product)}
-                role="option"
-                aria-selected={product.id === value}
-              >
-                <span className="product-search-select__option-name">
-                  {product.name}
-                </span>
-                <span className="product-search-select__option-meta">
-                  {getProductMeta(product)}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      , document.body)}
+      {open &&
+        createPortal(
+          <div
+            className="product-search-select__dropdown"
+            style={{
+              top: menuPosition.top,
+              left: menuPosition.left,
+              width: menuPosition.width,
+            }}
+          >
+            {filtered.length === 0 ? (
+              <div className="product-search-select__empty">未找到匹配的货品</div>
+            ) : (
+              filtered.map((product) => (
+                <div
+                  key={product.id}
+                  className="product-search-select__option"
+                  onClick={() => handleSelect(product)}
+                  role="option"
+                  aria-selected={product.id === value}
+                >
+                  <span className="product-search-select__option-name">{product.name}</span>
+                  <span className="product-search-select__option-meta">
+                    {getProductMeta(product)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>,
+          document.body
+        )}
     </div>
   )
 }

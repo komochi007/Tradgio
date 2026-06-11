@@ -1,10 +1,6 @@
 import { AppError } from "../errors"
 
-export type DocumentNumberType =
-  | "purchase"
-  | "sales"
-  | "quote"
-  | "contract"
+export type DocumentNumberType = "purchase" | "sales" | "quote" | "contract"
 
 type DocumentNumberRule = {
   prefix: string

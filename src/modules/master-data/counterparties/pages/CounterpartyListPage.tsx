@@ -39,7 +39,10 @@ export function CounterpartyListPage() {
   async function handleToggleStatus(c: Counterparty) {
     try {
       const newStatus: "active" | "inactive" = c.status === "active" ? "inactive" : "active"
-      await counterpartyRepository.update(c.id, { status: newStatus, updatedAt: new Date().toISOString() })
+      await counterpartyRepository.update(c.id, {
+        status: newStatus,
+        updatedAt: new Date().toISOString(),
+      })
       setItems((prev) => prev.map((p) => (p.id === c.id ? { ...p, status: newStatus } : p)))
       toast.success(newStatus === "active" ? "单位已启用" : "单位已停用")
     } catch {
@@ -136,7 +139,9 @@ export function CounterpartyListPage() {
           primaryAction={
             items.length === 0
               ? { label: "新建单位", onClick: () => navigate("/counterparties/new") }
-              : appliedSearch ? { label: "清除搜索", onClick: handleClearSearch } : undefined
+              : appliedSearch
+                ? { label: "清除搜索", onClick: handleClearSearch }
+                : undefined
           }
         />
       ) : (
@@ -157,20 +162,14 @@ export function CounterpartyListPage() {
                 <tr key={c.id}>
                   <td className="data-table__name">{c.name}</td>
                   <td>
-                    <Tag
-                      variant={c.type === "customer" ? "info" : "warning"}
-                      size="small"
-                    >
+                    <Tag variant={c.type === "customer" ? "info" : "warning"} size="small">
                       {typeLabel[c.type]}
                     </Tag>
                   </td>
                   <td className="data-table__muted">{c.contactPerson || "-"}</td>
                   <td className="data-table__muted">{c.phone || "-"}</td>
                   <td>
-                    <Tag
-                      variant={c.status === "active" ? "success" : "default"}
-                      size="small"
-                    >
+                    <Tag variant={c.status === "active" ? "success" : "default"} size="small">
                       {c.status === "active" ? "启用" : "停用"}
                     </Tag>
                   </td>
@@ -182,11 +181,7 @@ export function CounterpartyListPage() {
                     >
                       编辑
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="small"
-                      onClick={() => handleToggleStatus(c)}
-                    >
+                    <Button variant="ghost" size="small" onClick={() => handleToggleStatus(c)}>
                       {c.status === "active" ? "停用" : "启用"}
                     </Button>
                   </td>

@@ -9,18 +9,10 @@ type TagProps = {
   size?: TagSize
 }
 
-export function Tag({
-  children,
-  variant = "default",
-  size = "default",
-}: TagProps) {
+export function Tag({ children, variant = "default", size = "default" }: TagProps) {
   return (
     <span
-      className={[
-        "tag",
-        `tag--${variant}`,
-        size === "small" ? "tag--small" : "",
-      ]
+      className={["tag", `tag--${variant}`, size === "small" ? "tag--small" : ""]
         .filter(Boolean)
         .join(" ")}
     >

@@ -91,11 +91,7 @@ export function SearchPage() {
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
           </div>
-          <Button
-            variant="primary"
-            loading={state === "loading"}
-            onClick={handleSearch}
-          >
+          <Button variant="primary" loading={state === "loading"} onClick={handleSearch}>
             搜索
           </Button>
         </div>

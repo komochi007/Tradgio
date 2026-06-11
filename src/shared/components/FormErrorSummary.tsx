@@ -12,7 +12,7 @@ export function FormErrorSummary({ errors }: FormErrorSummaryProps) {
     if (entries.length > 0) {
       ref.current?.scrollIntoView({ behavior: "smooth", block: "start" })
     }
-  }, [errors])
+  }, [errors, entries.length])
 
   if (entries.length === 0) return null
 

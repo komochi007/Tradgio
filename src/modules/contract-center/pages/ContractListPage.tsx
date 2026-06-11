@@ -116,9 +116,7 @@ export function ContractListPage() {
           <EmptyState
             title={appliedSearch ? "未找到匹配的合同" : "还没有合同记录"}
             description={
-              appliedSearch
-                ? "请尝试其他关键词"
-                : "上传第一份合同，开始集中管理合同信息和附件。"
+              appliedSearch ? "请尝试其他关键词" : "上传第一份合同，开始集中管理合同信息和附件。"
             }
             primaryAction={
               appliedSearch
@@ -146,9 +144,7 @@ export function ContractListPage() {
                   <td className="data-table__name">{record.contractNo}</td>
                   <td>{record.title}</td>
                   <td>{record.customerName}</td>
-                  <td className="data-table__muted">
-                    {formatDate(record.signDate)}
-                  </td>
+                  <td className="data-table__muted">{formatDate(record.signDate)}</td>
                   <td>
                     {record.attachments.length > 0 ? (
                       <Tag variant="info">{record.attachments.length} 个文件</Tag>

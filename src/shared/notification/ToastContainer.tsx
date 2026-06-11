@@ -8,18 +8,10 @@ export function ToastContainer() {
   return (
     <div className="toast-container">
       {toasts.map((toast) => (
-        <div
-          key={toast.id}
-          role="alert"
-          className={`toast toast--${toast.type}`}
-        >
+        <div key={toast.id} role="alert" className={`toast toast--${toast.type}`}>
           <span className="toast__dot" />
           <span className="toast__message">{toast.message}</span>
-          <button
-            onClick={() => removeToast(toast.id)}
-            className="toast__close"
-            aria-label="关闭"
-          >
+          <button onClick={() => removeToast(toast.id)} className="toast__close" aria-label="关闭">
             ✕
           </button>
         </div>

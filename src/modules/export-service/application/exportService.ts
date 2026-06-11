@@ -114,7 +114,11 @@ function ensureRows(
   const extraRows = requiredRows - templateRowCount
   if (extraRows <= 0) return requiredRows
 
-  worksheet.insertRows(nextRow, Array.from({ length: extraRows }, () => []), "i")
+  worksheet.insertRows(
+    nextRow,
+    Array.from({ length: extraRows }, () => []),
+    "i"
+  )
   const sourceRow = worksheet.getRow(nextRow - 1)
   for (let i = 0; i < extraRows; i++) {
     cloneRowStyle(sourceRow, worksheet.getRow(nextRow + i))
@@ -167,8 +171,7 @@ function fillQuoteTemplate(workbook: ExcelJS.Workbook, payload: ExportPayload) {
 
   try {
     worksheet.unMergeCells("K10:K15")
-  } catch {
-  }
+  } catch {}
 
   setCellValue(
     worksheet,
@@ -214,9 +217,7 @@ async function exportTemplateExcel(payload: ExportPayload, baseFilename: string)
   }
 
   const templateFile =
-    payload.documentType === "sales"
-      ? "sales-order-template.xlsx"
-      : "quote-template.xlsx"
+    payload.documentType === "sales" ? "sales-order-template.xlsx" : "quote-template.xlsx"
   const response = await fetch(`/templates/${templateFile}`)
   if (!response.ok) {
     throw new Error("模板文件读取失败")
@@ -270,10 +271,7 @@ export async function exportDocument(
   } catch (e) {
     return {
       success: false,
-      message:
-        e instanceof Error
-          ? `导出失败: ${e.message}`
-          : `${formatSuffix}导出失败，请重试`,
+      message: e instanceof Error ? `导出失败: ${e.message}` : `${formatSuffix}导出失败，请重试`,
       format,
       filename: baseFilename,
     }

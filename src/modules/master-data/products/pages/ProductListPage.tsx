@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Button, Input, Tag, EmptyState, SkeletonTable, useToast, formatCurrency } from "../../../../shared"
+import {
+  Button,
+  Input,
+  Tag,
+  EmptyState,
+  SkeletonTable,
+  useToast,
+  formatCurrency,
+} from "../../../../shared"
 import { productRepository } from "../infrastructure/productRepository"
 import type { Product } from "../domain/types"
 import { listPurchaseOrders } from "../../../document-core/purchases/application/purchaseService"
@@ -37,7 +45,10 @@ export function ProductListPage() {
   async function handleToggleStatus(product: Product) {
     try {
       const newStatus: "active" | "inactive" = product.status === "active" ? "inactive" : "active"
-      await productRepository.update(product.id, { status: newStatus, updatedAt: new Date().toISOString() })
+      await productRepository.update(product.id, {
+        status: newStatus,
+        updatedAt: new Date().toISOString(),
+      })
       setProducts((prev) =>
         prev.map((p) => (p.id === product.id ? { ...p, status: newStatus } : p))
       )
@@ -90,8 +101,7 @@ export function ProductListPage() {
       p.name.toLowerCase().includes(q) ||
       (p.productCode ?? "").toLowerCase().includes(q) ||
       (p.material ?? "").toLowerCase().includes(q)
-    const matchStatus =
-      statusFilter === "all" || p.status === statusFilter
+    const matchStatus = statusFilter === "all" || p.status === statusFilter
     return matchSearch && matchStatus
   })
 
@@ -169,7 +179,9 @@ export function ProductListPage() {
           primaryAction={
             products.length === 0
               ? { label: "新建货品", onClick: () => navigate("/products/new") }
-              : appliedSearch ? { label: "清除搜索", onClick: handleClearSearch } : undefined
+              : appliedSearch
+                ? { label: "清除搜索", onClick: handleClearSearch }
+                : undefined
           }
         />
       ) : (
@@ -205,10 +217,7 @@ export function ProductListPage() {
                     {p.defaultSalesPrice != null ? formatCurrency(p.defaultSalesPrice) : "-"}
                   </td>
                   <td>
-                    <Tag
-                      variant={p.status === "active" ? "success" : "default"}
-                      size="small"
-                    >
+                    <Tag variant={p.status === "active" ? "success" : "default"} size="small">
                       {p.status === "active" ? "启用" : "停用"}
                     </Tag>
                   </td>
@@ -220,11 +229,7 @@ export function ProductListPage() {
                     >
                       编辑
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="small"
-                      onClick={() => handleToggleStatus(p)}
-                    >
+                    <Button variant="ghost" size="small" onClick={() => handleToggleStatus(p)}>
                       {p.status === "active" ? "停用" : "启用"}
                     </Button>
                     <Button

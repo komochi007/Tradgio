@@ -2,15 +2,9 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { generateNextDocumentNumber } from "../../shared"
 import { counterpartyRepository } from "../master-data/counterparties"
 import { productRepository } from "../master-data/products"
-import {
-  generateDocumentNo as generatePurchaseDocumentNo,
-  purchaseRepository,
-} from "./purchases"
+import { generateDocumentNo as generatePurchaseDocumentNo, purchaseRepository } from "./purchases"
 import type { PurchaseOrder } from "./purchases"
-import {
-  generateDocumentNo as generateSalesDocumentNo,
-  salesRepository,
-} from "./sales"
+import { generateDocumentNo as generateSalesDocumentNo, salesRepository } from "./sales"
 import type { SalesOrder } from "./sales"
 import {
   createQuoteOrder,
@@ -126,11 +120,7 @@ async function createQuoteMasterData(): Promise<{
   return { productId: product.id, customerId: customer.id }
 }
 
-function quoteForm(
-  productId: string,
-  customerId: string,
-  remark: string
-): QuoteFormData {
+function quoteForm(productId: string, customerId: string, remark: string): QuoteFormData {
   return {
     customerId,
     customerName: "并发报价客户",
@@ -178,9 +168,7 @@ describe("单据编号生成", () => {
       `${prefix}AA`,
     ]
 
-    expect(
-      generateNextDocumentNumber(type, numbers, new Date(2026, 5, 10))
-    ).toBe(expected)
+    expect(generateNextDocumentNumber(type, numbers, new Date(2026, 5, 10))).toBe(expected)
   })
 
   it("四类编号达到 99 后均明确阻止创建", () => {
@@ -193,9 +181,9 @@ describe("单据编号生成", () => {
     ] as const
 
     for (const [type, documentNo] of cases) {
-      expect(() =>
-        generateNextDocumentNumber(type, [documentNo], date)
-      ).toThrow("编号已达到 99，请升级编号规则")
+      expect(() => generateNextDocumentNumber(type, [documentNo], date)).toThrow(
+        "编号已达到 99，请升级编号规则"
+      )
     }
   })
 
@@ -262,8 +250,6 @@ describe("单据编号生成", () => {
     ])
 
     expect(new Set(orders.map((order) => order.documentNo)).size).toBe(2)
-    expect(
-      orders.map((order) => order.documentNo.slice(-2)).sort()
-    ).toEqual(["01", "02"])
+    expect(orders.map((order) => order.documentNo.slice(-2)).sort()).toEqual(["01", "02"])
   })
 })

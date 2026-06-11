@@ -51,9 +51,7 @@ export function LoginPage() {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
-          {generalError && (
-            <div className="auth-form__error-banner">{generalError}</div>
-          )}
+          {generalError && <div className="auth-form__error-banner">{generalError}</div>}
 
           <div className="auth-form__field">
             <label className="auth-form__label" htmlFor="username">
@@ -98,11 +96,7 @@ export function LoginPage() {
             )}
           </div>
 
-          <button
-            className="auth-form__submit"
-            type="submit"
-            disabled={submitting}
-          >
+          <button className="auth-form__submit" type="submit" disabled={submitting}>
             {submitting ? "登录中…" : "登录"}
           </button>
         </form>

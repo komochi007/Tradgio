@@ -71,9 +71,7 @@ export function createLocalStorageAuthAdapter(): AuthService {
       }
 
       const accounts = readAccounts()
-      const exists = accounts.some(
-        (a) => a.username.toLowerCase() === input.username.toLowerCase()
-      )
+      const exists = accounts.some((a) => a.username.toLowerCase() === input.username.toLowerCase())
       if (exists) {
         throw new AppError("CONFLICT", "该用户名已被注册")
       }

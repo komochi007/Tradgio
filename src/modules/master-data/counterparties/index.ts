@@ -1,5 +1,14 @@
-export type { Counterparty, CounterpartyType, CounterpartyStatus, CounterpartyFormData } from "./domain/types"
-export { validateCounterpartyForm, emptyCounterpartyForm, counterpartyToFormData } from "./domain/types"
+export type {
+  Counterparty,
+  CounterpartyType,
+  CounterpartyStatus,
+  CounterpartyFormData,
+} from "./domain/types"
+export {
+  validateCounterpartyForm,
+  emptyCounterpartyForm,
+  counterpartyToFormData,
+} from "./domain/types"
 export { counterpartyRepository } from "./infrastructure/counterpartyRepository"
 export { CounterpartyListPage } from "./pages/CounterpartyListPage"
 export { CounterpartyFormPage } from "./pages/CounterpartyFormPage"

@@ -42,10 +42,7 @@ export function PurchaseDetailPage() {
       setExporting(format)
       try {
         const payload = buildPurchaseExportPayload(order)
-        const result =
-          format === "print"
-            ? await exportPrint(payload)
-            : await exportSheet(payload)
+        const result = format === "print" ? await exportPrint(payload) : await exportSheet(payload)
         if (result.success) {
           addToast("success", result.message)
         } else {

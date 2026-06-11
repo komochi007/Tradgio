@@ -32,9 +32,7 @@ export function SectionCard({
     <article className={cardClass}>
       {eyebrow && <p className="section-eyebrow">{eyebrow}</p>}
       {title && <h3 className="section-card__title">{title}</h3>}
-      {description && (
-        <p className="section-card__description">{description}</p>
-      )}
+      {description && <p className="section-card__description">{description}</p>}
       {children}
     </article>
   )

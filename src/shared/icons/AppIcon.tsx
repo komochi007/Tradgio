@@ -15,14 +15,8 @@ export function AppIcon(props: IconProps) {
         fill="white"
       />
       <path d="M68 58.8 81.6 51l13.7 7.8-13.7 7.9L68 58.8Z" fill="white" />
-      <path
-        d="M68 58.8 81.6 66.7v17.2L68 76.1V58.8Z"
-        fill="url(#tradgio-logo-cube-front)"
-      />
-      <path
-        d="M95.3 58.8 81.6 66.7v17.2l13.7-7.8V58.8Z"
-        fill="url(#tradgio-logo-cube-side)"
-      />
+      <path d="M68 58.8 81.6 66.7v17.2L68 76.1V58.8Z" fill="url(#tradgio-logo-cube-front)" />
+      <path d="M95.3 58.8 81.6 66.7v17.2l13.7-7.8V58.8Z" fill="url(#tradgio-logo-cube-side)" />
       <defs>
         <linearGradient
           id="tradgio-logo-blue"

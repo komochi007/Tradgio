@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Button, Input, Select, SkeletonCard, EmptyState, FormErrorSummary, DraftRestoreBanner, DraftSaveStatus, useFormDraft, useToast, generateId } from "../../../../shared"
+import {
+  Button,
+  Input,
+  Select,
+  SkeletonCard,
+  EmptyState,
+  FormErrorSummary,
+  DraftRestoreBanner,
+  DraftSaveStatus,
+  useFormDraft,
+  useToast,
+  generateId,
+} from "../../../../shared"
 import { useAuth } from "../../../auth"
 import { productRepository } from "../infrastructure/productRepository"
 import {
@@ -97,7 +109,9 @@ export function ProductFormPage() {
           unit: form.unit,
           productType: form.productType.trim(),
           material: form.material.trim(),
-          defaultPurchasePrice: form.defaultPurchasePrice ? Number(form.defaultPurchasePrice) : null,
+          defaultPurchasePrice: form.defaultPurchasePrice
+            ? Number(form.defaultPurchasePrice)
+            : null,
           defaultSalesPrice: form.defaultSalesPrice ? Number(form.defaultSalesPrice) : null,
           notes: form.notes.trim(),
           updatedAt: new Date().toISOString(),
@@ -113,7 +127,9 @@ export function ProductFormPage() {
           unit: form.unit,
           productType: form.productType.trim(),
           material: form.material.trim(),
-          defaultPurchasePrice: form.defaultPurchasePrice ? Number(form.defaultPurchasePrice) : null,
+          defaultPurchasePrice: form.defaultPurchasePrice
+            ? Number(form.defaultPurchasePrice)
+            : null,
           defaultSalesPrice: form.defaultSalesPrice ? Number(form.defaultSalesPrice) : null,
           notes: form.notes.trim(),
           status: "active",
@@ -148,7 +164,10 @@ export function ProductFormPage() {
         <EmptyState
           title="货品不存在"
           description="该货品可能已被删除"
-          primaryAction={{ label: "返回列表", onClick: () => navigate("/products", { replace: true }) }}
+          primaryAction={{
+            label: "返回列表",
+            onClick: () => navigate("/products", { replace: true }),
+          }}
         />
       </div>
     )
@@ -161,7 +180,10 @@ export function ProductFormPage() {
           title="加载失败"
           variant="error"
           description={loadError}
-          primaryAction={{ label: "返回列表", onClick: () => navigate("/products", { replace: true }) }}
+          primaryAction={{
+            label: "返回列表",
+            onClick: () => navigate("/products", { replace: true }),
+          }}
         />
       </div>
     )
@@ -270,7 +292,6 @@ export function ProductFormPage() {
             error={errors.notes}
           />
         </div>
-
       </form>
 
       <div className={`sticky-action-bar${isEdit ? " sticky-action-bar--end" : ""}`}>

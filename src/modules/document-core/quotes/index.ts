@@ -1,9 +1,4 @@
-export type {
-  QuoteOrder,
-  QuoteLine,
-  QuoteFormData,
-  QuoteFormLine,
-} from "./domain/types"
+export type { QuoteOrder, QuoteLine, QuoteFormData, QuoteFormLine } from "./domain/types"
 export {
   validateQuoteForm,
   emptyQuoteForm,

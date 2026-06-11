@@ -190,10 +190,7 @@ export function ContractFormPage() {
       <div className="page-header">
         <h2 className="page-header__title">{isEdit ? "编辑合同" : "上传合同"}</h2>
         <div className="page-header__actions">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/contracts")}
-          >
+          <Button variant="ghost" onClick={() => navigate("/contracts")}>
             返回列表
           </Button>
         </div>
@@ -288,7 +285,14 @@ export function ContractFormPage() {
           <h3 className="section-card__title">
             合同附件
             {totalAttachments > 0 && (
-              <span style={{ fontSize: 14, fontWeight: 400, color: "var(--text-tertiary)", marginLeft: 8 }}>
+              <span
+                style={{
+                  fontSize: 14,
+                  fontWeight: 400,
+                  color: "var(--text-tertiary)",
+                  marginLeft: 8,
+                }}
+              >
                 ({totalAttachments} 个文件)
               </span>
             )}
@@ -311,9 +315,7 @@ export function ContractFormPage() {
                   {existingAttachments.map((att) => (
                     <tr key={att.id}>
                       <td className="data-table__name">{att.fileName}</td>
-                      <td className="data-table__muted">
-                        {formatFileSize(att.fileSize)}
-                      </td>
+                      <td className="data-table__muted">{formatFileSize(att.fileSize)}</td>
                       <td className="data-table__actions">
                         <Button
                           variant="ghost"
@@ -356,18 +358,11 @@ export function ContractFormPage() {
                   {selectedFiles.map((file, i) => (
                     <tr key={`${file.name}-${i}`}>
                       <td className="data-table__name">
-                        <Tag variant="info">新</Tag>{" "}
-                        {file.name}
+                        <Tag variant="info">新</Tag> {file.name}
                       </td>
-                      <td className="data-table__muted">
-                        {formatFileSize(file.size)}
-                      </td>
+                      <td className="data-table__muted">{formatFileSize(file.size)}</td>
                       <td className="data-table__actions">
-                        <Button
-                          variant="ghost"
-                          size="small"
-                          onClick={() => removeSelectedFile(i)}
-                        >
+                        <Button variant="ghost" size="small" onClick={() => removeSelectedFile(i)}>
                           移除
                         </Button>
                       </td>
@@ -381,7 +376,9 @@ export function ContractFormPage() {
           {fileErrors.length > 0 && (
             <div style={{ marginTop: "var(--space-3)" }}>
               {fileErrors.map((err, i) => (
-                <p key={i} className="form-error-text">{err}</p>
+                <p key={i} className="form-error-text">
+                  {err}
+                </p>
               ))}
             </div>
           )}
@@ -399,7 +396,6 @@ export function ContractFormPage() {
             </label>
           </div>
         </div>
-
       </div>
 
       <div className={`sticky-action-bar${isEdit ? " sticky-action-bar--end" : ""}`}>
@@ -420,11 +416,7 @@ export function ContractFormPage() {
               保存草稿
             </Button>
           )}
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/contracts")}
-            disabled={submitting}
-          >
+          <Button variant="ghost" onClick={() => navigate("/contracts")} disabled={submitting}>
             取消
           </Button>
           <Button

@@ -372,8 +372,7 @@ a {
 }
 
 .hero-card {
-  background:
-    linear-gradient(180deg, #ffffff 0%, rgba(248, 250, 252, 0.98) 100%);
+  background: linear-gradient(180deg, #ffffff 0%, rgba(248, 250, 252, 0.98) 100%);
 }
 
 .section-card {
@@ -859,7 +858,9 @@ a {
   left: 0;
   z-index: 2;
   background: var(--surface-base);
-  box-shadow: 1px 0 0 var(--border-default), 12px 0 18px rgba(15, 23, 42, 0.06);
+  box-shadow:
+    1px 0 0 var(--border-default),
+    12px 0 18px rgba(15, 23, 42, 0.06);
 }
 
 .line-items-table th:first-child {
@@ -2298,7 +2299,9 @@ a {
   color: var(--text-primary);
   font-size: 14px;
   line-height: 22px;
-  transition: border-color var(--motion-default), box-shadow var(--motion-default);
+  transition:
+    border-color var(--motion-default),
+    box-shadow var(--motion-default);
 }
 
 .auth-form__input::placeholder {

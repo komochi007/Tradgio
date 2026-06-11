@@ -6,10 +6,7 @@ export type AccountOwnedEntity = {
   accountId: string
 }
 
-export type RepositoryCreateInput<T extends AccountOwnedEntity> = Omit<
-  T,
-  "accountId"
-> & {
+export type RepositoryCreateInput<T extends AccountOwnedEntity> = Omit<T, "accountId"> & {
   accountId?: string
 }
 
@@ -22,8 +19,7 @@ export interface Repository<T extends AccountOwnedEntity> {
   query(predicate: (item: T) => boolean): Promise<T[]>
 }
 
-export interface LocalTransactionalRepository<T extends AccountOwnedEntity>
-  extends Repository<T> {
+export interface LocalTransactionalRepository<T extends AccountOwnedEntity> extends Repository<T> {
   replaceAll(items: T[]): Promise<void>
 }
 
@@ -59,25 +55,15 @@ export function createLocalStorageRepository<T extends AccountOwnedEntity>(
     return accountId
   }
 
-  function assertUnique(
-    items: T[],
-    candidate: T,
-    accountId: string,
-    excludedId?: string
-  ): void {
+  function assertUnique(items: T[], candidate: T, accountId: string, excludedId?: string): void {
     for (const constraint of options.uniqueConstraints ?? []) {
       const value = candidate[constraint.field]
       const duplicate = items.some(
         (item) =>
-          item.accountId === accountId &&
-          item.id !== excludedId &&
-          item[constraint.field] === value
+          item.accountId === accountId && item.id !== excludedId && item[constraint.field] === value
       )
       if (duplicate) {
-        throw new AppError(
-          "CONFLICT",
-          `${constraint.label}已存在: ${String(value)}`
-        )
+        throw new AppError("CONFLICT", `${constraint.label}已存在: ${String(value)}`)
       }
     }
   }
@@ -107,9 +93,7 @@ export function createLocalStorageRepository<T extends AccountOwnedEntity>(
     async update(id: string, patch: Partial<T>) {
       const accountId = getAccountId()
       const items = readAll()
-      const index = items.findIndex(
-        (item) => item.id === id && item.accountId === accountId
-      )
+      const index = items.findIndex((item) => item.id === id && item.accountId === accountId)
       if (index === -1) {
         throw new AppError("NOT_FOUND", `记录不存在: ${id}`)
       }
@@ -123,9 +107,7 @@ export function createLocalStorageRepository<T extends AccountOwnedEntity>(
     async remove(id: string) {
       const accountId = getAccountId()
       const items = readAll()
-      const filtered = items.filter(
-        (item) => item.id !== id || item.accountId !== accountId
-      )
+      const filtered = items.filter((item) => item.id !== id || item.accountId !== accountId)
       writeAll(filtered)
     },
 
@@ -137,13 +119,8 @@ export function createLocalStorageRepository<T extends AccountOwnedEntity>(
 
     async replaceAll(items: T[]) {
       const accountId = getAccountId()
-      const otherAccounts = readAll().filter(
-        (item) => item.accountId !== accountId
-      )
-      writeAll([
-        ...otherAccounts,
-        ...items.map((item) => ({ ...item, accountId })),
-      ])
+      const otherAccounts = readAll().filter((item) => item.accountId !== accountId)
+      writeAll([...otherAccounts, ...items.map((item) => ({ ...item, accountId }))])
     },
   }
 }

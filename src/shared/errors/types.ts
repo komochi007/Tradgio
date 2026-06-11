@@ -12,11 +12,7 @@ export class AppError extends Error {
   statusCode: number
   context?: Record<string, unknown>
 
-  constructor(
-    code: AppErrorCode,
-    message: string,
-    context?: Record<string, unknown>
-  ) {
+  constructor(code: AppErrorCode, message: string, context?: Record<string, unknown>) {
     super(message)
     this.name = "AppError"
     this.code = code

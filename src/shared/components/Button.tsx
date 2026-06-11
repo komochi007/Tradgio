@@ -34,26 +34,18 @@ export function Button({
     large: "button--large",
   }[size]
 
-  const classes = [
-    "button",
-    variantClass,
-    sizeClass,
-    loading ? "button--loading" : "",
-    className,
-  ]
+  const classes = ["button", variantClass, sizeClass, loading ? "button--loading" : "", className]
     .filter(Boolean)
     .join(" ")
 
   return (
-    <button
-      className={classes}
-      disabled={disabled || loading}
-      {...rest}
-    >
+    <button className={classes} disabled={disabled || loading} {...rest}>
       {loading && <span className="button__spinner" />}
       {!loading && iconLeft && <span className="button__icon button__icon--left">{iconLeft}</span>}
       <span className="button__label">{children}</span>
-      {!loading && iconRight && <span className="button__icon button__icon--right">{iconRight}</span>}
+      {!loading && iconRight && (
+        <span className="button__icon button__icon--right">{iconRight}</span>
+      )}
     </button>
   )
 }

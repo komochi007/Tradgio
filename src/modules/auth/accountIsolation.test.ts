@@ -13,20 +13,11 @@ import {
   updatePurchaseOrder,
 } from "../document-core/purchases"
 import type { PurchaseFormData } from "../document-core/purchases"
-import {
-  createSalesOrder,
-  listSalesOrders,
-} from "../document-core/sales"
+import { createSalesOrder, listSalesOrders } from "../document-core/sales"
 import type { SalesFormData } from "../document-core/sales"
-import {
-  createQuoteOrder,
-  listQuoteOrders,
-} from "../document-core/quotes"
+import { createQuoteOrder, listQuoteOrders } from "../document-core/quotes"
 import type { QuoteFormData } from "../document-core/quotes"
-import {
-  createContractRecord,
-  listContractRecords,
-} from "../contract-center"
+import { createContractRecord, listContractRecords } from "../contract-center"
 import { getCurrentStock } from "../inventory-engine"
 import { searchDocuments } from "../search/application/searchService"
 import { buildPurchaseExportPayload } from "../export-service"
@@ -180,11 +171,7 @@ function salesForm(
   }
 }
 
-function quoteForm(
-  label: string,
-  productId: string,
-  customerId: string
-): QuoteFormData {
+function quoteForm(label: string, productId: string, customerId: string): QuoteFormData {
   return {
     customerId,
     customerName: `${label}隔离客户`,
@@ -242,23 +229,19 @@ describe("账号业务数据隔离", () => {
     expect(await productRepository.getById(a.product.id)).toBeUndefined()
     expect(await getPurchaseOrder(purchaseA.id)).toBeUndefined()
     expect(() => buildPurchaseExportPayload(purchaseA)).toThrow("不能导出其他账号")
-    await expect(
-      productRepository.update(a.product.id, { name: "越权修改" })
-    ).rejects.toThrow("记录不存在")
+    await expect(productRepository.update(a.product.id, { name: "越权修改" })).rejects.toThrow(
+      "记录不存在"
+    )
     await productRepository.remove(a.product.id)
     expect(await searchDocuments("A隔离")).toEqual([])
     expect(await getCurrentStock(a.product.id)).toBe(0)
 
     await expect(
-      createPurchaseOrder(
-        purchaseForm("A", a.product.id, a.supplier.id, "1")
-      )
+      createPurchaseOrder(purchaseForm("A", a.product.id, a.supplier.id, "1"))
     ).rejects.toThrow("不属于当前账号")
 
     const b = await createMasterData("B")
-    const purchaseB = await createPurchaseOrder(
-      purchaseForm("B", b.product.id, b.supplier.id, "4")
-    )
+    const purchaseB = await createPurchaseOrder(purchaseForm("B", b.product.id, b.supplier.id, "4"))
     await createSalesOrder(salesForm("B", b.product.id, b.customer.id, "1"))
     await createQuoteOrder(quoteForm("B", b.product.id, b.customer.id))
     await createContractRecord(
@@ -333,9 +316,7 @@ describe("账号业务数据隔离", () => {
     ])
     for (const key of ACCOUNT_SCOPED_STORAGE_KEYS) {
       const records = JSON.parse(storage.getItem(key) || "[]")
-      expect(records).toEqual([
-        expect.objectContaining({ accountId: "account-a" }),
-      ])
+      expect(records).toEqual([expect.objectContaining({ accountId: "account-a" })])
     }
     expect(storage.getItem(getAccountScopeMigrationKey())).not.toBeNull()
 

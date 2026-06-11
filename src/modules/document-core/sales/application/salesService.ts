@@ -17,9 +17,7 @@ import { formDataToOrder, validateSalesForm } from "../domain/types"
 import { salesRepository, generateDocumentNo } from "../infrastructure/salesRepository"
 import { validateDocumentReferences } from "../../application/validateReferences"
 
-export async function createSalesOrder(
-  data: SalesFormData
-): Promise<SalesOrder> {
+export async function createSalesOrder(data: SalesFormData): Promise<SalesOrder> {
   const validationErrors = validateSalesForm(data)
   if (Object.keys(validationErrors).length > 0) {
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
@@ -60,10 +58,7 @@ export async function createSalesOrder(
   )
 }
 
-export async function updateSalesOrder(
-  id: string,
-  data: SalesFormData
-): Promise<SalesOrder> {
+export async function updateSalesOrder(id: string, data: SalesFormData): Promise<SalesOrder> {
   const validationErrors = validateSalesForm(data)
   if (Object.keys(validationErrors).length > 0) {
     throw new AppError("VALIDATION_ERROR", "表单校验不通过", validationErrors)
@@ -120,9 +115,10 @@ export async function getSalesOrder(id: string): Promise<SalesOrder | undefined>
   return salesRepository.getById(id)
 }
 
-export async function listSalesOrders(
-  query?: { search?: string; customerId?: string }
-): Promise<SalesOrder[]> {
+export async function listSalesOrders(query?: {
+  search?: string
+  customerId?: string
+}): Promise<SalesOrder[]> {
   const all = await salesRepository.getAll()
 
   let filtered = all
@@ -146,15 +142,14 @@ export async function listSalesOrders(
 }
 
 export async function deleteSalesOrder(id: string): Promise<void> {
-  throw new AppError(
-    "VALIDATION_ERROR",
-    `出货单删除暂未开放，无法安全冲销库存: ${id}`
-  )
+  throw new AppError("VALIDATION_ERROR", `出货单删除暂未开放，无法安全冲销库存: ${id}`)
 }
 
 export async function checkStockShortage(
   lines: Array<{ productId: string; productName: string; quantity: number }>
-): Promise<Array<{ productId: string; productName: string; currentStock: number; shortage: number }>> {
+): Promise<
+  Array<{ productId: string; productName: string; currentStock: number; shortage: number }>
+> {
   const alerts = await getStockAlerts(lines)
   return alerts.map((a) => {
     const line = lines.find((l) => l.productId === a.productId)

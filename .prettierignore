@@ -1,0 +1,4 @@
+dist
+node_modules
+public/templates
+package-lock.json

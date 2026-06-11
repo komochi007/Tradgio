@@ -6,7 +6,8 @@ import {
   Select,
   ProductSearchSelect,
   SectionCard,
-  EmptyState, FormErrorSummary,
+  EmptyState,
+  FormErrorSummary,
   DraftRestoreBanner,
   DraftSaveStatus,
   useFormDraft,
@@ -18,18 +19,9 @@ import { productRepository } from "../../../master-data/products"
 import { counterpartyRepository } from "../../../master-data/counterparties"
 import type { Product } from "../../../master-data/products"
 import type { Counterparty } from "../../../master-data/counterparties"
-import {
-  createQuoteOrder,
-  updateQuoteOrder,
-  getQuoteOrder,
-} from "../application/quoteService"
+import { createQuoteOrder, updateQuoteOrder, getQuoteOrder } from "../application/quoteService"
 import type { QuoteFormData, QuoteFormLine } from "../domain/types"
-import {
-  emptyQuoteForm,
-  emptyQuoteLine,
-  orderToFormData,
-  validateQuoteForm,
-} from "../domain/types"
+import { emptyQuoteForm, emptyQuoteLine, orderToFormData, validateQuoteForm } from "../domain/types"
 
 function isQuoteLineEmpty(line: QuoteFormLine): boolean {
   return (
@@ -133,9 +125,7 @@ export function QuoteFormPage() {
           lines[index].unit = product.unit
           if (!lines[index].unitPrice || lines[index].unitPrice === "") {
             lines[index].unitPrice =
-              product.defaultSalesPrice != null
-                ? String(product.defaultSalesPrice)
-                : ""
+              product.defaultSalesPrice != null ? String(product.defaultSalesPrice) : ""
           }
         }
       }
@@ -212,7 +202,15 @@ export function QuoteFormPage() {
           <h1 className="page-title">{isEdit ? "编辑报价单" : "新建报价单"}</h1>
         </div>
         <SectionCard eyebrow="基本信息" title="客户与日期">
-          <div style={{ height: 120, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)" }}>
+          <div
+            style={{
+              height: 120,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--color-text-muted)",
+            }}
+          >
             加载中…
           </div>
         </SectionCard>
@@ -240,7 +238,6 @@ export function QuoteFormPage() {
     value: c.id,
     label: c.name,
   }))
-
 
   return (
     <div className="form-page">

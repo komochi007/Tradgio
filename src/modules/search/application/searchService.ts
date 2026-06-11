@@ -30,8 +30,7 @@ function formatMatchedField(
     if (matchKeyword(title, k)) return "合同标题"
   }
 
-  const counterparty =
-    ((record.customerName || record.supplierName || "") as string)
+  const counterparty = (record.customerName || record.supplierName || "") as string
   if (matchKeyword(counterparty, k)) {
     return type === "purchase" ? "供应商" : "客户"
   }
@@ -112,9 +111,7 @@ export async function searchDocuments(keyword: string): Promise<SearchResult[]> 
   const contractResults: SearchResult[] = contracts
     .filter(
       (r) =>
-        matchKeyword(r.contractNo, k) ||
-        matchKeyword(r.title, k) ||
-        matchKeyword(r.customerName, k)
+        matchKeyword(r.contractNo, k) || matchKeyword(r.title, k) || matchKeyword(r.customerName, k)
     )
     .map((r) => ({
       id: r.id,
