@@ -15,6 +15,12 @@ import {
 test("核心业务链路和模板导出可在干净环境重复通过", async ({ page }) => {
   const seed = createCoreFlowSeed()
   const runtimeErrors: string[] = []
+  await page.route("https://api.open-meteo.com/**", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ current: { temperature_2m: 25, weather_code: 0 } }),
+    })
+  )
   page.on("pageerror", (error) => runtimeErrors.push(error.message))
   page.on("console", (message) => {
     if (message.type() === "error") runtimeErrors.push(message.text())
