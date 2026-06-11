@@ -32,6 +32,12 @@ npm run quality
 
 任一命令失败时不得合并。新增或升级依赖后，应同步更新 `docs/dependency-audit.md` 中的风险记录。
 
+涉及核心用户流程、路由、表单或导出行为时，还应执行：
+
+```bash
+npm run test:e2e
+```
+
 ## CI
 
-GitHub Actions 会在推送到 `main` 和针对 `main` 的拉取请求上执行 `npm ci` 与 `npm run quality`。工作流失败时，拉取请求或发布不得继续。
+GitHub Actions 会在推送到 `main` 和针对 `main` 的拉取请求上执行 `npm run quality`，通过后继续执行 `npm run test:e2e`。E2E 失败证据会作为 Playwright artifact 上传，任一工作流失败时不得合并或发布。

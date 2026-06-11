@@ -205,6 +205,9 @@ AI Agent 约束：
 - `npm run typecheck`
 - `npm run test`
 - `npm run test:watch`
+- `npm run test:e2e`
+- `npm run test:e2e:headed`
+- `npm run test:e2e:install`
 - `npm run build`
 - `npm run audit`
 - `npm run quality`
@@ -212,7 +215,6 @@ AI Agent 约束：
 
 当前仍建议后续补齐：
 - [ ] `.env.example`
-- [ ] 核心流程 E2E
 
 推荐目标命令：
 
@@ -224,6 +226,8 @@ npm run preview
 ```
 
 `npm run quality` 与 CI 使用相同命令，依次执行 lint、格式检查、类型检查、测试、生产构建和依赖审计。依赖风险处置记录位于 `docs/dependency-audit.md`。
+
+核心流程 E2E 使用 Playwright + Chromium，运行方式和测试数据策略见 `docs/e2e-testing.md`。
 
 ## 8. Environment Variables
 当前状态：
@@ -336,6 +340,7 @@ npm run preview
 - [x] 生产化任务 26-46 路线图与上线检查清单
 - [x] P0 业务正确性修复与自动化回归
 - [x] Lint、Format、CI 与依赖审计门禁
+- [x] 核心流程 E2E 基线
 
 未完成：
 - [ ] 自动化测试体系
@@ -348,7 +353,7 @@ npm run preview
 - 当前认证、数据和附件基于本地 `localStorage`
 - 任何后续交付都应区分“本地 MVP 已落地”与“生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 33，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 34，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
