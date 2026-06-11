@@ -232,22 +232,28 @@ npm run preview
 ## 8. Environment Variables
 当前状态：
 - [ ] 仓库内暂无环境变量文件
-- [ ] 暂无正式变量清单
+- [x] 任务 34 已锁定环境变量方向
+- [ ] 正式变量名与 `.env.example` 待任务 37 定义
 
 预期变量类别：
 
 | 类别 | 用途 |
 |---|---|
-| Auth | 登录、会话恢复、账号隔离 |
-| Database | PostgreSQL 连接 |
-| Storage | 合同附件、货品图片 |
-| Export | 单据导出服务访问 |
+| Browser Auth | Authing OIDC 公开配置，不包含客户端密钥 |
+| Browser API | 当前环境的 FC API 地址 |
+| Server Database | RDS PostgreSQL 内网连接，由 KMS / FC 运行环境提供 |
+| Server Storage | OSS Bucket、地域和短时授权配置 |
+| Server Auth | Authing issuer、audience 与 JWKS 校验配置 |
+| Export | 浏览器端 Export Service 开关与模板基础路径 |
 | App Config | 站点地址、环境标识、调试开关 |
 
 建议后续提供：
 - `.env.example`
 - `.env.local`
-- 平台侧生产环境变量注入
+- Authing 开发、测试、生产独立应用配置
+- 阿里云 FC / KMS 分环境注入服务端配置
+
+生产平台决策见 `docs/adr/0001-production-platform.md`。浏览器变量只能包含公开配置，RDS 密码、OSS 凭据和长期令牌不得进入前端构建产物。
 
 ## 9. Important Directories
 - `docs/`: 项目当前最重要目录，所有实现前优先阅读
@@ -279,16 +285,17 @@ npm run preview
 ## 11. Build & Deployment
 当前状态：
 - [x] 已有构建脚本（`npm run build`）
-- [ ] 无 CI 配置
+- [x] 已有 GitHub Actions 质量与 E2E 门禁
 - [ ] 无容器配置
 - [ ] 无部署平台配置
 
 目标部署形态：
-- Web SPA：前端托管平台
-- Auth：托管服务
-- PostgreSQL：托管数据库
-- Object Storage：合同与图片存储
-- Export Service：Serverless / 轻量服务端
+- Web SPA：阿里云 OSS + CDN
+- Auth：Authing OIDC
+- API：阿里云函数计算 FC
+- PostgreSQL：阿里云 RDS PostgreSQL
+- Object Storage：阿里云私有 OSS
+- Export Service：浏览器端按需加载运行
 
 部署前最低验收：
 - [x] 登录后可恢复会话
@@ -353,7 +360,7 @@ npm run preview
 - 当前认证、数据和附件基于本地 `localStorage`
 - 任何后续交付都应区分“本地 MVP 已落地”与“生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 34，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 35，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
@@ -393,7 +400,8 @@ npm run preview
 - [x] P0 综合回归验收
 
 ### Phase 7: Production Integration
-- [ ] 生产平台 ADR 与数据/API 契约
+- [x] 生产平台 ADR
+- [ ] 生产数据模型与 API 契约
 - [ ] 真实 Auth、PostgreSQL、对象存储和导出运行时
 - [ ] 本地数据迁移工具
 

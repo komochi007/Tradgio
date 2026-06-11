@@ -46,7 +46,8 @@ MVP 采用“单体前端 + 平台服务”模型：
 - 托管 Auth：负责注册、登录、会话恢复、账号隔离
 - 托管 PostgreSQL：负责业务数据持久化
 - 对象存储：负责合同附件和货品图片
-- 轻量服务端导出能力：负责固定模板导出打印版 / 表格版
+- 轻量服务端 API：负责身份校验、业务事务、数据访问和附件授权
+- 浏览器端 Export Service：负责固定模板导出打印版 / 表格版
 
 默认技术方向：
 - 前端：`React SPA`
@@ -54,7 +55,8 @@ MVP 采用“单体前端 + 平台服务”模型：
 - 服务端状态：`Query` 缓存模型
 - 表单：结构化表单管理 + schema 校验
 - 全局状态：轻量 store
-- 平台能力：大陆可稳定访问的托管 Auth / PostgreSQL / Object Storage / Serverless Function
+- 平台能力：Authing + 阿里云中国内地区域的 RDS PostgreSQL / OSS / 函数计算 FC / OSS + CDN
+- 导出运行时：浏览器端 Export Service，ExcelJS 与模板按需加载
 
 ### 1.5 ASCII 架构图
 
@@ -75,31 +77,32 @@ MVP 采用“单体前端 + 平台服务”模型：
        |      |                                      |
        v      v                                      v
 +-------------+----+                    +---------------------------+
-|   Auth Adapter   |                    |   Export Service API      |
-| login/session    |                    | print/xlsx by templates   |
+|   Auth Adapter   |                    |   Export Service          |
+| login/session    |                    | browser print/xlsx        |
 +-------------+----+                    +-------------+-------------+
               |                                       |
               v                                       v
 +---------------------------+             +--------------------------+
-|       Managed Auth        |             | Serverless Function /    |
-| current account/session   |             | lightweight backend      |
-+---------------------------+             +-------------+------------+
-                                                        |
-                                                        v
-                                              +----------------------+
-                                              | Template Adapters    |
-                                              | purchase/sales/quote |
-                                              +----------------------+
+|       Authing OIDC        |             | Lazy ExcelJS / templates |
+| current account/session   |             | local file generation    |
++---------------------------+             +--------------------------+
 
 +---------------------------+     +-------------------------------+
-|      Data Repositories    |---->| Managed PostgreSQL            |
-| orders / stock / search   |     | business records / snapshots  |
-+---------------------------+     +-------------------------------+
+|  Data / File Adapters     |---->| Alibaba Cloud FC Web API      |
+| orders / stock / files    |     | auth / transactions / access  |
++---------------------------+     +---------------+---------------+
+                                                |
+                              +-----------------+-----------------+
+                              v                                   v
+                  +-----------------------+          +-----------------------+
+                  | RDS PostgreSQL        |          | Private OSS Bucket    |
+                  | records / snapshots   |          | contract attachments  |
+                  +-----------------------+          +-----------------------+
 
-+---------------------------+     +-------------------------------+
-|       File Adapter        |---->| Object Storage                |
-| upload / download         |     | contracts / product images    |
-+---------------------------+     +-------------------------------+
++---------------------------+
+| OSS + CDN hosted SPA      |
+| filed mainland domain     |
++---------------------------+
 ```
 
 ### 1.6 核心原则
@@ -459,12 +462,12 @@ ExportPayload {
 - 表单、列表、详情页交互重
 - 更适合固定 App Shell 和持续会话体验
 
-### 6.2 采用托管型 BaaS，而不是先自建完整后端
+### 6.2 采用托管平台能力，而不是自建基础设施
 
 原因：
-- MVP 更看重速度和低运维
+- 当前阶段更看重稳定性和低运维
 - 当前业务规模不需要重型服务拆分
-- 先验证录单、导出、查询是否高频可用
+- 身份、数据库、存储和运行时由托管平台负责，业务规则仍保留在项目应用层和领域层
 
 ### 6.3 采用 Inventory Ledger + Current Stock Snapshot
 
@@ -478,10 +481,10 @@ ExportPayload {
 
 原因：
 - 固定模板稳定性优先
-- 打印版对字体、分页、格式一致性要求更高
-- 表格版也适合服务端统一模板映射
+- 当前浏览器端模板 Excel 已完成真实下载验收
+- 客户端按需加载 ExcelJS 与模板可避免低频导出占用额外服务端运行资源
 
-当前本地 MVP 阶段允许先在浏览器端通过 `Export Service` 读取 `public/templates/` 下的固定 `.xlsx` 模板并填充导出。无论前端本地实现还是未来服务端实现，页面层都不得直接维护模板字段和单元格映射。
+生产环境继续由浏览器端 `Export Service` 读取固定模板并生成打印版 / 表格版。导出数据必须先经已鉴权 API 获取，ExcelJS 和模板不得进入首屏必要资源；页面层不得直接维护模板字段和单元格映射。
 
 ### 6.5 合同附件使用对象存储，而不是数据库二进制字段
 
@@ -515,6 +518,20 @@ ExportPayload {
 - 当前明确是单账号隔离的单人系统
 - 未来扩展应建立在当前稳定边界上，而不是提前引入复杂度
 
+### 6.9 生产平台采用 Authing + 阿里云
+
+任务 34 已锁定以下生产方向：
+
+- Authing 公有云 OIDC 负责认证。
+- 阿里云 OSS + CDN 托管 SPA。
+- 阿里云函数计算 FC 承载业务 API。
+- 阿里云 RDS PostgreSQL 保存业务数据并保证事务。
+- 阿里云私有 OSS 保存合同附件。
+- 阿里云 KMS 与 FC RAM 角色管理服务端凭据和云资源权限。
+- 开发、测试、生产使用独立身份应用、数据库、Bucket、FC 服务和密钥。
+
+完整评分、成本、拓扑、降级和退出方案见 `docs/adr/0001-production-platform.md`。供应商或导出运行时发生变化时必须新增 ADR。
+
 ## 7. 实施约束与验收清单
 
 ### 7.1 AI Agent 实现约束
@@ -547,7 +564,7 @@ ExportPayload {
 - 当前产品为单账号隔离的单人业务系统
 - 桌面端优先，移动端仅保底可用
 - 默认实现路线是 `React SPA + Router + Query + 表单校验 + 轻量全局状态`
-- 平台能力默认是大陆可稳定访问的托管 PostgreSQL / Auth / Object Storage / Serverless Function
+- 生产平台采用 Authing + 阿里云中国内地区域，具体能力边界以 `docs/adr/0001-production-platform.md` 为准
 - 当前已有出货单、报价单标准 `.xlsx` 模板资产进入 `public/templates/`
 - 模板字段映射仍需在后续实现阶段补齐，且必须收敛在 `Export Service`
 - 库存允许为负，但负库存只能来自出货保存且必须留下流水
