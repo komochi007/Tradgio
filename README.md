@@ -353,7 +353,7 @@ npm run preview
 - 当前认证、数据和附件基于本地 `localStorage`
 - 任何后续交付都应区分“本地 MVP 已落地”与“生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前任务为任务 33，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 34，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
