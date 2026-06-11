@@ -465,7 +465,8 @@
 - ✅ ExcelJS 对 `uuid.v4()` 的 CommonJS 加载冒烟验证通过。
 - ✅ `npm audit --audit-level=moderate` 通过：0 个漏洞。
 - ✅ README、贡献流程和依赖审计记录已同步。
-- ⏳ 远端 CI 运行记录需在本次提交推送后确认。
+- ✅ GitHub Actions `Quality Gate` 首次远端运行通过：`https://github.com/komochi007/Tradgio/actions/runs/27321365226`。
+- ✅ 根据首轮 CI 的 Node.js 20 弃用提示，将 `actions/checkout` 和 `actions/setup-node` 升级到官方 v6。
 - ⛔ GitHub API 已确认当前私有仓库套餐不支持分支保护，无法在平台层强制阻止未通过检查的合并。
 
 ### 待验收条件
