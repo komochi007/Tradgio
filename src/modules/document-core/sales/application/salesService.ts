@@ -2,7 +2,7 @@ import {
   AppError,
   generateId,
   requireCurrentAccountId,
-  runLocalAtomicSave,
+  runIndexedDbAtomicSave,
 } from "../../../../shared"
 import {
   applySalesOrder,
@@ -31,13 +31,13 @@ export async function createSalesOrder(data: SalesFormData): Promise<SalesOrder>
 
   const accountId = requireCurrentAccountId()
 
-  return runLocalAtomicSave(
+  return runIndexedDbAtomicSave(
     `${accountId}:sales:create:${JSON.stringify(data)}`,
     [salesRepository, ledgerRepository, snapshotRepository],
-    async () => {
+    async ([salesTx, ledgerTx, snapshotTx]) => {
       const order = formDataToOrder(data, undefined, accountId)
       order.id = generateId()
-      order.documentNo = await generateDocumentNo()
+      order.documentNo = await generateDocumentNo(new Date(), salesTx)
 
       const inventoryInput: InventoryOrderInput = {
         documentId: order.id,
@@ -50,8 +50,8 @@ export async function createSalesOrder(data: SalesFormData): Promise<SalesOrder>
         })),
       }
 
-      await salesRepository.create(order)
-      await applySalesOrder(inventoryInput)
+      await salesTx.create(order)
+      await applySalesOrder(inventoryInput, { ledger: ledgerTx, snapshot: snapshotTx })
 
       return order
     }
@@ -72,11 +72,11 @@ export async function updateSalesOrder(id: string, data: SalesFormData): Promise
 
   const accountId = requireCurrentAccountId()
 
-  return runLocalAtomicSave(
+  return runIndexedDbAtomicSave(
     `${accountId}:sales:update:${id}:${JSON.stringify(data)}`,
     [salesRepository, ledgerRepository, snapshotRepository],
-    async () => {
-      const existing = await salesRepository.getById(id)
+    async ([salesTx, ledgerTx, snapshotTx]) => {
+      const existing = (await salesTx.getById(id)) as SalesOrder | undefined
       if (!existing) {
         throw new AppError("NOT_FOUND", `出货单不存在: ${id}`)
       }
@@ -104,8 +104,11 @@ export async function updateSalesOrder(id: string, data: SalesFormData): Promise
         })),
       }
 
-      const saved = await salesRepository.update(id, nextOrder)
-      await recalculateOrderDelta(prevInventoryInput, nextInventoryInput)
+      const saved = await salesTx.update(id, nextOrder)
+      await recalculateOrderDelta(prevInventoryInput, nextInventoryInput, {
+        ledger: ledgerTx,
+        snapshot: snapshotTx,
+      })
       return saved
     }
   )

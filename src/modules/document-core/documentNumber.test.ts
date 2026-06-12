@@ -17,6 +17,7 @@ import {
   generateDocumentNo as generateContractDocumentNo,
 } from "../contract-center"
 import type { ContractRecord } from "../contract-center"
+import { resetTradgioDatabase } from "../../test/indexedDb"
 
 const SESSION_KEY = "tradgio_session"
 
@@ -146,7 +147,8 @@ function quoteForm(productId: string, customerId: string, remark: string): Quote
   }
 }
 
-beforeEach(() => {
+beforeEach(async () => {
+  await resetTradgioDatabase()
   storage.clear()
   switchAccount("account-a")
 })

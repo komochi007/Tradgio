@@ -385,8 +385,8 @@ export function PurchaseFormPage() {
           {!isEdit && (
             <Button
               variant="secondary"
-              onClick={() => {
-                if (draft.saveDraftNow()) {
+              onClick={async () => {
+                if (await draft.saveDraftNow()) {
                   toast.success("草稿已保存")
                 } else {
                   toast.warning("暂无可保存的草稿内容")

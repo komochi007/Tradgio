@@ -1,4 +1,9 @@
-import { AppError, generateId, requireCurrentAccountId, runLocalAtomicSave } from "../../../shared"
+import {
+  AppError,
+  generateId,
+  requireCurrentAccountId,
+  runIndexedDbAtomicSave,
+} from "../../../shared"
 import type { ContractRecord, ContractAttachment, ContractFormData } from "../domain/types"
 import { validateContractForm, validateFile } from "../domain/types"
 import { contractRepository, generateDocumentNo } from "../infrastructure/contractRepository"
@@ -64,17 +69,17 @@ export async function createContractRecord(
 
   const accountId = requireCurrentAccountId()
 
-  return runLocalAtomicSave(
+  return runIndexedDbAtomicSave(
     `${accountId}:contract:create:${JSON.stringify(data)}:${attachments
       .map((attachment) => attachment.fileName)
       .join(",")}`,
     [contractRepository],
-    async () => {
+    async ([contractTx]) => {
       const now = new Date().toISOString()
       const record: ContractRecord = {
         id: generateId(),
         accountId,
-        contractNo: await generateDocumentNo(),
+        contractNo: await generateDocumentNo(new Date(), contractTx),
         title: data.title.trim(),
         customerId: data.customerId,
         customerName: data.customerName,
@@ -85,7 +90,7 @@ export async function createContractRecord(
         updatedAt: now,
       }
 
-      await contractRepository.create(record)
+      await contractTx.create(record)
       return record
     }
   )

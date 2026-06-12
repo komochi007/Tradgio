@@ -2,7 +2,7 @@
 
 ## 1. 目标与范围
 
-本规格对应任务 35，用于在实现 IndexedDB Adapter 前锁定：
+本规格由任务 35 定义契约，任务 39 已实现结构化业务数据 Adapter 与迁移：
 
 - 数据库、object store、主键与索引
 - Repository、File Adapter 与账号上下文
@@ -10,7 +10,7 @@
 - schema 升级、迁移记录与错误模型
 - 时间、日期、金额、数量和 Blob 的存储表示
 
-本任务只定义契约，不迁移 localStorage 数据，不保存真实 Blob，不改变当前运行时适配器。
+结构化业务数据、库存和草稿已切换运行时 IndexedDB Adapter；真实附件 Blob 仍由任务 40 实现。
 
 ## 2. 固定标识
 
@@ -138,7 +138,7 @@ File Adapter 接收稳定 `attachmentId`、`contractId`、文件元数据和 Blo
 7. 程序版本低于数据库版本时映射 `SCHEMA_TOO_NEW`，阻止写入并提示更新程序。
 8. 升级失败映射 `SCHEMA_UPGRADE_FAILED`，应用进入只读阻断页；旧库不删除、不覆盖。
 9. 高风险升级前由后续任务接入备份提示；升级成功后记录 migration ID、旧/新版本、记录统计、开始和完成时间。
-10. localStorage、明文密码和 Base64 附件迁移分别由任务 38-40 实现，成功前不得删除旧数据。
+10. 明文密码和结构化 localStorage 数据迁移已由任务 38-39 实现；Base64 附件迁移由任务 40 实现，成功前不得删除旧数据。
 
 ## 9. 错误模型
 
@@ -193,3 +193,12 @@ File Adapter 接收稳定 `attachmentId`、`contractId`、文件元数据和 Blo
 - 单据库存、合同附件事务范围由自动化测试锁定。
 - 所有业务与附件 store 标记为账号作用域。
 - Repository/File Adapter、升级和错误边界可由后续任务直接实现，无需重新做平台决策。
+
+## 13. 任务 39 实现记录
+
+- `src/shared/query/indexedDbAdapter.ts` 实现账号隔离 CRUD，并使用 `byAccount` 索引读取当前账号切片。
+- 进货、出货和报价保存使用真实 IndexedDB transaction；进货、出货将单据、流水和快照整批提交。
+- 三类单据和合同编号由账号内复合唯一索引兜底，应用层保留可读冲突提示。
+- `local-storage-business-data-v1` 在首次业务访问时迁移基础资料、单据、库存、合同记录和草稿，完成后写入记录统计。
+- 迁移失败不写完成标记、不留下半迁移数据、不删除 localStorage 源数据；重复执行直接返回既有报告。
+- 合同记录中的旧 Base64 附件随原记录暂存，任务 40 完成 Blob 分离前不得删除旧附件来源。

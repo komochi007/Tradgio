@@ -34,13 +34,12 @@
 
 已存在：
 - React / Vite 前端应用代码
-- App Shell、Auth、本地 repository、库存引擎、搜索聚合、打印导出与模板 Excel 导出
+- App Shell、IndexedDB Auth 与业务 Repository、库存引擎、搜索聚合、打印导出与模板 Excel 导出
 - 产品文档、架构文档、用户流程文档、设计规范、前端落地规范
 - 用户提供的出货单、报价单模板原件
 - 已转换的标准 `.xlsx` 模板资产：`public/templates/`
 
 当前仍未完成：
-- IndexedDB 数据模型、Repository 和事务实现
 - 合同附件 Blob 存储
 - 整机加密备份与恢复
 - PWA 离线运行、更新与 Windows 上线验收
@@ -49,7 +48,7 @@
 - 不要把当前仓库当成空项目
 - 代码实现应优先沿用 `src/modules` 与 `src/shared` 的现有分层
 - 文档中如仍出现“没有代码/没有模板资产”的旧描述，应以当前代码和本文件为准
-- 生产化路线图已建立；任务 35-38 的契约与安全 Auth 已完成，当前下一任务为任务 39
+- 生产化路线图已建立；任务 35-39 的契约、本地安全 Auth 和业务 IndexedDB 已完成，当前下一任务为任务 40
 
 ## 3. 业务范围
 
@@ -230,7 +229,7 @@ Presentation -> Application -> Domain -> Infrastructure
 当前实际实现：
 - 前端：`React` + `Vite` SPA
 - 路由：`react-router-dom`
-- 数据：当前通过 localStorage adapter 实现 repository，待迁移 IndexedDB
+- 数据：IndexedDB Repository；旧 localStorage 业务数据首次访问时幂等迁移且保留源数据
 - 表单：结构化表单 + 领域层校验函数
 - 认证：IndexedDB + Web Crypto PBKDF2；旧明文仅在首次成功登录后迁移删除
 - 导出：`Export Service` 提供打印版及出货单、报价单模板 Excel 导出
@@ -280,7 +279,7 @@ Presentation -> Application -> Domain -> Infrastructure
 3. 任务 38-42：安全 Auth、IndexedDB、Blob、离线导出和加密备份
 4. 任务 43-46：本地回归、PWA 发布、Windows 恢复与上线
 
-详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。当前不实施云端供应商 SDK，下一步完成任务 39 的业务数据 IndexedDB 迁移。
+详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。当前不实施云端供应商 SDK，下一步完成任务 40 的合同附件 Blob 迁移。
 
 ## 12. 任务路由提示
 
@@ -329,7 +328,7 @@ AI 首次进入项目时，建议阅读顺序：
 ## 14. 实施风险与注意事项
 
 当前实现风险：
-- 当前数据仍在 localStorage，容量和 transaction 能力不足，待任务 39 迁移
+- 结构化业务数据已进入 IndexedDB；旧 localStorage 源数据暂保留到后续迁移验收完成
 - 新账号密码已使用 PBKDF2 校验值；未登录旧账号的明文会在首次成功登录后迁移删除
 - 当前附件以内嵌 Base64 保存，待任务 40 迁移到 IndexedDB Blob
 - 尚未实现整机加密备份、PWA 更新和 Windows 恢复演练

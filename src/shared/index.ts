@@ -1,7 +1,13 @@
 export { appConfig } from "./config"
 
-export { QueryProvider, queryClient, createLocalStorageRepository } from "./query"
-export type { LocalTransactionalRepository, Repository } from "./query"
+export {
+  QueryProvider,
+  queryClient,
+  createLocalStorageRepository,
+  createIndexedDbRepository,
+  indexedDbBusinessStores,
+} from "./query"
+export type { IndexedDbRepository, LocalTransactionalRepository, Repository } from "./query"
 
 export { generateNextDocumentNumber } from "./document-number"
 export type { DocumentNumberType } from "./document-number"
@@ -14,7 +20,7 @@ export {
   requireCurrentAccountId,
 } from "./account"
 
-export { runLocalAtomicSave } from "./transaction"
+export { runIndexedDbAtomicSave, runLocalAtomicSave } from "./transaction"
 
 export { AppError, mapError, getUserFacingMessage } from "./errors"
 export type { AppErrorCode } from "./errors"
@@ -89,6 +95,8 @@ export {
   canTransitionRestore,
   restoreMayWriteDatabase,
   buildRestorePreview,
+  BUSINESS_DATA_MIGRATION_ID,
+  migrateBusinessDataToIndexedDb,
 } from "./persistence"
 export type {
   PersistenceConfig,
@@ -114,6 +122,7 @@ export type {
   RestoreCapacityResult,
   RestorePhase,
   RestorePreview,
+  BusinessDataMigrationReport,
 } from "./persistence"
 export { useFormDraft, getDraft, saveDraft, removeDraft } from "./drafts"
 export type { DraftFormKey, DraftRecord } from "./drafts"

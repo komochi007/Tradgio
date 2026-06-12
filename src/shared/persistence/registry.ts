@@ -3,12 +3,11 @@ import type { PersistenceConfig } from "./types"
 /**
  * 本地持久化统一配置
  *
- * 所有 localStorage 键名集中在此注册，任务 39-40 将按 ADR-0002
- * 继续替换为 IndexedDB Repository 和 IndexedDB File Adapter。
+ * 业务数据已使用 IndexedDB，localStorage 键仅用于认证会话和旧数据迁移。
  */
 
 export const persistenceConfig: PersistenceConfig = {
-  mode: "localStorage",
+  mode: "indexeddb",
   storagePrefix: "tradgio",
 }
 
@@ -68,8 +67,8 @@ export function getAllStorageKeys(): string[] {
  * │ AuthAdapter  │ IndexedDB           │ 已完成 Web Crypto 安全改造      │
  * │              │ + Web Crypto       │ 保持 AuthService 接口不变      │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
- * │ DataAdapter  │ localStorage        │ IndexedDB Repository          │
- * │              │ (createRepo<T>)     │ Repository<T> 接口不变        │
+ * │ DataAdapter  │ IndexedDB          │ 已完成业务数据与草稿迁移       │
+ * │              │ Repository         │ 保持 Repository<T> 接口不变   │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
  * │ FileAdapter  │ dataUrl (base64)    │ IndexedDB Blob store          │
  * │              │ (内嵌在 Contract)    │ FileAdapter save/read/remove  │
@@ -96,8 +95,8 @@ export const MIGRATION_POINTS = {
     future: "保持 IndexedDB + Web Crypto 实现和 AuthService 接口稳定",
   },
   data: {
-    current: "src/shared/query/localStorageAdapter.ts",
-    future: "替换为 IndexedDB Repository，保持 Repository<T> 接口不变",
+    current: "src/shared/query/indexedDbAdapter.ts",
+    future: "保持 IndexedDB Repository 和账号隔离事务边界稳定",
   },
   file: {
     current: "ContractAttachment.dataUrl (内嵌在合同中)",

@@ -32,25 +32,31 @@ export function useFormDraft<T>({
 
     if (!enabled || !accountId) return
 
-    const draft = getDraft<T>(accountId, formKey)
-    if (draft && !isEmpty(draft.data)) {
-      setPendingDraft(draft)
-      setLastSavedAt(draft.updatedAt)
+    let cancelled = false
+    void getDraft<T>(accountId, formKey).then((draft) => {
+      if (cancelled) return
+      if (draft && !isEmpty(draft.data)) {
+        setPendingDraft(draft)
+        setLastSavedAt(draft.updatedAt)
+      }
+      readyRef.current = true
+    })
+    return () => {
+      cancelled = true
     }
-    readyRef.current = true
   }, [accountId, enabled, formKey, isEmpty])
 
   useEffect(() => {
     if (!enabled || !accountId || !readyRef.current || pendingDraft) return
 
-    const timer = window.setTimeout(() => {
+    const timer = window.setTimeout(async () => {
       if (isEmpty(data)) {
-        removeDraft(accountId, formKey)
+        await removeDraft(accountId, formKey)
         setLastSavedAt(null)
         return
       }
 
-      const draft = saveDraft(accountId, formKey, data)
+      const draft = await saveDraft(accountId, formKey, data)
       setLastSavedAt(draft.updatedAt)
     }, debounceMs)
 
@@ -64,23 +70,23 @@ export function useFormDraft<T>({
     setLastSavedAt(pendingDraft.updatedAt)
   }, [onRestore, pendingDraft])
 
-  const discardDraft = useCallback(() => {
+  const discardDraft = useCallback(async () => {
     if (!accountId) return
-    removeDraft(accountId, formKey)
+    await removeDraft(accountId, formKey)
     setPendingDraft(null)
     setLastSavedAt(null)
   }, [accountId, formKey])
 
-  const clearDraft = useCallback(() => {
+  const clearDraft = useCallback(async () => {
     if (!accountId) return
-    removeDraft(accountId, formKey)
+    await removeDraft(accountId, formKey)
     setPendingDraft(null)
     setLastSavedAt(null)
   }, [accountId, formKey])
 
-  const saveDraftNow = useCallback(() => {
+  const saveDraftNow = useCallback(async () => {
     if (!enabled || !accountId || isEmpty(data)) return false
-    const draft = saveDraft(accountId, formKey, data)
+    const draft = await saveDraft(accountId, formKey, data)
     setPendingDraft(null)
     setLastSavedAt(draft.updatedAt)
     return true

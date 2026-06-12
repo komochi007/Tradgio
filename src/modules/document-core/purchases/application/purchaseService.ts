@@ -2,7 +2,7 @@ import {
   AppError,
   generateId,
   requireCurrentAccountId,
-  runLocalAtomicSave,
+  runIndexedDbAtomicSave,
 } from "../../../../shared"
 import {
   applyPurchaseOrder,
@@ -30,13 +30,13 @@ export async function createPurchaseOrder(data: PurchaseFormData): Promise<Purch
 
   const accountId = requireCurrentAccountId()
 
-  return runLocalAtomicSave(
+  return runIndexedDbAtomicSave(
     `${accountId}:purchase:create:${JSON.stringify(data)}`,
     [purchaseRepository, ledgerRepository, snapshotRepository],
-    async () => {
+    async ([purchaseTx, ledgerTx, snapshotTx]) => {
       const order = formDataToOrder(data, undefined, accountId)
       order.id = generateId()
-      order.documentNo = await generateDocumentNo()
+      order.documentNo = await generateDocumentNo(new Date(), purchaseTx)
 
       const inventoryInput: InventoryOrderInput = {
         documentId: order.id,
@@ -49,8 +49,8 @@ export async function createPurchaseOrder(data: PurchaseFormData): Promise<Purch
         })),
       }
 
-      await purchaseRepository.create(order)
-      await applyPurchaseOrder(inventoryInput)
+      await purchaseTx.create(order)
+      await applyPurchaseOrder(inventoryInput, { ledger: ledgerTx, snapshot: snapshotTx })
 
       return order
     }
@@ -74,11 +74,11 @@ export async function updatePurchaseOrder(
 
   const accountId = requireCurrentAccountId()
 
-  return runLocalAtomicSave(
+  return runIndexedDbAtomicSave(
     `${accountId}:purchase:update:${id}:${JSON.stringify(data)}`,
     [purchaseRepository, ledgerRepository, snapshotRepository],
-    async () => {
-      const existing = await purchaseRepository.getById(id)
+    async ([purchaseTx, ledgerTx, snapshotTx]) => {
+      const existing = (await purchaseTx.getById(id)) as PurchaseOrder | undefined
       if (!existing) {
         throw new AppError("NOT_FOUND", `进货单不存在: ${id}`)
       }
@@ -106,8 +106,11 @@ export async function updatePurchaseOrder(
         })),
       }
 
-      const saved = await purchaseRepository.update(id, nextOrder)
-      await recalculateOrderDelta(prevInventoryInput, nextInventoryInput)
+      const saved = await purchaseTx.update(id, nextOrder)
+      await recalculateOrderDelta(prevInventoryInput, nextInventoryInput, {
+        ledger: ledgerTx,
+        snapshot: snapshotTx,
+      })
       return saved
     }
   )

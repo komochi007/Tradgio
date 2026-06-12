@@ -7,6 +7,8 @@ export {
   INDEXED_DB_TRANSACTIONS,
 } from "./indexeddbSchema"
 export { openTradgioDatabase, requestToPromise, transactionToPromise } from "./indexedDbDatabase"
+export { BUSINESS_DATA_MIGRATION_ID, migrateBusinessDataToIndexedDb } from "./businessDataMigration"
+export type { BusinessDataMigrationReport } from "./businessDataMigration"
 export {
   BACKUP_FILE_EXTENSION,
   BACKUP_MAGIC,

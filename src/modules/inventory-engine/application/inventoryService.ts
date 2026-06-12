@@ -1,4 +1,5 @@
 import { AppError, requireCurrentAccountId } from "../../../shared"
+import type { IndexedDbRepository } from "../../../shared"
 import type { InventoryLedger, CurrentStockSnapshot, InventoryOrderInput } from "../domain/types"
 import {
   validateOrderInput,
@@ -9,11 +10,22 @@ import {
 } from "../domain/calculator"
 import {
   ledgerRepository,
+  snapshotRepository,
   getAllSnapshots,
   upsertSnapshots,
   getLedgerByProductId,
   removeLedgerByDocumentId,
 } from "../infrastructure/inventoryRepository"
+
+type InventoryRepositories = {
+  ledger: IndexedDbRepository<InventoryLedger>
+  snapshot: IndexedDbRepository<CurrentStockSnapshot>
+}
+
+const defaultRepositories: InventoryRepositories = {
+  ledger: ledgerRepository,
+  snapshot: snapshotRepository,
+}
 
 function sortByHappenedAt(a: InventoryLedger, b: InventoryLedger): number {
   return new Date(a.happenedAt).getTime() - new Date(b.happenedAt).getTime()
@@ -25,14 +37,17 @@ function assertCurrentAccount(order: InventoryOrderInput): void {
   }
 }
 
-export async function applyPurchaseOrder(order: InventoryOrderInput): Promise<InventoryLedger[]> {
+export async function applyPurchaseOrder(
+  order: InventoryOrderInput,
+  repositories: InventoryRepositories = defaultRepositories
+): Promise<InventoryLedger[]> {
   assertCurrentAccount(order)
   const error = validateOrderInput(order)
   if (error) {
     throw new AppError("VALIDATION_ERROR", error.message)
   }
 
-  const currentSnapshots = await getAllSnapshots()
+  const currentSnapshots = await getAllSnapshots(repositories.snapshot)
   const entries = computeLedgerEntries(order, currentSnapshots)
 
   if (entries.length === 0) {
@@ -40,23 +55,26 @@ export async function applyPurchaseOrder(order: InventoryOrderInput): Promise<In
   }
 
   for (const entry of entries) {
-    await ledgerRepository.create(entry)
+    await repositories.ledger.create(entry)
   }
 
   const snapshots = computeSnapshotUpdates(entries, currentSnapshots)
-  await upsertSnapshots(snapshots)
+  await upsertSnapshots(snapshots, repositories.snapshot)
 
   return entries
 }
 
-export async function applySalesOrder(order: InventoryOrderInput): Promise<InventoryLedger[]> {
+export async function applySalesOrder(
+  order: InventoryOrderInput,
+  repositories: InventoryRepositories = defaultRepositories
+): Promise<InventoryLedger[]> {
   assertCurrentAccount(order)
   const error = validateOrderInput(order)
   if (error) {
     throw new AppError("VALIDATION_ERROR", error.message)
   }
 
-  const currentSnapshots = await getAllSnapshots()
+  const currentSnapshots = await getAllSnapshots(repositories.snapshot)
   const entries = computeLedgerEntries(order, currentSnapshots)
 
   if (entries.length === 0) {
@@ -64,18 +82,19 @@ export async function applySalesOrder(order: InventoryOrderInput): Promise<Inven
   }
 
   for (const entry of entries) {
-    await ledgerRepository.create(entry)
+    await repositories.ledger.create(entry)
   }
 
   const snapshots = computeSnapshotUpdates(entries, currentSnapshots)
-  await upsertSnapshots(snapshots)
+  await upsertSnapshots(snapshots, repositories.snapshot)
 
   return entries
 }
 
 export async function recalculateOrderDelta(
   previousOrder: InventoryOrderInput,
-  nextOrder: InventoryOrderInput
+  nextOrder: InventoryOrderInput,
+  repositories: InventoryRepositories = defaultRepositories
 ): Promise<InventoryLedger[]> {
   assertCurrentAccount(previousOrder)
   assertCurrentAccount(nextOrder)
@@ -94,7 +113,7 @@ export async function recalculateOrderDelta(
     return []
   }
 
-  const currentSnapshots = await getAllSnapshots()
+  const currentSnapshots = await getAllSnapshots(repositories.snapshot)
   const entries = computeRecalcLedgerEntries(deltaOrder, currentSnapshots)
 
   if (entries.length === 0) {
@@ -102,11 +121,11 @@ export async function recalculateOrderDelta(
   }
 
   for (const entry of entries) {
-    await ledgerRepository.create(entry)
+    await repositories.ledger.create(entry)
   }
 
   const snapshots = computeSnapshotUpdates(entries, currentSnapshots)
-  await upsertSnapshots(snapshots)
+  await upsertSnapshots(snapshots, repositories.snapshot)
 
   return entries
 }

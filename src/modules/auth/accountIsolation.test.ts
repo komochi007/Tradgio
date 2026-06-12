@@ -21,6 +21,7 @@ import { createContractRecord, listContractRecords } from "../contract-center"
 import { getCurrentStock } from "../inventory-engine"
 import { searchDocuments } from "../search/application/searchService"
 import { buildPurchaseExportPayload } from "../export-service"
+import { resetTradgioDatabase } from "../../test/indexedDb"
 
 const SESSION_KEY = "tradgio_session"
 const PRODUCTS_KEY = "tradgio_products"
@@ -197,7 +198,8 @@ function quoteForm(label: string, productId: string, customerId: string): QuoteF
   }
 }
 
-beforeEach(() => {
+beforeEach(async () => {
+  await resetTradgioDatabase()
   storage.clear()
 })
 

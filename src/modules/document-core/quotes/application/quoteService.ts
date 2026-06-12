@@ -2,7 +2,7 @@ import {
   AppError,
   generateId,
   requireCurrentAccountId,
-  runLocalAtomicSave,
+  runIndexedDbAtomicSave,
 } from "../../../../shared"
 import type { QuoteOrder, QuoteFormData } from "../domain/types"
 import { formDataToOrder, validateQuoteForm } from "../domain/types"
@@ -23,15 +23,15 @@ export async function createQuoteOrder(data: QuoteFormData): Promise<QuoteOrder>
 
   const accountId = requireCurrentAccountId()
 
-  return runLocalAtomicSave(
+  return runIndexedDbAtomicSave(
     `${accountId}:quote:create:${JSON.stringify(data)}`,
     [quoteRepository],
-    async () => {
+    async ([quoteTx]) => {
       const order = formDataToOrder(data, undefined, accountId)
       order.id = generateId()
-      order.documentNo = await generateDocumentNo()
+      order.documentNo = await generateDocumentNo(new Date(), quoteTx)
 
-      await quoteRepository.create(order)
+      await quoteTx.create(order)
       return order
     }
   )

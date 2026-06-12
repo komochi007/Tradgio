@@ -4,6 +4,7 @@ import {
   INDEXED_DB_SCHEMA_VERSION,
   type IndexedDbKeyPath,
 } from "./indexeddbSchema"
+import { mapPlatformError, PlatformAdapterError } from "../platform/errors"
 
 function toKeyPath(keyPath: IndexedDbKeyPath): string | string[] {
   return Array.isArray(keyPath) ? [...keyPath] : (keyPath as string)
@@ -35,8 +36,10 @@ export function openTradgioDatabase(factory: IDBFactory = indexedDB): Promise<ID
     }
 
     request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error ?? new Error("无法打开本地数据库"))
-    request.onblocked = () => reject(new Error("本地数据库升级被其他页面阻止"))
+    request.onerror = () =>
+      reject(mapPlatformError(request.error ?? new Error("无法打开本地数据库"), "database-open"))
+    request.onblocked = () =>
+      reject(new PlatformAdapterError("STORAGE_UNAVAILABLE", "本地数据库升级被其他页面阻止"))
   })
 }
 

@@ -215,10 +215,10 @@ Export Service -> Shared Platform
 规则：
 - 单据必须整单提交
 - 库存更新必须跟随单据保存成功
-- 本地适配器通过集合快照和逆序恢复保证单次保存不留下半成品
+- IndexedDB 适配器通过同一读写 transaction 保证单次保存不留下半成品
 - 相同保存请求并发触发时复用进行中的结果，不重复应用库存
 - 不同本地保存请求必须串行执行，避免失败回滚覆盖其他成功提交
-- IndexedDB 生产适配器必须把单据、流水和快照放在同一个读写 transaction 中提交
+- 单据、流水和快照已放在同一个 IndexedDB 读写 transaction 中提交
 
 ### 3.3 场景二：编辑出货单并触发库存不足提醒
 
@@ -250,8 +250,8 @@ Export Service -> Shared Platform
 ### 3.3.1 单据与库存事务契约
 
 本地适配器：
-- 事务参与集合固定包含当前单据、`InventoryLedger` 和 `CurrentStockSnapshot`
-- 提交前读取三类完整前态，失败时按快照、流水、单据的逆序恢复
+- 事务参与 store 固定包含当前单据、`InventoryLedger` 和 `CurrentStockSnapshot`
+- 任一 request 失败时由 IndexedDB abort 整体事务，不执行应用层补偿写入
 - 所有本地单据保存串行执行，相同请求在进行中时复用同一结果
 
 IndexedDB 生产适配器：

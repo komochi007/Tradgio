@@ -5,7 +5,7 @@ import type { PersistenceTransaction } from "./indexeddbSchema"
 /**
  * 持久化适配器类型定义
  *
- * 当前业务数据仍使用 localStorage，后续按 ADR-0002 替换为本地优先适配器。
+ * 业务数据使用 IndexedDB，合同附件 Blob 与备份适配器按后续任务补齐。
  */
 
 export type PersistenceConfig = {
