@@ -55,24 +55,26 @@ MVP 核心能力：
 - 导出必须经过 `Export Service`
 
 ## 3. Tech Stack
-当前仓库已落地前端代码，以下为当前采用或预留的技术方向：
+当前仓库已落地前端代码，生产方向已锁定为 IndexedDB 本地优先 PWA：
 
 | 层级 | 计划方案 |
 |---|---|
 | Frontend | `React` SPA |
 | Routing | 客户端路由 |
-| Server State | `Query` 缓存模型 |
+| Persistent State | IndexedDB + `Query` 缓存模型 |
 | Forms | 结构化表单 + Schema 校验 |
 | Global State | 轻量 Store |
-| Auth | 托管 Auth |
-| Database | 托管 `PostgreSQL` |
-| Storage | 对象存储 |
-| Export | Serverless Function / 轻量服务端 |
+| Auth | 本地多账号 + Web Crypto PBKDF2 |
+| Database | IndexedDB |
+| Storage | IndexedDB Blob |
+| Backup | 压缩 + AES-256-GCM 整机备份 |
+| Export | 浏览器端 Export Service |
+| Deployment | PWA + 平台无关静态托管 |
 
 技术约束：
-- 页面层不能直接访问 DB / Storage SDK
-- 所有外部能力通过 adapter 封装
-- 当前架构偏向“单体前端 + 平台服务”
+- 页面层不能直接访问 IndexedDB 或附件 Blob store
+- 所有持久化能力通过 adapter 封装
+- 当前架构采用“本地优先 PWA”
 - 不引入微服务和复杂事件总线
 
 ## 4. Project Structure
@@ -118,8 +120,8 @@ src/
 ```text
 Browser
 -> Tradgio SPA
--> Auth / Repository / Storage / Export Adapters
--> Managed Auth / PostgreSQL / Object Storage / Export Runtime
+-> Local Auth / Repository / File / Backup / Export Adapters
+-> IndexedDB / Web Crypto / Storage API / Service Worker
 ```
 
 顶层模块：
@@ -179,8 +181,8 @@ Presentation -> Application -> Domain -> Infrastructure
 8. Export Service
 
 AI Agent 约束：
-- [ ] 不在页面组件中直连数据库
-- [ ] 不在页面组件中直连对象存储
+- [ ] 不在页面组件中直连 IndexedDB
+- [ ] 不在页面组件中直接读写附件 Blob store
 - [ ] 不绕过 `Inventory Engine` 更新库存
 - [ ] 不把导出逻辑散落到页面
 - [ ] 不把整张单据放入全局 store 作为唯一真相
@@ -232,28 +234,25 @@ npm run preview
 ## 8. Environment Variables
 当前状态：
 - [ ] 仓库内暂无环境变量文件
-- [x] 任务 34 已锁定环境变量方向
-- [ ] 正式变量名与 `.env.example` 待任务 37 定义
+- [x] 本地优先方案不依赖服务端密钥
+- [ ] PWA 应用版本、正式 Origin 和发布配置待任务 37、44 定义
 
 预期变量类别：
 
 | 类别 | 用途 |
 |---|---|
-| Browser Auth | Authing OIDC 公开配置，不包含客户端密钥 |
-| Browser API | 当前环境的 FC API 地址 |
-| Server Database | RDS PostgreSQL 内网连接，由 KMS / FC 运行环境提供 |
-| Server Storage | OSS Bucket、地域和短时授权配置 |
-| Server Auth | Authing issuer、audience 与 JWKS 校验配置 |
+| App Version | 当前应用版本和 IndexedDB schema 兼容范围 |
+| Origin | 正式 HTTPS Origin 与环境标识 |
+| PWA | 缓存版本和更新策略 |
 | Export | 浏览器端 Export Service 开关与模板基础路径 |
-| App Config | 站点地址、环境标识、调试开关 |
+| Diagnostics | 非敏感调试与日志开关 |
 
 建议后续提供：
-- `.env.example`
-- `.env.local`
-- Authing 开发、测试、生产独立应用配置
-- 阿里云 FC / KMS 分环境注入服务端配置
+- 平台无关构建配置
+- 测试与生产 Origin 配置
+- 不包含密码、备份密钥或其他敏感信息的 `.env.example`（如任务 37 评估确有需要）
 
-生产平台决策见 `docs/adr/0001-production-platform.md`。浏览器变量只能包含公开配置，RDS 密码、OSS 凭据和长期令牌不得进入前端构建产物。
+生产方案见 `docs/adr/0002-local-first-indexeddb.md`。密码、备份密码、派生密钥和活动 session 不得进入环境变量或构建产物。
 
 ## 9. Important Directories
 - `docs/`: 项目当前最重要目录，所有实现前优先阅读
@@ -290,12 +289,13 @@ npm run preview
 - [ ] 无部署平台配置
 
 目标部署形态：
-- Web SPA：阿里云 OSS + CDN
-- Auth：Authing OIDC
-- API：阿里云函数计算 FC
-- PostgreSQL：阿里云 RDS PostgreSQL
-- Object Storage：阿里云私有 OSS
-- Export Service：浏览器端按需加载运行
+- Web SPA：平台无关免费静态托管
+- 运行形态：Windows Chrome / Edge 安装 PWA
+- Auth：本地多账号安全认证
+- Database：IndexedDB
+- Attachment Storage：IndexedDB Blob
+- Backup：加密 `.tradgio-backup`
+- Export Service：浏览器端按需加载并支持离线
 
 部署前最低验收：
 - [x] 登录后可恢复会话
@@ -313,19 +313,19 @@ npm run preview
 - 模块边界优先于局部复用
 - 业务规则收敛在领域层
 - 基础设施能力通过 adapter 隔离
-- 服务端状态以 Query 缓存为准
+- 持久化真相以 IndexedDB 为准，Query 仅作为可重建缓存
 - 页面只负责展示与交互
 
 明确规则：
 - 库存变更只能通过 `Inventory Engine`
 - 导出只能通过 `Export Service`
-- 合同附件必须“元数据入库 + 二进制入对象存储”
+- 合同附件必须“元数据与 Blob 分离 + File Adapter 统一访问”
 - 搜索应返回统一结构
 - 单据保存应整单提交
 
 不应做的事：
-- [ ] 在页面中写数据库访问
-- [ ] 在页面中直接上传对象存储
+- [ ] 在页面中直接操作 IndexedDB
+- [ ] 在页面中直接读写附件 Blob store
 - [ ] 直接修改库存快照作为业务真相
 - [ ] 在页面散落模板字段映射
 
@@ -352,13 +352,13 @@ npm run preview
 未完成：
 - [ ] 自动化测试体系
 - [ ] 部署配置
-- [ ] 真实后端 / 对象存储 / 导出服务接入
+- [ ] IndexedDB、Blob 附件、加密备份和 PWA 生产化
 
 注意事项：
 - 出货单、报价单模板 Excel 已完成字段映射、填充导出和真实下载内容验收
 - 模板 Excel 的字段内容、表格样式、边框、对齐和货币格式已于 2026-06-10 手动验收通过
-- 当前认证、数据和附件基于本地 `localStorage`
-- 任何后续交付都应区分“本地 MVP 已落地”与“生产能力已接入”
+- 当前认证、数据和附件仍基于本地 `localStorage` / Base64，尚未迁移到 IndexedDB
+- 任何后续交付都应区分“本地 MVP 已落地”与“IndexedDB 本地生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
 - 当前下一任务为任务 35，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
@@ -399,16 +399,16 @@ npm run preview
 - [x] 单据编号生成加固
 - [x] P0 综合回归验收
 
-### Phase 7: Production Integration
+### Phase 7: Local Production
 - [x] 生产平台 ADR
-- [ ] 生产数据模型与 API 契约
-- [ ] 真实 Auth、PostgreSQL、对象存储和导出运行时
-- [ ] 本地数据迁移工具
+- [ ] IndexedDB 数据模型、索引与事务契约
+- [ ] 本地安全 Auth、结构化数据和 Blob 附件迁移
+- [ ] 离线导出与整机加密备份恢复
 
 ### Phase 8: Release Readiness
-- [ ] 生产适配层回归与部署流水线
-- [ ] 监控、备份和恢复演练
-- [ ] UAT 与正式上线验收
+- [ ] 本地适配层回归与 PWA 发布流水线
+- [ ] 存储健康、备份提醒和 Windows 恢复演练
+- [ ] Windows 迁移、升级与正式上线验收
 
 ## Quick Start For Agents
 开始任何实现前，先完成这份 checklist：
@@ -420,4 +420,4 @@ npm run preview
 - [ ] 若要突破架构约束，先更新文档再修改实现
 - [ ] 生产化任务先读 `tasks/production-roadmap.md` 和上线检查清单
 
-如果你接手后续迭代，从任务 26 开始推进；P0 验收通过前，不应提前接入真实后端或部署平台。
+如果你接手后续迭代，当前从任务 35 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。

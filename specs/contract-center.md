@@ -43,7 +43,6 @@ type ContractAttachment = {
   fileName: string;
   mimeType: string;
   fileSize: number;
-  storageKey: string;
   uploadedAt: string;
 };
 
@@ -91,16 +90,19 @@ downloadAttachment(attachmentId)
 
 ```text
 校验字段与文件
--> 上传文件到对象存储
--> 获取附件元数据
--> 写入 ContractRecord
--> 写入 ContractAttachment
+-> 读取文件为 Blob
+-> 通过 File Adapter 写入附件 Blob store
+-> 写入 ContractRecord 与附件元数据
 ```
 
 约束：
 - 文件二进制与元数据分开处理
-- 上传失败不能留下只写一半的数据
-- 页面不直接操作对象存储 SDK
+- 合同、附件元数据和 Blob 使用同一个 IndexedDB transaction 提交
+- 保存失败不能留下只写一半的数据或孤儿 Blob
+- 页面不直接操作 IndexedDB 或 Blob store
+- 附件默认单文件上限 20 MB
+- Storage API 使用率达到 70% 时提醒，达到 85% 时阻止继续写入附件
+- 浏览器无法返回可靠容量时仍执行单文件限制，并提示用户备份和清理
 
 ## 8. 页面结构建议
 
@@ -136,11 +138,12 @@ downloadAttachment(attachmentId)
 - 合同编号由系统按 `HT + YYMM + 两位流水号` 自动生成，编辑时不可修改
 - 编号按当前账号和月份读取最大流水号后递增，不复用缺号
 - 保存时再次校验当前账号内合同编号唯一，当月达到 `99` 后阻止创建
-- 生产数据库必须建立账号与合同编号的联合唯一约束
+- IndexedDB 必须建立账号与合同编号的复合唯一索引
 - 标题必填
 - 客户必选
 - 签订日期必填
 - 文件格式和数量需有基础约束
+- 单个文件不得超过 20 MB
 
 MVP 阶段可先不做复杂格式白名单，但要保留校验入口。
 
@@ -160,3 +163,5 @@ MVP 阶段可先不做复杂格式白名单，但要保留校验入口。
 - 合同详情页可看到附件列表
 - 可按客户筛选合同
 - 上传失败时不留下半成品记录
+- 删除附件后不留下孤儿 Blob
+- 附件进入整机加密备份并可完整恢复

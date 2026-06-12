@@ -40,16 +40,17 @@
 - 已转换的标准 `.xlsx` 模板资产：`public/templates/`
 
 当前仍未完成：
-- P0 业务正确性修复与自动化回归
-- 自动化测试体系
-- 部署配置
-- 真实后端 / 对象存储 / 服务端导出运行时
+- IndexedDB 数据模型、Repository 和事务实现
+- 本地多账号密码安全改造
+- 合同附件 Blob 存储
+- 整机加密备份与恢复
+- PWA 离线运行、更新与 Windows 上线验收
 
 结论：
 - 不要把当前仓库当成空项目
 - 代码实现应优先沿用 `src/modules` 与 `src/shared` 的现有分层
 - 文档中如仍出现“没有代码/没有模板资产”的旧描述，应以当前代码和本文件为准
-- 生产化路线图已建立，当前从任务 26 开始，任务 31 通过前不进入真实后端实施
+- 生产化路线图已建立；任务 34 已由 ADR-0002 修订为 IndexedDB 本地优先方案，当前下一任务为任务 35
 
 ## 3. 业务范围
 
@@ -90,7 +91,7 @@ MVP 不包含：
 对象关系：
 - 进货、出货、报价都采用主表 + 明细行
 - 库存由进货单、出货单驱动
-- 合同元数据入库，合同文件进对象存储
+- 合同元数据与附件 Blob 分离存入 IndexedDB
 - 搜索结果来自统一投影，不直接暴露底层多表结构
 
 ## 5. 核心业务规则
@@ -114,9 +115,9 @@ MVP 不包含：
 - 页面层不负责模板字段映射
 
 合同规则：
-- 附件二进制进入对象存储
-- 合同记录和附件元数据进入数据库
-- 上传失败不能留下半成品记录
+- 附件二进制进入独立 IndexedDB Blob store
+- 合同记录保存附件元数据和稳定 `attachmentId`
+- 合同、附件元数据和 Blob 保存失败不能留下半成品记录
 
 搜索规则：
 - 查询页消费统一搜索结果
@@ -168,8 +169,8 @@ MVP 不包含：
 ```text
 Browser
 -> Tradgio SPA
--> Auth / Repository / Storage / Export Adapters
--> Managed Auth / PostgreSQL / Object Storage / Export Runtime
+-> Local Auth / Repository / File / Backup / Export Adapters
+-> IndexedDB / Web Crypto / Storage API / Service Worker
 ```
 
 顶层模块：
@@ -230,12 +231,12 @@ Presentation -> Application -> Domain -> Infrastructure
 当前实际实现：
 - 前端：`React` + `Vite` SPA
 - 路由：`react-router-dom`
-- 数据：当前通过 localStorage adapter 模拟 repository
+- 数据：当前通过 localStorage adapter 实现 repository，待迁移 IndexedDB
 - 表单：结构化表单 + 领域层校验函数
-- 认证：本地 localStorage auth adapter
+- 认证：本地 localStorage auth adapter，仍存在明文密码，待安全迁移
 - 导出：`Export Service` 提供打印版及出货单、报价单模板 Excel 导出
 
-未来生产方向仍保留托管 Auth / PostgreSQL / Object Storage / Serverless Function。
+生产方向为 IndexedDB 本地优先 PWA：结构化数据进入 IndexedDB，附件进入 Blob store，使用 Web Crypto 加密整机备份，静态托管保持平台无关。完整决策见 `docs/adr/0002-local-first-indexeddb.md`。
 
 ## 10. 当前目录结构
 
@@ -276,11 +277,11 @@ Presentation -> Application -> Domain -> Infrastructure
 当前后续工作按生产化路线图推进：
 
 1. 任务 26-31：业务正确性与 P0 回归
-2. 任务 32-37：工程保障、平台 ADR、数据与 Adapter 契约
-3. 任务 38-42：真实 Auth、数据库、对象存储、导出和迁移工具
-4. 任务 43-46：生产回归、部署、监控、备份、UAT 与上线
+2. 任务 32-37：工程保障、本地优先 ADR、IndexedDB 与 Adapter 契约
+3. 任务 38-42：安全 Auth、IndexedDB、Blob、离线导出和加密备份
+4. 任务 43-46：本地回归、PWA 发布、Windows 恢复与上线
 
-详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。任务 31 通过前，只允许开展平台资料调研，不实施供应商 SDK 接入。
+详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。当前不实施云端供应商 SDK，下一步先完成任务 35 的 IndexedDB 契约。
 
 ## 12. 任务路由提示
 
@@ -329,12 +330,11 @@ AI 首次进入项目时，建议阅读顺序：
 ## 14. 实施风险与注意事项
 
 当前实现风险：
-- 库存改单差额方向、单据与库存写入一致性需要先由任务 26-28 加固
-- 当前业务数据尚未按账号完整隔离，编号生成也需加固
-- 当前数据仍是本地 localStorage，尚未接入真实数据库
-- 当前附件仍是本地持久化，尚未接入对象存储
-- 模板 Excel 当前在浏览器端生成，生产环境仍需评估服务端导出运行时
-- 若 AI 不先读文档和现有代码，容易产生架构漂移
+- 当前数据仍在 localStorage，容量和 transaction 能力不足，待任务 39 迁移
+- 当前密码以明文存储，待任务 38 安全迁移
+- 当前附件以内嵌 Base64 保存，待任务 40 迁移到 IndexedDB Blob
+- 尚未实现整机加密备份、PWA 更新和 Windows 恢复演练
+- 若 AI 不先读 ADR-0002、路线图和现有代码，容易误回云端后端路线
 
 实现时要明确区分：
 - 已存在事实：仓库内文件、明确文档约束

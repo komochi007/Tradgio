@@ -41,29 +41,29 @@ MVP 不包含：
 
 ### 1.4 目标系统形态
 
-MVP 采用“单体前端 + 平台服务”模型：
-- Web SPA：负责 UI、路由、表单、局部状态
-- 托管 Auth：负责注册、登录、会话恢复、账号隔离
-- 托管 PostgreSQL：负责业务数据持久化
-- 对象存储：负责合同附件和货品图片
-- 轻量服务端 API：负责身份校验、业务事务、数据访问和附件授权
+生产形态采用“本地优先 PWA”模型：
+- Web SPA / PWA：负责 UI、路由、表单、离线运行和版本更新
+- Local Auth：负责本地多账号注册、登录、会话恢复和账号隔离
+- IndexedDB：负责业务数据、库存、附件元数据和 Blob 持久化
+- Backup Service：负责整机数据序列化、校验、压缩、加密和恢复
 - 浏览器端 Export Service：负责固定模板导出打印版 / 表格版
 
 默认技术方向：
 - 前端：`React SPA`
 - 路由：客户端路由
-- 服务端状态：`Query` 缓存模型
+- 持久化状态：IndexedDB Repository + Query 缓存模型
 - 表单：结构化表单管理 + schema 校验
 - 全局状态：轻量 store
-- 平台能力：Authing + 阿里云中国内地区域的 RDS PostgreSQL / OSS / 函数计算 FC / OSS + CDN
+- 平台能力：IndexedDB / Web Crypto / Storage API / Service Worker
 - 导出运行时：浏览器端 Export Service，ExcelJS 与模板按需加载
+- 部署方向：平台无关免费静态托管 + 固定 HTTPS Origin
 
 ### 1.5 ASCII 架构图
 
 ```text
 +---------------------------+
-|         Browser           |
-|   desktop-first client    |
+| Windows Chrome / Edge PWA |
+| fixed HTTPS Origin        |
 +-------------+-------------+
               |
               v
@@ -73,36 +73,28 @@ MVP 采用“单体前端 + 平台服务”模型：
 | Forms / Tables / Queries  |
 +------+------+------+------+
        |      |      |
-       |      |      +-------------------------------+
-       |      |                                      |
-       v      v                                      v
-+-------------+----+                    +---------------------------+
-|   Auth Adapter   |                    |   Export Service          |
-| login/session    |                    | browser print/xlsx        |
-+-------------+----+                    +-------------+-------------+
-              |                                       |
-              v                                       v
-+---------------------------+             +--------------------------+
-|       Authing OIDC        |             | Lazy ExcelJS / templates |
-| current account/session   |             | local file generation    |
-+---------------------------+             +--------------------------+
-
-+---------------------------+     +-------------------------------+
-|  Data / File Adapters     |---->| Alibaba Cloud FC Web API      |
-| orders / stock / files    |     | auth / transactions / access  |
-+---------------------------+     +---------------+---------------+
-                                                |
-                              +-----------------+-----------------+
-                              v                                   v
-                  +-----------------------+          +-----------------------+
-                  | RDS PostgreSQL        |          | Private OSS Bucket    |
-                  | records / snapshots   |          | contract attachments  |
-                  +-----------------------+          +-----------------------+
-
+       v      v      v
++----------+ +----------------+ +------------------+
+| Local    | | Repository /   | | Export Service   |
+| Auth     | | File Adapters  | | print / xlsx     |
++----+-----+ +-------+--------+ +------------------+
+     |               |
+     +-------+-------+
+             v
 +---------------------------+
-| OSS + CDN hosted SPA      |
-| filed mainland domain     |
+| IndexedDB                 |
+| records / stock / Blob    |
+| schema / migration meta   |
++-------------+-------------+
+              |
+              v
 +---------------------------+
+| Backup Service            |
+| validate / compress       |
+| AES-256-GCM encrypt       |
++---------------------------+
+
+Mac development -> CI -> platform-independent static hosting
 ```
 
 ### 1.6 核心原则
@@ -138,7 +130,7 @@ MVP 采用“单体前端 + 平台服务”模型：
 Presentation Layer    页面、路由、组件、交互状态
 Application Layer     use cases、命令编排、提交流程
 Domain Layer          业务规则、领域对象、库存回算、导出 payload 规则
-Infrastructure Layer  repository、BaaS adapter、storage adapter、export adapter
+Infrastructure Layer  IndexedDB repository、auth/file/backup/export adapter、PWA runtime
 ```
 
 约束：
@@ -157,10 +149,10 @@ Infrastructure Layer  repository、BaaS adapter、storage adapter、export adapt
 | `Master Data` | 货品、客户、供应商管理，可选项供录单引用 | `listProducts`、`saveProduct`、`toggleProductStatus`、`deleteProduct`、`listCounterparties`、`saveCounterparty`、`toggleCounterpartyStatus`、`deleteCounterparty`、`getSelectableProducts`、`getSelectableCustomers`、`getSelectableSuppliers` | `Shared Platform` | 管基础资料，不管库存增减和导出文件 |
 | `Document Core` | 进货单、出货单、报价单的创建、编辑、详情、列表与导出 payload | `createPurchaseOrder`、`updatePurchaseOrder`、`listPurchaseOrders`、`getPurchaseOrder`、`createSalesOrder`、`updateSalesOrder`、`listSalesOrders`、`getSalesOrder`、`createQuoteOrder`、`updateQuoteOrder`、`listQuoteOrders`、`getQuoteOrder`、`buildExportPayload` | `Master Data`、`Inventory Engine`、`Export Service`、`Shared Platform` | 管单据，不直接改库存快照，不直接渲染导出文件 |
 | `Inventory Engine` | 库存流水、库存快照、改单差额回算、库存不足判断 | `applyPurchaseOrder`、`applySalesOrder`、`recalculateOrderDelta`、`getCurrentStock`、`getStockSnapshot`、`getStockHistory` | `Shared Platform` | 是唯一允许写库存的模块 |
-| `Contract Center` | 合同记录、附件上传下载、附件元数据、按客户查询 | `createContractRecord`、`updateContractRecord`、`listContractRecords`、`getContractRecord`、`downloadAttachment` | `Shared Platform`、文件存储 adapter | 合同信息入库，合同二进制入对象存储 |
+| `Contract Center` | 合同记录、附件上传下载、附件元数据、按客户查询 | `createContractRecord`、`updateContractRecord`、`listContractRecords`、`getContractRecord`、`downloadAttachment` | `Shared Platform`、文件存储 adapter | 合同元数据与 Blob 分离存入 IndexedDB |
 | `Search` | 聚合进货、出货、报价、合同，提供统一搜索结果 | `searchDocuments`、`buildSearchDocument`、`refreshSearchProjection` | `Document Core`、`Contract Center`、`Shared Platform` | 页面层只消费统一结果，不拼多表查询 |
 | `Export Service` | 接收导出 payload，选择固定模板，生成打印版 / 表格版 | `exportPurchasePrint`、`exportPurchaseSheet`、`exportSalesPrint`、`exportSalesSheet`、`exportQuotePrint`、`exportQuoteSheet` | `Shared Platform`、模板 adapter | 模板映射和文件渲染都收敛在导出服务中 |
-| `Shared Platform` | 数据访问、表单校验、格式化、上传、错误映射、通知、日志 | `repositories`、`validators`、`formatters`、`uploadClient`、`errorMapper`、`notificationBus` | BaaS SDK、Query 客户端 | 只放通用能力，不放单一业务规则 |
+| `Shared Platform` | 数据访问、备份恢复、表单校验、格式化、错误映射、通知、日志 | `repositories`、`backupService`、`validators`、`formatters`、`errorMapper`、`notificationBus` | IndexedDB、Web Crypto、Storage API、Query 客户端 | 只放通用能力，不放单一业务规则 |
 
 ### 2.4 模块依赖
 
@@ -198,8 +190,8 @@ Export Service -> Shared Platform
 ```
 
 约束：
-- 页面层不能直接写数据库
-- 页面层不能直接调用对象存储 SDK
+- 页面层不能直接操作 IndexedDB
+- 页面层不能直接读写附件 Blob store
 - 关键写操作必须有明确 use case 入口
 
 ### 3.2 场景一：新建进货单
@@ -226,7 +218,7 @@ Export Service -> Shared Platform
 - 本地适配器通过集合快照和逆序恢复保证单次保存不留下半成品
 - 相同保存请求并发触发时复用进行中的结果，不重复应用库存
 - 不同本地保存请求必须串行执行，避免失败回滚覆盖其他成功提交
-- 生产远程适配器不得依赖客户端快照补偿，单据、流水和快照必须在同一数据库事务中提交
+- IndexedDB 生产适配器必须把单据、流水和快照放在同一个读写 transaction 中提交
 
 ### 3.3 场景二：编辑出货单并触发库存不足提醒
 
@@ -262,11 +254,11 @@ Export Service -> Shared Platform
 - 提交前读取三类完整前态，失败时按快照、流水、单据的逆序恢复
 - 所有本地单据保存串行执行，相同请求在进行中时复用同一结果
 
-远程适配器：
-- 创建和编辑必须由服务端事务入口统一编排
-- 单据主从记录、库存流水和库存快照必须使用同一数据库事务与连接上下文
-- 任一写入或约束校验失败必须整体回滚，客户端不得自行补偿为生产一致性保证
-- 重试必须使用稳定幂等键或数据库唯一约束，不能重复建单或重复应用库存
+IndexedDB 生产适配器：
+- 创建和编辑必须由应用 use case 统一编排
+- 单据主从记录、库存流水和库存快照必须使用同一个读写 transaction
+- 任一写入或约束校验失败必须整体回滚，不允许分步提交后再依赖页面补偿
+- 重试必须使用稳定幂等键或复合唯一索引，不能重复建单或重复应用库存
 
 ### 3.4 场景三：合同上传
 
@@ -274,7 +266,7 @@ Export Service -> Shared Platform
 用户填写合同表单并选文件
 -> createContractRecord(input, files)
 -> 校验字段和文件数量
--> 上传文件到对象存储
+-> 通过 File Adapter 写入 IndexedDB Blob store
 -> 返回文件元数据
 -> 写入 ContractRecord
 -> 写入 ContractAttachment
@@ -308,8 +300,8 @@ Export Service -> Shared Platform
 
 | 状态类型 | 内容 | 存放位置 | 规则 |
 |----------|------|----------|------|
-| 全局状态 | 登录态、当前账号、全局筛选上下文、全局提示条、跨页上传/导出提示 | 轻量全局 store | 只放跨页面共享且不适合走服务端缓存的状态 |
-| 服务端状态 | 货品列表、往来单位列表、单据列表与详情、合同列表与详情、最近记录、搜索结果、库存快照 | Query 缓存层 | 所有服务端状态必须可重取，真相以服务端为准 |
+| 全局状态 | 登录态、当前账号、全局筛选上下文、全局提示条、跨页上传/导出提示 | 轻量全局 store | 只放跨页面共享状态，不作为业务数据真相 |
+| 持久化状态 | 货品、往来单位、单据、合同、附件、搜索数据和库存 | IndexedDB + Query 缓存层 | IndexedDB 为本机业务真相，缓存必须可重新读取 |
 | 局部状态 | 表单输入值、明细行编辑、弹窗开关、库存不足确认、分页/排序/筛选暂存值 | 页面组件 / 表单控制器 | 页面关闭可丢失的状态不进入全局 store |
 
 ### 4.2 页面状态约束
@@ -343,7 +335,7 @@ Export Service -> Shared Platform
 - 首次迁移时，没有 `accountId` 的旧记录统一归属当前账号
 - 迁移标记只在全部集合处理完成后写入，重复执行不得复制记录或改变既有归属
 
-生产环境必须从服务端身份派生 `accountId` 并强制过滤，客户端隔离不能作为生产安全边界。
+生产环境由 Local Auth session 派生 `accountId`，所有 Repository 和 File Adapter 必须强制过滤。该隔离是同一 Windows 用户内的逻辑边界，不替代操作系统账号、磁盘加密和锁屏。
 
 编号一致性：
 - 统一编号生成器按账号隔离后的集合、业务类型和当前月份读取合法编号的最大两位流水号
@@ -358,9 +350,9 @@ Export Service -> Shared Platform
 用户输入
 -> 局部状态更新
 -> 提交 use case
--> 服务端状态变化
+-> IndexedDB 持久化状态变化
 -> Query 失效
--> 页面基于新服务端状态重渲染
+-> 页面基于新持久化状态重渲染
 ```
 
 禁止：
@@ -387,10 +379,11 @@ Page
 ### 5.2 外部依赖
 
 外部依赖类型：
-- 托管 Auth
-- 托管 PostgreSQL
-- 对象存储
-- Serverless Function 或轻量服务端运行时
+- IndexedDB 浏览器 API
+- Web Crypto API
+- Storage API
+- Service Worker / PWA 能力
+- 平台无关静态托管
 - Query / 表单 / 校验类前端库
 
 约束：
@@ -422,7 +415,7 @@ Page
 必须遵守：
 - 单据保存接口必须整单提交
 - 库存变更只能通过 `Inventory Engine`
-- 合同附件必须“元数据入库 + 二进制入对象存储”
+- 合同附件必须“元数据与 Blob 分离 + File Adapter 统一访问”
 - 导出必须通过 `Export Service`
 - 搜索必须返回统一结果类型
 
@@ -462,12 +455,12 @@ ExportPayload {
 - 表单、列表、详情页交互重
 - 更适合固定 App Shell 和持续会话体验
 
-### 6.2 采用托管平台能力，而不是自建基础设施
+### 6.2 采用本地优先持久化，而不是先建设云端后端
 
 原因：
-- 当前阶段更看重稳定性和低运维
-- 当前业务规模不需要重型服务拆分
-- 身份、数据库、存储和运行时由托管平台负责，业务规则仍保留在项目应用层和领域层
+- 当前是单人、单台 Windows、低数据量场景，本地持久化成本和运维负担更低
+- IndexedDB、Web Crypto 和 PWA 可覆盖离线录单、附件、备份和更新需求
+- Adapter 边界继续保留，未来出现多设备或协作需求时可迁移云端
 
 ### 6.3 采用 Inventory Ledger + Current Stock Snapshot
 
@@ -482,15 +475,15 @@ ExportPayload {
 原因：
 - 固定模板稳定性优先
 - 当前浏览器端模板 Excel 已完成真实下载验收
-- 客户端按需加载 ExcelJS 与模板可避免低频导出占用额外服务端运行资源
+- 客户端按需加载 ExcelJS 与模板可避免低频导出增加首屏负担
 
-生产环境继续由浏览器端 `Export Service` 读取固定模板并生成打印版 / 表格版。导出数据必须先经已鉴权 API 获取，ExcelJS 和模板不得进入首屏必要资源；页面层不得直接维护模板字段和单元格映射。
+生产环境继续由浏览器端 `Export Service` 读取固定模板并生成打印版 / 表格版。导出数据必须从当前账号隔离的 Repository 获取，ExcelJS 和模板不得进入首屏必要资源；页面层不得直接维护模板字段和单元格映射。
 
-### 6.5 合同附件使用对象存储，而不是数据库二进制字段
+### 6.5 合同附件使用独立 IndexedDB Blob store
 
 原因：
-- 文件体积、下载、扩展性更适合对象存储
-- 元数据与二进制解耦后更利于查询和管理
+- Blob 不与合同 JSON 记录内嵌，避免 Base64 体积膨胀
+- 元数据与二进制解耦后更利于查询、容量控制、备份和未来迁移
 
 ### 6.6 采用统一搜索聚合层，而不是前端分别查多模块
 
@@ -506,38 +499,40 @@ ExportPayload {
 - 库存、导出、合同、查询都可在单系统边界内完成
 - 过早拆分只会增加实现成本和漂移风险
 
-### 6.8 预留团队版扩展点，但本期不提前实现
-
-预留能力：
-- `Organization`
-- `Membership`
-- `RBAC`
-- `Audit Log`
+### 6.8 保留多账号隔离，但不扩展团队协作
 
 原因：
-- 当前明确是单账号隔离的单人系统
-- 未来扩展应建立在当前稳定边界上，而不是提前引入复杂度
+- 当前主要由一人使用，但保留本机多账号和账号级数据隔离
+- 本地账号不提供组织、成员、RBAC 或远程协作能力
+- 未来扩展应建立在当前稳定 Adapter 边界上，而不是提前引入团队复杂度
 
-### 6.9 生产平台采用 Authing + 阿里云
+### 6.9 生产平台采用 IndexedDB 本地优先方案
 
-任务 34 已锁定以下生产方向：
+任务 34 的修订决策锁定以下生产方向：
 
-- Authing 公有云 OIDC 负责认证。
-- 阿里云 OSS + CDN 托管 SPA。
-- 阿里云函数计算 FC 承载业务 API。
-- 阿里云 RDS PostgreSQL 保存业务数据并保证事务。
-- 阿里云私有 OSS 保存合同附件。
-- 阿里云 KMS 与 FC RAM 角色管理服务端凭据和云资源权限。
-- 开发、测试、生产使用独立身份应用、数据库、Bucket、FC 服务和密钥。
+- Local Auth + Web Crypto 负责本地多账号认证。
+- IndexedDB 保存结构化业务数据和库存真相。
+- 合同附件以 Blob 独立存储，通过 File Adapter 访问。
+- Backup Service 负责整机加密备份、预览和恢复。
+- PWA 提供离线运行和提示式更新。
+- 构建产物使用平台无关静态托管，Windows 通过固定 HTTPS Origin 长期使用。
 
-完整评分、成本、拓扑、降级和退出方案见 `docs/adr/0001-production-platform.md`。供应商或导出运行时发生变化时必须新增 ADR。
+完整数据、备份、容量、更新和退出方案见 `docs/adr/0002-local-first-indexeddb.md`。ADR-0001 仅保留为已被取代的历史决策。
+
+### 6.10 整机加密备份与提示式更新
+
+- 备份覆盖全部账号、业务数据、附件和必要元数据，不包含活动 session。
+- 数据压缩后使用备份密码派生的 AES-256-GCM 密钥加密，密码和派生密钥不落盘。
+- 恢复必须先完成密码、格式、摘要、版本和容量预检，再展示预览并执行整机替换。
+- Service Worker 只提示新版本，不强制刷新编辑中的页面；高风险升级先完成备份。
+- 正式 HTTPS Origin 投入使用后保持稳定，变更 Origin 必须通过备份恢复迁移数据。
 
 ## 7. 实施约束与验收清单
 
 ### 7.1 AI Agent 实现约束
 
-- 不直接在页面组件里调用数据库 SDK
-- 不直接在页面组件里调用对象存储 SDK
+- 不直接在页面组件里调用 IndexedDB API
+- 不直接在页面组件里读写附件 Blob store
 - 不绕过 `Inventory Engine` 更新库存
 - 不让导出逻辑散落在进货、出货、报价页面
 - 不把合同文件内容作为普通文本字段入库
@@ -561,10 +556,10 @@ ExportPayload {
 
 ### 7.3 默认假设
 
-- 当前产品为单账号隔离的单人业务系统
+- 当前产品为单人主用、保留本地多账号隔离的业务系统
 - 桌面端优先，移动端仅保底可用
 - 默认实现路线是 `React SPA + Router + Query + 表单校验 + 轻量全局状态`
-- 生产平台采用 Authing + 阿里云中国内地区域，具体能力边界以 `docs/adr/0001-production-platform.md` 为准
+- 生产平台采用 IndexedDB 本地优先方案，具体能力边界以 `docs/adr/0002-local-first-indexeddb.md` 为准
 - 当前已有出货单、报价单标准 `.xlsx` 模板资产进入 `public/templates/`
 - 模板字段映射仍需在后续实现阶段补齐，且必须收敛在 `Export Service`
 - 库存允许为负，但负库存只能来自出货保存且必须留下流水

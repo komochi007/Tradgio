@@ -7,7 +7,7 @@
 - 未登录用户无法进入业务路由
 - 登录成功后进入总览页
 - 刷新后可恢复会话
-- 后续可从 mock / local 实现切换到真实托管 Auth
+- 本地多账号密码不以明文或可逆形式保存
 
 ## 2. 模块归属
 
@@ -41,6 +41,17 @@ type Account = {
   createdAt: string;
 };
 
+type AccountCredential = {
+  accountId: string;
+  passwordVerifier: {
+    algorithm: "PBKDF2-SHA-256";
+    version: number;
+    iterations: number;
+    salt: string;
+    digest: string;
+  };
+};
+
 type RegisterInput = {
   username: string;
   password: string;
@@ -54,7 +65,6 @@ type LoginInput = {
 
 type AuthSession = {
   account: Account;
-  token: string;
   issuedAt: string;
 };
 
@@ -115,17 +125,16 @@ type AuthState = {
 
 ## 8. 本地实现约束
 
-开发阶段允许使用：
-- localStorage 维护账户列表
-- localStorage 维护当前 session
-
-约束：
-- 必须通过 Auth adapter 暴露，不允许页面直接操作 localStorage
-- session 与 account 分开存储
-- 为真实托管 Auth 预留替换点
-- 业务 Repository 只能从有效 session 获取当前 `accountId`
-- 登录和会话恢复会触发一次性账号归属迁移
-- 无有效 session 时禁止业务数据读写
+- 账号与密码校验数据存入 IndexedDB，活动 session 与账号记录分开存储。
+- 注册使用 Web Crypto 生成随机盐，并通过 PBKDF2-SHA-256 派生密码校验值。
+- 迭代次数、盐、摘要、算法和参数版本随账号保存，不保存明文密码或可逆密钥。
+- 页面只能通过 Auth adapter 登录或注册，不直接访问 IndexedDB、Web Crypto 或 session 存储。
+- 业务 Repository 只能从有效 session 获取当前 `accountId`，调用方不能覆盖账号归属。
+- `tradgio_passwords` 旧明文密码仅在用户成功输入原密码后迁移；成功后立即删除对应明文。
+- 活动 session 不进入整机备份，恢复完成后必须重新登录。
+- 忘记密码无法通过邮件或管理员找回，界面必须明确提示该限制。
+- 无有效 session 时禁止业务数据和附件读写。
+- 本地账号隔离不替代 Windows 账号、磁盘加密和系统锁屏。
 
 ## 9. 异常与反馈
 
@@ -136,6 +145,8 @@ type AuthState = {
 - 用户名或密码错误
 - session 不存在
 - session 数据损坏
+- 密码参数版本不兼容
+- 旧明文密码迁移失败
 
 反馈规则：
 - 字段错误就近展示
@@ -149,10 +160,12 @@ type AuthState = {
 - 退出登录后不能继续访问业务页
 - 业务页在未登录状态下会跳到登录页
 - 页面不直接调用底层存储
+- IndexedDB 和 localStorage 中不存在明文或可逆密码
+- 备份包含账号校验数据但不包含活动 session
 
 ## 11. 后续扩展点
 
-后续替换真实托管 Auth 时，只应替换：
+未来如通过新 ADR 切换外部身份服务，只应替换：
 - `AuthService` 实现
 - session/token 存取细节
 
