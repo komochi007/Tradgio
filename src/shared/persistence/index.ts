@@ -6,6 +6,7 @@ export {
   INDEXED_DB_SCHEMA,
   INDEXED_DB_TRANSACTIONS,
 } from "./indexeddbSchema"
+export { openTradgioDatabase, requestToPromise, transactionToPromise } from "./indexedDbDatabase"
 export {
   BACKUP_FILE_EXTENSION,
   BACKUP_MAGIC,

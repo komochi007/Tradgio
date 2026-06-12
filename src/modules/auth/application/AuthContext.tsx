@@ -9,7 +9,7 @@ import {
 } from "react"
 import type { AuthService } from "../domain/AuthService"
 import type { AuthState, AuthStatus, LoginInput, RegisterInput } from "../domain/types"
-import { createLocalStorageAuthAdapter } from "../infrastructure/localStorageAuthAdapter"
+import { createIndexedDbAuthAdapter } from "../infrastructure/indexedDbAuthAdapter"
 
 interface AuthContextValue extends AuthState {
   login: (input: LoginInput) => Promise<void>
@@ -20,7 +20,7 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 function useAuthService(): AuthService {
-  return useMemo(() => createLocalStorageAuthAdapter(), [])
+  return useMemo(() => createIndexedDbAuthAdapter(), [])
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

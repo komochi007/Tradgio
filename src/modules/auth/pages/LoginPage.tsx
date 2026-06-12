@@ -99,6 +99,7 @@ export function LoginPage() {
           <button className="auth-form__submit" type="submit" disabled={submitting}>
             {submitting ? "登录中…" : "登录"}
           </button>
+          <p className="auth-card__subtitle">密码仅保存在本机且无法找回，请妥善保管。</p>
         </form>
 
         <p className="auth-card__footer">

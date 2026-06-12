@@ -41,7 +41,6 @@
 
 当前仍未完成：
 - IndexedDB 数据模型、Repository 和事务实现
-- 本地多账号密码安全改造
 - 合同附件 Blob 存储
 - 整机加密备份与恢复
 - PWA 离线运行、更新与 Windows 上线验收
@@ -50,7 +49,7 @@
 - 不要把当前仓库当成空项目
 - 代码实现应优先沿用 `src/modules` 与 `src/shared` 的现有分层
 - 文档中如仍出现“没有代码/没有模板资产”的旧描述，应以当前代码和本文件为准
-- 生产化路线图已建立；任务 35-37 的 IndexedDB、备份和 Adapter 契约已完成，当前下一任务为任务 38
+- 生产化路线图已建立；任务 35-38 的契约与安全 Auth 已完成，当前下一任务为任务 39
 
 ## 3. 业务范围
 
@@ -233,7 +232,7 @@ Presentation -> Application -> Domain -> Infrastructure
 - 路由：`react-router-dom`
 - 数据：当前通过 localStorage adapter 实现 repository，待迁移 IndexedDB
 - 表单：结构化表单 + 领域层校验函数
-- 认证：本地 localStorage auth adapter，仍存在明文密码，待安全迁移
+- 认证：IndexedDB + Web Crypto PBKDF2；旧明文仅在首次成功登录后迁移删除
 - 导出：`Export Service` 提供打印版及出货单、报价单模板 Excel 导出
 
 生产方向为 IndexedDB 本地优先 PWA：结构化数据进入 IndexedDB，附件进入 Blob store，使用 Web Crypto 加密整机备份，静态托管保持平台无关。完整决策见 `docs/adr/0002-local-first-indexeddb.md`。
@@ -281,7 +280,7 @@ Presentation -> Application -> Domain -> Infrastructure
 3. 任务 38-42：安全 Auth、IndexedDB、Blob、离线导出和加密备份
 4. 任务 43-46：本地回归、PWA 发布、Windows 恢复与上线
 
-详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。当前不实施云端供应商 SDK，下一步先完成任务 35 的 IndexedDB 契约。
+详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。当前不实施云端供应商 SDK，下一步完成任务 39 的业务数据 IndexedDB 迁移。
 
 ## 12. 任务路由提示
 
@@ -331,7 +330,7 @@ AI 首次进入项目时，建议阅读顺序：
 
 当前实现风险：
 - 当前数据仍在 localStorage，容量和 transaction 能力不足，待任务 39 迁移
-- 当前密码以明文存储，待任务 38 安全迁移
+- 新账号密码已使用 PBKDF2 校验值；未登录旧账号的明文会在首次成功登录后迁移删除
 - 当前附件以内嵌 Base64 保存，待任务 40 迁移到 IndexedDB Blob
 - 尚未实现整机加密备份、PWA 更新和 Windows 恢复演练
 - 若 AI 不先读 ADR-0002、路线图和现有代码，容易误回云端后端路线

@@ -355,10 +355,10 @@ npm run preview
 注意事项：
 - 出货单、报价单模板 Excel 已完成字段映射、填充导出和真实下载内容验收
 - 模板 Excel 的字段内容、表格样式、边框、对齐和货币格式已于 2026-06-10 手动验收通过
-- 当前认证、数据和附件仍基于本地 `localStorage` / Base64，尚未迁移到 IndexedDB
+- 当前认证已使用 IndexedDB + Web Crypto；业务数据和附件仍基于本地 `localStorage` / Base64，待任务 39-40 迁移
 - 任何后续交付都应区分“本地 MVP 已落地”与“IndexedDB 本地生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 38，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 39，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
@@ -399,8 +399,9 @@ npm run preview
 
 ### Phase 7: Local Production
 - [x] 生产平台 ADR
-- [ ] IndexedDB 数据模型、索引与事务契约
-- [ ] 本地安全 Auth、结构化数据和 Blob 附件迁移
+- [x] IndexedDB 数据模型、索引与事务契约
+- [x] 本地安全 Auth
+- [ ] 结构化数据和 Blob 附件迁移
 - [ ] 离线导出与整机加密备份恢复
 
 ### Phase 8: Release Readiness

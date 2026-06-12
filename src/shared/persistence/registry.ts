@@ -3,8 +3,8 @@ import type { PersistenceConfig } from "./types"
 /**
  * 本地持久化统一配置
  *
- * 所有 localStorage 键名集中在此注册，任务 38-40 将按 ADR-0002
- * 逐步替换为 Local Auth、IndexedDB Repository 和 IndexedDB File Adapter。
+ * 所有 localStorage 键名集中在此注册，任务 39-40 将按 ADR-0002
+ * 继续替换为 IndexedDB Repository 和 IndexedDB File Adapter。
  */
 
 export const persistenceConfig: PersistenceConfig = {
@@ -65,8 +65,8 @@ export function getAllStorageKeys(): string[] {
  * ┌──────────────┬─────────────────────┬──────────────────────────────┐
  * │ 适配层        │ 当前实现             │ 未来替换方向                   │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
- * │ AuthAdapter  │ localStorage        │ IndexedDB + Web Crypto        │
- * │              │ (localStorageAuth)  │ 保持 AuthService 接口不变      │
+ * │ AuthAdapter  │ IndexedDB           │ 已完成 Web Crypto 安全改造      │
+ * │              │ + Web Crypto       │ 保持 AuthService 接口不变      │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
  * │ DataAdapter  │ localStorage        │ IndexedDB Repository          │
  * │              │ (createRepo<T>)     │ Repository<T> 接口不变        │
@@ -92,8 +92,8 @@ export function getAllStorageKeys(): string[] {
  */
 export const MIGRATION_POINTS = {
   auth: {
-    current: "src/modules/auth/infrastructure/localStorageAuthAdapter.ts",
-    future: "替换为 IndexedDB + Web Crypto 实现，保持 AuthService 接口不变",
+    current: "src/modules/auth/infrastructure/indexedDbAuthAdapter.ts",
+    future: "保持 IndexedDB + Web Crypto 实现和 AuthService 接口稳定",
   },
   data: {
     current: "src/shared/query/localStorageAdapter.ts",

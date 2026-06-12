@@ -18,7 +18,15 @@ export function createCoreFlowSeed() {
 
 export async function resetBrowserData(page: Page) {
   await page.goto("/login")
-  await page.evaluate(() => localStorage.clear())
+  await page.evaluate(async () => {
+    localStorage.clear()
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.deleteDatabase("tradgio")
+      request.onsuccess = () => resolve()
+      request.onerror = () => reject(request.error)
+      request.onblocked = () => reject(new Error("测试数据库清理被阻止"))
+    })
+  })
   await page.reload()
   await expect(page.getByRole("heading", { name: "登录 Tradgio" })).toBeVisible()
 }

@@ -127,6 +127,7 @@ type AuthState = {
 
 - 账号与密码校验数据存入 IndexedDB，活动 session 与账号记录分开存储。
 - 注册使用 Web Crypto 生成随机盐，并通过 PBKDF2-SHA-256 派生密码校验值。
+- 当前参数版本为 `1`：600,000 次迭代、16-byte 随机盐和 32-byte 摘要；参数随凭据保存，不依赖构建配置。
 - 迭代次数、盐、摘要、算法和参数版本随账号保存，不保存明文密码或可逆密钥。
 - 页面只能通过 Auth adapter 登录或注册，不直接访问 IndexedDB、Web Crypto 或 session 存储。
 - 业务 Repository 只能从有效 session 获取当前 `accountId`，调用方不能覆盖账号归属。
@@ -135,6 +136,12 @@ type AuthState = {
 - 忘记密码无法通过邮件或管理员找回，界面必须明确提示该限制。
 - 无有效 session 时禁止业务数据和附件读写。
 - 本地账号隔离不替代 Windows 账号、磁盘加密和系统锁屏。
+
+当前实现：
+- `src/modules/auth/infrastructure/indexedDbAuthAdapter.ts` 负责账号、凭据、session 和旧明文迁移编排。
+- `src/modules/auth/infrastructure/passwordVerifier.ts` 只负责版本化密码派生和常量时间摘要比较。
+- `tradgio_session` 仍独立保存在 localStorage，不进入备份；账号和校验值进入 IndexedDB。
+- 旧账号在首次成功登录时迁移；旧 session 若尚无 IndexedDB 凭据会失效并要求重新输入密码。
 
 ## 9. 异常与反馈
 
