@@ -68,7 +68,8 @@
 - 2026-06-12，任务 34 决策修订已接受 `docs/adr/0002-local-first-indexeddb.md`，ADR-0001 标记为被取代。
 - ADR 已锁定本地多账号、IndexedDB、Blob 附件、整机加密备份、PWA 和平台无关静态托管。
 - 2026-06-12，任务 35 已通过 `specs/indexeddb-persistence.md` 和 `src/shared/persistence/indexeddbSchema.ts` 锁定账号隔离、复合唯一索引、单据库存事务、合同附件事务、schema 升级和错误契约；7 项契约测试通过。
-- 上述条目当前仍是契约证据，安全密码和 IndexedDB/File Adapter 实现仍待任务 37-40 完成，因此 Gate 3 保持未通过。
+- 2026-06-12，任务 37 已通过统一 Adapter 注册表锁定账号上下文、transaction、Blob、容量、加密、备份、迁移和错误映射；页面与领域模块浏览器 API 直连检查无结果，12 项契约测试通过。
+- 上述条目当前仍是契约证据，安全密码和 IndexedDB/File Adapter 实现仍待任务 38-40 完成，因此 Gate 3 保持未通过。
 
 ## Gate 4：本地迁移与数据完整性
 
@@ -91,6 +92,12 @@
 - [ ] 静态资源和模板已按缓存策略离线可访问。
 - [ ] ExcelJS 不阻塞首屏加载，构建产物体积已有评估。
 - [ ] 运行文档包含发布、更新、Origin 迁移、回滚和常见故障处理。
+
+当前证据（尚不足以通过 Gate）：
+- 2026-06-12，任务 37 已定义固定 HTTPS Origin、应用/schema 版本、同源 Service Worker 路径和数据库兼容写入阻断。
+- PWA 更新状态机禁止自动 `skipWaiting` 和自动刷新；未保存表单阻止激活，schema/高风险更新要求先完成加密备份，用户可保留 waiting 更新稍后处理。
+- `.env.example` 只包含非敏感运行配置，12 项模拟 Adapter 演练通过。
+- 当前尚未注册真实 Service Worker、实现离线缓存或完成 Windows 安装/更新/回滚演练，因此 Gate 5 保持未通过。
 
 ## Gate 6：备份、容量与恢复
 

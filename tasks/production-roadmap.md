@@ -171,7 +171,7 @@
 ### 任务 37：本地 Adapter 与 PWA 更新契约
 
 - 优先级：P1
-- 状态：待开始
+- 状态：已完成
 - 目标：锁定页面层与 IndexedDB、Web Crypto、Storage API、Service Worker 之间的稳定边界。
 - 实施内容：完善 Auth、Data、File、Backup、Export Adapter；明确账号上下文、transaction、Blob 读写、容量查询、迁移、更新提示、取消语义和错误映射；定义应用版本、schema 版本和固定 Origin 配置。
 - 交付物：接口契约、错误模型、PWA 更新状态机、运行配置方向和 Adapter 测试替身。
@@ -179,6 +179,7 @@
 - 依赖：任务 34、35。
 - 验证方式：契约测试和模拟 Adapter 演练。
 - 文档同步：更新持久化注册表、README 和架构文档。
+- 完成记录：2026-06-12 完成。新增统一 Platform Adapter 注册表，覆盖 Auth、Data、transaction、File、Storage、Crypto、Backup、Export、Migration 和 PWA Update；定义 AbortSignal 取消、统一错误映射、应用/schema/固定 Origin 配置、数据库写入兼容检查和 waiting worker 提示式更新状态机。12 项契约测试通过，页面与领域模块浏览器 API 直连检查无结果；`npm run quality` 通过：7 个测试文件、63 项测试全部通过，生产构建成功，依赖审计为 0 个漏洞。
 
 ## 5. P2 本地生产能力
 
@@ -294,4 +295,4 @@
 
 ## 7. 当前启动顺序
 
-当前下一任务为任务 37，后续按 `37 -> 38 -> 39 -> 40 -> 41 -> 42 -> 43 -> 44 -> 45 -> 46` 顺序推进。每次只完成一个任务，自动验收、文档同步和 Git 提交后再进入下一项。
+当前下一任务为任务 38，后续按 `38 -> 39 -> 40 -> 41 -> 42 -> 43 -> 44 -> 45 -> 46` 顺序推进。每次只完成一个任务，自动验收、文档同步和 Git 提交后再进入下一项。

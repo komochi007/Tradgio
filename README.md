@@ -216,7 +216,7 @@ AI Agent 约束：
 - `npm run preview`
 
 当前仍建议后续补齐：
-- [ ] `.env.example`
+- [x] `.env.example`（仅包含非敏感的应用版本、环境、Origin 和 Service Worker 路径）
 
 推荐目标命令：
 
@@ -233,9 +233,10 @@ npm run preview
 
 ## 8. Environment Variables
 当前状态：
-- [ ] 仓库内暂无环境变量文件
+- [x] 仓库已提供 `.env.example`，任务 44 锁定正式 Origin 后替换示例值
 - [x] 本地优先方案不依赖服务端密钥
-- [ ] PWA 应用版本、正式 Origin 和发布配置待任务 37、44 定义
+- [x] PWA 应用版本、schema 版本、固定 Origin 和 Service Worker 路径契约已由任务 37 定义
+- [ ] 正式 Origin 和真实 PWA 发布配置待任务 44 锁定
 
 预期变量类别：
 
@@ -247,10 +248,7 @@ npm run preview
 | Export | 浏览器端 Export Service 开关与模板基础路径 |
 | Diagnostics | 非敏感调试与日志开关 |
 
-建议后续提供：
-- 平台无关构建配置
-- 测试与生产 Origin 配置
-- 不包含密码、备份密钥或其他敏感信息的 `.env.example`（如任务 37 评估确有需要）
+构建配置只允许使用 `VITE_APP_ENV`、`VITE_APP_VERSION`、`VITE_EXPECTED_ORIGIN` 和 `VITE_SERVICE_WORKER_PATH`。平台无关部署、测试/生产 Origin 实值和 Service Worker 构建由任务 44 实现。
 
 生产方案见 `docs/adr/0002-local-first-indexeddb.md`。密码、备份密码、派生密钥和活动 session 不得进入环境变量或构建产物。
 
@@ -360,7 +358,7 @@ npm run preview
 - 当前认证、数据和附件仍基于本地 `localStorage` / Base64，尚未迁移到 IndexedDB
 - 任何后续交付都应区分“本地 MVP 已落地”与“IndexedDB 本地生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 35，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 38，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation

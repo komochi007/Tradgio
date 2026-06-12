@@ -76,6 +76,12 @@ export function getAllStorageKeys(): string[] {
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
  * │ ExportAdapter│ 客户端 Blob 下载      │ 离线客户端按需加载              │
  * │              │ (exportService.ts)  │ 保持 Export Service 接口不变   │
+ * ├──────────────┼─────────────────────┼──────────────────────────────┤
+ * │ BackupAdapter│ 尚未实现             │ 全库加密备份、预览与恢复         │
+ * ├──────────────┼─────────────────────┼──────────────────────────────┤
+ * │ StorageAdapter│ 尚未实现            │ Storage API 容量与持久化         │
+ * ├──────────────┼─────────────────────┼──────────────────────────────┤
+ * │ PwaUpdateAdapter│ 尚未实现          │ waiting 更新提示与显式激活       │
  * └──────────────┴─────────────────────┴──────────────────────────────┘
  *
  * 迁移原则：
@@ -100,5 +106,17 @@ export const MIGRATION_POINTS = {
   export: {
     current: "src/modules/export-service/application/exportService.ts",
     future: "保持客户端导出，按需加载 ExcelJS 和离线模板",
+  },
+  backup: {
+    current: "尚未实现",
+    future: "按 specs/backup-restore.md 实现整机加密备份与恢复",
+  },
+  storage: {
+    current: "尚未实现",
+    future: "封装 Storage API 容量查询、持久化与阈值策略",
+  },
+  pwaUpdate: {
+    current: "尚未实现",
+    future: "封装 Service Worker 注册、检查、waiting 提示与显式激活",
   },
 }
