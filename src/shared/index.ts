@@ -69,7 +69,27 @@ export {
 } from "./components"
 export type { SelectOption, ProductOption } from "./components"
 
-export { persistenceConfig, STORAGE_KEYS, MIGRATION_POINTS, getAllStorageKeys } from "./persistence"
+export {
+  persistenceConfig,
+  STORAGE_KEYS,
+  MIGRATION_POINTS,
+  getAllStorageKeys,
+  BACKUP_FILE_EXTENSION,
+  BACKUP_MAGIC,
+  BACKUP_FORMAT_VERSION,
+  BACKUP_CRYPTO,
+  BACKUP_COMPRESSION,
+  BACKUP_SERIALIZATION,
+  BACKUP_DIGEST,
+  BACKUP_PASSWORD_MIN_LENGTH,
+  BACKUP_STORES,
+  checkBackupCompatibility,
+  checkBackupHeaderCompatibility,
+  evaluateRestoreCapacity,
+  canTransitionRestore,
+  restoreMayWriteDatabase,
+  buildRestorePreview,
+} from "./persistence"
 export type {
   PersistenceConfig,
   AuthAdapter,
@@ -79,6 +99,21 @@ export type {
   FileAdapter,
   ExportAdapter,
   PersistenceRegistry,
+  BackupEnvelopeHeader,
+  BackupEnvelopeHeaderCandidate,
+  BackupEnvelope,
+  BackupStoreSummary,
+  BackupAttachmentSummary,
+  BackupBusinessTotals,
+  BackupManifest,
+  SerializedAttachmentBlob,
+  BackupStoreData,
+  BackupArchive,
+  BackupCompatibility,
+  RestoreCapacityInput,
+  RestoreCapacityResult,
+  RestorePhase,
+  RestorePreview,
 } from "./persistence"
 export { useFormDraft, getDraft, saveDraft, removeDraft } from "./drafts"
 export type { DraftFormKey, DraftRecord } from "./drafts"

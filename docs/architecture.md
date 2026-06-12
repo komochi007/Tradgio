@@ -262,6 +262,8 @@ IndexedDB 生产适配器：
 
 IndexedDB schema、索引、Repository/File Adapter、事务矩阵、账号隔离和升级失败处理的完整契约见 `specs/indexeddb-persistence.md`。代码侧声明由 `src/shared/persistence/indexeddbSchema.ts` 统一维护，业务页面不得引用原生 IndexedDB API。
 
+整机加密备份的文件结构、PBKDF2/AES-GCM 参数、完整性摘要、容量预检、恢复状态机与失败回滚契约见 `specs/backup-restore.md`；用户侧迁移和副本规则见 `docs/data-migration.md`。
+
 ### 3.4 场景三：合同上传
 
 ```text

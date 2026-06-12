@@ -104,6 +104,12 @@
 - [ ] 备份提醒、至少两处副本和恢复演练频率已记录。
 - [ ] 用户已被明确告知忘记备份密码无法恢复。
 
+当前证据（尚不足以通过 Gate）：
+- 2026-06-12，任务 36 已通过 `specs/backup-restore.md` 和 `src/shared/persistence/backupContract.ts` 锁定 `.tradgio-backup` v1、全 store 序列化、摘要统计、PBKDF2/AES-GCM 参数、容量预检、恢复前快照和恢复状态机。
+- 双账号脱敏样本的 8 项契约测试通过，验证活动 session 不在备份集合，错误版本、未知参数和容量不足在写入阶段前被阻断。
+- `docs/data-migration.md` 已记录至少两处副本、每周备份、季度恢复演练和忘记密码无法恢复。
+- 上述条目仍是设计证据；真实加解密、IndexedDB 整库替换和全新 Windows 恢复待任务 42、43、46，因此 Gate 6 保持未通过。
+
 ## Gate 7：UAT 与发布结论
 
 - [ ] 阻断：真实业务样本完成货品、单位、进货、出货、报价和合同 UAT。
