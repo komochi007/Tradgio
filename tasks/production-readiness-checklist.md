@@ -67,7 +67,8 @@
 当前证据（尚不足以通过 Gate）：
 - 2026-06-12，任务 34 决策修订已接受 `docs/adr/0002-local-first-indexeddb.md`，ADR-0001 标记为被取代。
 - ADR 已锁定本地多账号、IndexedDB、Blob 附件、整机加密备份、PWA 和平台无关静态托管。
-- 安全密码、IndexedDB transaction、唯一索引和附件隔离仍待任务 35、37-40 实施，因此 Gate 3 保持未通过。
+- 2026-06-12，任务 35 已通过 `specs/indexeddb-persistence.md` 和 `src/shared/persistence/indexeddbSchema.ts` 锁定账号隔离、复合唯一索引、单据库存事务、合同附件事务、schema 升级和错误契约；7 项契约测试通过。
+- 上述条目当前仍是契约证据，安全密码和 IndexedDB/File Adapter 实现仍待任务 37-40 完成，因此 Gate 3 保持未通过。
 
 ## Gate 4：本地迁移与数据完整性
 

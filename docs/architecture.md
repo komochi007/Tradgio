@@ -260,6 +260,8 @@ IndexedDB 生产适配器：
 - 任一写入或约束校验失败必须整体回滚，不允许分步提交后再依赖页面补偿
 - 重试必须使用稳定幂等键或复合唯一索引，不能重复建单或重复应用库存
 
+IndexedDB schema、索引、Repository/File Adapter、事务矩阵、账号隔离和升级失败处理的完整契约见 `specs/indexeddb-persistence.md`。代码侧声明由 `src/shared/persistence/indexeddbSchema.ts` 统一维护，业务页面不得引用原生 IndexedDB API。
+
 ### 3.4 场景三：合同上传
 
 ```text

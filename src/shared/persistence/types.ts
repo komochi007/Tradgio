@@ -1,19 +1,16 @@
 import type { AuthService } from "../../modules/auth/domain/AuthService"
 import type { Repository } from "../query"
+import type { PersistenceTransaction } from "./indexeddbSchema"
 
 /**
  * 持久化适配器类型定义
  *
- * 当前全部使用 localStorage 实现，未来可按接口替换为托管后端：
- *   - AuthAdapter      → Managed Auth（Clerk / Auth0 / 自建）
- *   - DataAdapter      → PostgreSQL + API
- *   - FileAdapter      → Object Storage（S3 / R2）
- *   - ExportAdapter    → Serverless Export Function
+ * 当前业务数据仍使用 localStorage，后续按 ADR-0002 替换为本地优先适配器。
  */
 
 export type PersistenceConfig = {
   /** 当前使用的持久化模式 */
-  mode: "local" | "remote"
+  mode: "localStorage" | "indexeddb"
   /** localStorage 键名前缀 */
   storagePrefix: string
 }
@@ -22,10 +19,26 @@ export type AuthAdapter = AuthService
 
 export type DataAdapter<T extends { id: string; accountId: string }> = Repository<T>
 
+export type AttachmentMetadata = {
+  id: string
+  accountId: string
+  contractId: string
+  fileName: string
+  mimeType: string
+  fileSize: number
+  uploadedAt: string
+  digest?: string
+}
+
+export type FileSaveInput = Omit<AttachmentMetadata, "accountId"> & {
+  blob: Blob
+}
+
 export interface FileAdapter {
-  upload(file: File, metadata: Record<string, string>): Promise<{ url: string; key: string }>
-  download(key: string): Promise<Blob>
-  remove(key: string): Promise<void>
+  save(input: FileSaveInput, transaction: PersistenceTransaction): Promise<AttachmentMetadata>
+  getMetadata(attachmentId: string): Promise<AttachmentMetadata | undefined>
+  download(attachmentId: string): Promise<Blob>
+  remove(attachmentId: string, transaction: PersistenceTransaction): Promise<void>
 }
 
 export interface ExportAdapter {

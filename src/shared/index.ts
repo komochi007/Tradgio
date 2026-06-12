@@ -74,6 +74,8 @@ export type {
   PersistenceConfig,
   AuthAdapter,
   DataAdapter,
+  AttachmentMetadata,
+  FileSaveInput,
   FileAdapter,
   ExportAdapter,
   PersistenceRegistry,

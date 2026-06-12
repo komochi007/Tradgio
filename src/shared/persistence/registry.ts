@@ -3,14 +3,12 @@ import type { PersistenceConfig } from "./types"
 /**
  * 本地持久化统一配置
  *
- * 所有 localStorage 键名集中在此注册，未来迁移远程后端时：
- *   1. 将 mode 改为 "remote"
- *   2. 替换 data 中每个 key 对应的适配器实现
- *   3. 替换 auth 为托管 Auth SDK 调用
+ * 所有 localStorage 键名集中在此注册，任务 38-40 将按 ADR-0002
+ * 逐步替换为 Local Auth、IndexedDB Repository 和 IndexedDB File Adapter。
  */
 
 export const persistenceConfig: PersistenceConfig = {
-  mode: "local",
+  mode: "localStorage",
   storagePrefix: "tradgio",
 }
 
@@ -62,22 +60,22 @@ export function getAllStorageKeys(): string[] {
 }
 
 /**
- * 未来后端迁移适配点清单
+ * IndexedDB 本地优先迁移适配点清单
  *
  * ┌──────────────┬─────────────────────┬──────────────────────────────┐
  * │ 适配层        │ 当前实现             │ 未来替换方向                   │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
- * │ AuthAdapter  │ localStorage        │ Clerk / Auth0 / 自建 OAuth    │
- * │              │ (localStorageAuth)  │ authService.register/login    │
+ * │ AuthAdapter  │ localStorage        │ IndexedDB + Web Crypto        │
+ * │              │ (localStorageAuth)  │ 保持 AuthService 接口不变      │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
- * │ DataAdapter  │ localStorage        │ PostgreSQL + Prisma/Drizzle   │
+ * │ DataAdapter  │ localStorage        │ IndexedDB Repository          │
  * │              │ (createRepo<T>)     │ Repository<T> 接口不变        │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
- * │ FileAdapter  │ dataUrl (base64)    │ S3 / Cloudflare R2            │
- * │              │ (内嵌在 Contract)    │ FileAdapter.upload/download   │
+ * │ FileAdapter  │ dataUrl (base64)    │ IndexedDB Blob store          │
+ * │              │ (内嵌在 Contract)    │ FileAdapter save/read/remove  │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
- * │ ExportAdapter│ 客户端 Blob 下载      │ Serverless Function           │
- * │              │ (exportService.ts)  │ ExportAdapter.export*()       │
+ * │ ExportAdapter│ 客户端 Blob 下载      │ 离线客户端按需加载              │
+ * │              │ (exportService.ts)  │ 保持 Export Service 接口不变   │
  * └──────────────┴─────────────────────┴──────────────────────────────┘
  *
  * 迁移原则：
@@ -89,18 +87,18 @@ export function getAllStorageKeys(): string[] {
 export const MIGRATION_POINTS = {
   auth: {
     current: "src/modules/auth/infrastructure/localStorageAuthAdapter.ts",
-    future: "替换为 Managed Auth SDK 调用，保持 AuthService 接口不变",
+    future: "替换为 IndexedDB + Web Crypto 实现，保持 AuthService 接口不变",
   },
   data: {
     current: "src/shared/query/localStorageAdapter.ts",
-    future: "替换为 REST API 或 ORM 调用，保持 Repository<T> 接口不变",
+    future: "替换为 IndexedDB Repository，保持 Repository<T> 接口不变",
   },
   file: {
     current: "ContractAttachment.dataUrl (内嵌在合同中)",
-    future: "实现 FileAdapter 接口，上传至 Object Storage，记录 URL/key",
+    future: "实现 IndexedDB File Adapter，分离附件元数据与 Blob",
   },
   export: {
     current: "src/modules/export-service/application/exportService.ts",
-    future: "实现 ExportAdapter 接口，调用 Serverless 函数生成并返回文件",
+    future: "保持客户端导出，按需加载 ExcelJS 和离线模板",
   },
 }
