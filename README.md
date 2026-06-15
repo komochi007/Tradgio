@@ -351,7 +351,7 @@ npm run preview
 - [x] ExcelJS 按需加载与固定模板离线缓存
 
 未完成：
-- [ ] 自动化测试体系
+- [x] 自动化测试体系
 - [ ] 部署配置
 - [x] 整机加密备份恢复
 - [ ] PWA 生产化
@@ -363,7 +363,7 @@ npm run preview
 - 当前认证、结构化业务数据、库存、草稿和合同附件已使用 IndexedDB；旧 Base64 附件会幂等迁移到独立 Blob store，失败时保留旧数据
 - 任何后续交付都应区分“本地 MVP 已落地”与“IndexedDB 本地生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 43，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 44，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
@@ -392,7 +392,7 @@ npm run preview
 - [x] 固定模板导出服务（出货单 / 报价单）
 
 ### Phase 5: Hardening
-- [ ] 自动化测试体系
+- [x] 自动化测试体系
 - [x] 空状态 / 错误状态补齐
 - [ ] 部署与运行文档
 
@@ -412,7 +412,8 @@ npm run preview
 - [x] 整机加密备份恢复
 
 ### Phase 8: Release Readiness
-- [ ] 本地适配层回归与 PWA 发布流水线
+- [x] 本地生产适配层自动化回归
+- [ ] PWA 发布流水线
 - [ ] 存储健康、备份提醒和 Windows 恢复演练
 - [ ] Windows 迁移、升级与正式上线验收
 
@@ -426,4 +427,4 @@ npm run preview
 - [ ] 若要突破架构约束，先更新文档再修改实现
 - [ ] 生产化任务先读 `tasks/production-roadmap.md` 和上线检查清单
 
-如果你接手后续迭代，当前从任务 43 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。
+如果你接手后续迭代，当前从任务 44 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。

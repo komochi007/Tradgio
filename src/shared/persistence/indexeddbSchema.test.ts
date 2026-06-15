@@ -1,5 +1,12 @@
+import { IDBFactory } from "fake-indexeddb"
 import { describe, expect, it } from "vitest"
-import { INDEXED_DB_SCHEMA, INDEXED_DB_STORES, INDEXED_DB_TRANSACTIONS } from "./indexeddbSchema"
+import { openTradgioDatabase } from "./indexedDbDatabase"
+import {
+  INDEXED_DB_SCHEMA,
+  INDEXED_DB_SCHEMA_VERSION,
+  INDEXED_DB_STORES,
+  INDEXED_DB_TRANSACTIONS,
+} from "./indexeddbSchema"
 import type { IndexedDbStoreName } from "./indexeddbSchema"
 
 function getStore(name: (typeof INDEXED_DB_STORES)[keyof typeof INDEXED_DB_STORES]) {
@@ -9,6 +16,24 @@ function getStore(name: (typeof INDEXED_DB_STORES)[keyof typeof INDEXED_DB_STORE
 }
 
 describe("IndexedDB 持久化契约", () => {
+  it("空数据库升级到当前 schema 并创建关键唯一索引", async () => {
+    const database = await openTradgioDatabase(new IDBFactory())
+
+    expect(database.version).toBe(INDEXED_DB_SCHEMA_VERSION)
+    expect([...database.objectStoreNames].sort()).toEqual(Object.values(INDEXED_DB_STORES).sort())
+    const transaction = database.transaction(
+      [INDEXED_DB_STORES.purchaseOrders, INDEXED_DB_STORES.contracts],
+      "readonly"
+    )
+    expect(
+      transaction.objectStore(INDEXED_DB_STORES.purchaseOrders).index("byAccountDocumentNo").unique
+    ).toBe(true)
+    expect(
+      transaction.objectStore(INDEXED_DB_STORES.contracts).index("byAccountContractNo").unique
+    ).toBe(true)
+    database.close()
+  })
+
   it("object store 名称唯一且覆盖全部声明", () => {
     const names = INDEXED_DB_SCHEMA.map((store) => store.name)
     expect(new Set(names).size).toBe(names.length)

@@ -2,10 +2,18 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { generateNextDocumentNumber } from "../../shared"
 import { counterpartyRepository } from "../master-data/counterparties"
 import { productRepository } from "../master-data/products"
-import { generateDocumentNo as generatePurchaseDocumentNo, purchaseRepository } from "./purchases"
-import type { PurchaseOrder } from "./purchases"
-import { generateDocumentNo as generateSalesDocumentNo, salesRepository } from "./sales"
-import type { SalesOrder } from "./sales"
+import {
+  createPurchaseOrder,
+  generateDocumentNo as generatePurchaseDocumentNo,
+  purchaseRepository,
+} from "./purchases"
+import type { PurchaseFormData, PurchaseOrder } from "./purchases"
+import {
+  createSalesOrder,
+  generateDocumentNo as generateSalesDocumentNo,
+  salesRepository,
+} from "./sales"
+import type { SalesFormData, SalesOrder } from "./sales"
 import {
   createQuoteOrder,
   generateDocumentNo as generateQuoteDocumentNo,
@@ -13,10 +21,11 @@ import {
 } from "./quotes"
 import type { QuoteFormData, QuoteOrder } from "./quotes"
 import {
+  createContractRecord,
   contractRepository,
   generateDocumentNo as generateContractDocumentNo,
 } from "../contract-center"
-import type { ContractRecord } from "../contract-center"
+import type { ContractFormData, ContractRecord } from "../contract-center"
 import { resetTradgioDatabase } from "../../test/indexedDb"
 
 const SESSION_KEY = "tradgio_session"
@@ -87,9 +96,10 @@ function contractRecord(id: string, contractNo: string): ContractRecord {
   return { id, accountId: "", contractNo } as ContractRecord
 }
 
-async function createQuoteMasterData(): Promise<{
+async function createDocumentMasterData(): Promise<{
   productId: string
   customerId: string
+  supplierId: string
 }> {
   const product = await productRepository.create({
     id: "quote-product",
@@ -118,7 +128,62 @@ async function createQuoteMasterData(): Promise<{
     createdAt: "2026-06-10T00:00:00.000Z",
     updatedAt: "2026-06-10T00:00:00.000Z",
   })
-  return { productId: product.id, customerId: customer.id }
+  const supplier = await counterpartyRepository.create({
+    id: "document-supplier",
+    name: "并发单据供应商",
+    type: "supplier",
+    contactPerson: "",
+    phone: "",
+    address: "",
+    notes: "",
+    status: "active",
+    createdAt: "2026-06-10T00:00:00.000Z",
+    updatedAt: "2026-06-10T00:00:00.000Z",
+  })
+  return { productId: product.id, customerId: customer.id, supplierId: supplier.id }
+}
+
+function purchaseForm(productId: string, supplierId: string, remark: string): PurchaseFormData {
+  return {
+    supplierId,
+    supplierName: "并发单据供应商",
+    happenedAt: "2026-06-10",
+    remark,
+    lines: [
+      {
+        key: remark,
+        productId,
+        productName: "并发报价货品",
+        spec: "A1",
+        unit: "件",
+        quantity: "1",
+        unitPrice: "10",
+      },
+    ],
+  }
+}
+
+function salesForm(productId: string, customerId: string, remark: string): SalesFormData {
+  return {
+    customerId,
+    customerName: "并发报价客户",
+    happenedAt: "2026-06-10",
+    remark,
+    lines: [
+      {
+        key: remark,
+        productId,
+        productCode: "P001",
+        productName: "并发报价货品",
+        spec: "A1",
+        color: "蓝色",
+        unit: "件",
+        quantity: "1",
+        unitPrice: "20",
+        lineRemark: "",
+      },
+    ],
+  }
 }
 
 function quoteForm(productId: string, customerId: string, remark: string): QuoteFormData {
@@ -144,6 +209,17 @@ function quoteForm(productId: string, customerId: string, remark: string): Quote
         leadTime: "7天",
       },
     ],
+  }
+}
+
+function contractForm(customerId: string, title: string): ContractFormData {
+  return {
+    contractNo: "",
+    title,
+    customerId,
+    customerName: "并发报价客户",
+    signDate: "2026-06-10",
+    remark: "",
   }
 }
 
@@ -244,14 +320,33 @@ describe("单据编号生成", () => {
     ).rejects.toMatchObject({ code: "CONFLICT" })
   })
 
-  it("并发创建报价单时生成不同编号", async () => {
-    const { productId, customerId } = await createQuoteMasterData()
-    const orders = await Promise.all([
-      createQuoteOrder(quoteForm(productId, customerId, "并发一")),
-      createQuoteOrder(quoteForm(productId, customerId, "并发二")),
+  it("四类单据并发创建时均生成不同编号", async () => {
+    const { productId, customerId, supplierId } = await createDocumentMasterData()
+    const pairs = await Promise.all([
+      Promise.all([
+        createPurchaseOrder(purchaseForm(productId, supplierId, "并发进货一")),
+        createPurchaseOrder(purchaseForm(productId, supplierId, "并发进货二")),
+      ]),
+      Promise.all([
+        createSalesOrder(salesForm(productId, customerId, "并发出货一")),
+        createSalesOrder(salesForm(productId, customerId, "并发出货二")),
+      ]),
+      Promise.all([
+        createQuoteOrder(quoteForm(productId, customerId, "并发报价一")),
+        createQuoteOrder(quoteForm(productId, customerId, "并发报价二")),
+      ]),
+      Promise.all([
+        createContractRecord(contractForm(customerId, "并发合同一"), []),
+        createContractRecord(contractForm(customerId, "并发合同二"), []),
+      ]),
     ])
 
-    expect(new Set(orders.map((order) => order.documentNo)).size).toBe(2)
-    expect(orders.map((order) => order.documentNo.slice(-2)).sort()).toEqual(["01", "02"])
+    for (const orders of pairs) {
+      const numbers = orders.map((order) =>
+        "documentNo" in order ? order.documentNo : order.contractNo
+      )
+      expect(new Set(numbers).size).toBe(2)
+      expect(numbers.map((number) => number.slice(-2)).sort()).toEqual(["01", "02"])
+    }
   })
 })

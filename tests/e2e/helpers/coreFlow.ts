@@ -20,6 +20,7 @@ export async function resetBrowserData(page: Page) {
   await page.goto("/login")
   await page.evaluate(async () => {
     localStorage.clear()
+    await Promise.all((await caches.keys()).map((cacheName) => caches.delete(cacheName)))
     await new Promise<void>((resolve, reject) => {
       const request = indexedDB.deleteDatabase("tradgio")
       request.onsuccess = () => resolve()

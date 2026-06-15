@@ -345,6 +345,13 @@ function mapExportError(error: unknown): PlatformAdapterError {
       error
     )
   }
+  if (error instanceof TypeError) {
+    return new PlatformAdapterError(
+      "EXPORT_TEMPLATE_UNAVAILABLE",
+      "导出组件尚未缓存，请联网后重试",
+      error
+    )
+  }
   return mapPlatformError(error, "export")
 }
 
