@@ -15,3 +15,4 @@
 - 仓库仅保留 `.xlsx` 标准模板，不保留原始 `.xls` 备份。
 - 模板字段映射必须在 `Export Service` 内维护，页面层不得直接写单元格映射。
 - 如用户后续替换模板，应保持本目录英文文件名稳定，避免影响代码引用。
+- 替换模板后必须同步更新 `specs/offline-export.md` 和 `EXPORT_TEMPLATE_DEFINITIONS` 中的 SHA-256，并提升模板缓存版本。

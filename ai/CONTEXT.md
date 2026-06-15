@@ -47,7 +47,7 @@
 - 不要把当前仓库当成空项目
 - 代码实现应优先沿用 `src/modules` 与 `src/shared` 的现有分层
 - 文档中如仍出现“没有代码/没有模板资产”的旧描述，应以当前代码和本文件为准
-- 生产化路线图已建立；任务 35-40 的契约、本地安全 Auth、业务 IndexedDB 和附件 Blob 已完成，当前下一任务为任务 41
+- 生产化路线图已建立；任务 35-41 的契约、本地安全 Auth、业务 IndexedDB、附件 Blob 和离线导出已完成，当前下一任务为任务 42
 
 ## 3. 业务范围
 
@@ -278,7 +278,7 @@ Presentation -> Application -> Domain -> Infrastructure
 3. 任务 38-42：安全 Auth、IndexedDB、Blob、离线导出和加密备份
 4. 任务 43-46：本地回归、PWA 发布、Windows 恢复与上线
 
-详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。当前不实施云端供应商 SDK，下一步完成任务 41 的客户端导出离线化与性能优化。
+详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。当前不实施云端供应商 SDK，下一步完成任务 42 的整机加密备份与恢复工具。
 
 ## 12. 任务路由提示
 

@@ -348,19 +348,21 @@ npm run preview
 - [x] 核心流程 E2E 基线
 - [x] 结构化业务数据、库存和草稿迁移到 IndexedDB
 - [x] 合同附件迁移到 IndexedDB Blob
+- [x] ExcelJS 按需加载与固定模板离线缓存
 
 未完成：
 - [ ] 自动化测试体系
 - [ ] 部署配置
-- [ ] 离线导出、加密备份和 PWA 生产化
+- [ ] 加密备份和 PWA 生产化
 
 注意事项：
 - 出货单、报价单模板 Excel 已完成字段映射、填充导出和真实下载内容验收
 - 模板 Excel 的字段内容、表格样式、边框、对齐和货币格式已于 2026-06-10 手动验收通过
+- ExcelJS 已拆分为按需 chunk；固定模板经 SHA-256 校验后进入版本化 Cache Storage，缓存完成后可断网导出
 - 当前认证、结构化业务数据、库存、草稿和合同附件已使用 IndexedDB；旧 Base64 附件会幂等迁移到独立 Blob store，失败时保留旧数据
 - 任何后续交付都应区分“本地 MVP 已落地”与“IndexedDB 本地生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 41，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 42，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
@@ -405,7 +407,8 @@ npm run preview
 - [x] 本地安全 Auth
 - [x] 结构化数据迁移
 - [x] Blob 附件迁移
-- [ ] 离线导出与整机加密备份恢复
+- [x] 客户端离线导出与首屏性能优化
+- [ ] 整机加密备份恢复
 
 ### Phase 8: Release Readiness
 - [ ] 本地适配层回归与 PWA 发布流水线
@@ -422,4 +425,4 @@ npm run preview
 - [ ] 若要突破架构约束，先更新文档再修改实现
 - [ ] 生产化任务先读 `tasks/production-roadmap.md` 和上线检查清单
 
-如果你接手后续迭代，当前从任务 35 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。
+如果你接手后续迭代，当前从任务 42 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。

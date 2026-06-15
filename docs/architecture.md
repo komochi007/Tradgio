@@ -485,7 +485,7 @@ ExportPayload {
 - 当前浏览器端模板 Excel 已完成真实下载验收
 - 客户端按需加载 ExcelJS 与模板可避免低频导出增加首屏负担
 
-生产环境继续由浏览器端 `Export Service` 读取固定模板并生成打印版 / 表格版。导出数据必须从当前账号隔离的 Repository 获取，ExcelJS 和模板不得进入首屏必要资源；页面层不得直接维护模板字段和单元格映射。
+生产环境继续由浏览器端 `Export Service` 读取固定模板并生成打印版 / 表格版。导出数据必须从当前账号隔离的 Repository 获取，ExcelJS 使用动态 chunk，固定模板使用版本化 Cache Storage 和 SHA-256 基线校验，均不进入首屏必要资源；页面层不得直接维护模板字段、单元格映射或模板缓存。正式 Service Worker 的应用壳与动态资源缓存由任务 44 接入，导出细节见 `specs/offline-export.md`。
 
 ### 6.5 合同附件使用独立 IndexedDB Blob store
 

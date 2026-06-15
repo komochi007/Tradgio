@@ -18,6 +18,7 @@ export type PlatformOperation =
   | "storage"
   | "crypto"
   | "backup"
+  | "export"
   | "update"
 
 export function mapPlatformError(
@@ -55,6 +56,7 @@ export function mapPlatformError(
     storage: "STORAGE_UNAVAILABLE",
     crypto: "CRYPTO_UNAVAILABLE",
     backup: "BACKUP_INVALID",
+    export: "EXPORT_GENERATION_FAILED",
     update: "UPDATE_UNAVAILABLE",
   }
   return new PlatformAdapterError(fallback[operation], "本地平台操作失败", error)

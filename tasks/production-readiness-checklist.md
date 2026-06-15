@@ -107,7 +107,9 @@
 - 2026-06-12，任务 37 已定义固定 HTTPS Origin、应用/schema 版本、同源 Service Worker 路径和数据库兼容写入阻断。
 - PWA 更新状态机禁止自动 `skipWaiting` 和自动刷新；未保存表单阻止激活，schema/高风险更新要求先完成加密备份，用户可保留 waiting 更新稍后处理。
 - `.env.example` 只包含非敏感运行配置，12 项模拟 Adapter 演练通过。
-- 当前尚未注册真实 Service Worker、实现离线缓存或完成 Windows 安装/更新/回滚演练，因此 Gate 5 保持未通过。
+- 2026-06-15，任务 41 已将 ExcelJS 拆为按需 chunk，固定模板使用版本化 Cache Storage 和 SHA-256 校验；Playwright 已验证模板在线缓存后断网仍可导出。
+- 任务 41 生产构建主入口由约 1,435.59 kB 降至 507.45 kB，ExcelJS 独立 chunk 约 929.91 kB。
+- 当前尚未注册真实 Service Worker、实现应用壳正式离线缓存或完成 Windows 安装/更新/回滚演练，因此 Gate 5 保持未通过。
 
 ## Gate 6：备份、容量与恢复
 
