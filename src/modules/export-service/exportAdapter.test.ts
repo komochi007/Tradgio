@@ -231,6 +231,22 @@ describe("客户端离线导出适配器", () => {
     })
   })
 
+  it("动态导出组件未缓存时返回明确联网提示", async () => {
+    const adapter = createLocalExportAdapter({
+      loadExcelJs: async () => {
+        throw new TypeError("Failed to fetch dynamically imported module")
+      },
+      loadTemplate: createSalesTemplate,
+    })
+
+    await expect(
+      adapter.export({ payload: createPayload(), format: "sheet" })
+    ).rejects.toMatchObject({
+      code: "EXPORT_TEMPLATE_UNAVAILABLE",
+      message: "导出组件尚未缓存，请联网后重试",
+    })
+  })
+
   it("缓存模板版本不匹配且断网时拒绝生成文件", async () => {
     const cacheStorage = new MemoryCacheStorage()
     const cache = await cacheStorage.open(EXPORT_TEMPLATE_CACHE_NAME)

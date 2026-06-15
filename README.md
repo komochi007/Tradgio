@@ -208,6 +208,7 @@ AI Agent 约束：
 - `npm run test`
 - `npm run test:watch`
 - `npm run test:e2e`
+- `npm run test:pwa`
 - `npm run test:e2e:headed`
 - `npm run test:e2e:install`
 - `npm run build`
@@ -233,10 +234,10 @@ npm run preview
 
 ## 8. Environment Variables
 当前状态：
-- [x] 仓库已提供 `.env.example`，任务 44 锁定正式 Origin 后替换示例值
+- [x] 仓库已提供 `.env.example`
 - [x] 本地优先方案不依赖服务端密钥
 - [x] PWA 应用版本、schema 版本、固定 Origin 和 Service Worker 路径契约已由任务 37 定义
-- [ ] 正式 Origin 和真实 PWA 发布配置待任务 44 锁定
+- [x] GitHub Pages 候选 Origin 与 PWA 发布配置已建立，等待目标 Windows 网络复验
 
 预期变量类别：
 
@@ -248,7 +249,7 @@ npm run preview
 | Export | 浏览器端 Export Service 开关与模板基础路径 |
 | Diagnostics | 非敏感调试与日志开关 |
 
-构建配置只允许使用 `VITE_APP_ENV`、`VITE_APP_VERSION`、`VITE_EXPECTED_ORIGIN` 和 `VITE_SERVICE_WORKER_PATH`。平台无关部署、测试/生产 Origin 实值和 Service Worker 构建由任务 44 实现。
+构建配置只允许使用非敏感的应用版本、Origin、base path、Service Worker 路径和更新风险标记。发布与回滚步骤见 `docs/deployment.md`。
 
 生产方案见 `docs/adr/0002-local-first-indexeddb.md`。密码、备份密码、派生密钥和活动 session 不得进入环境变量或构建产物。
 
@@ -284,7 +285,7 @@ npm run preview
 - [x] 已有构建脚本（`npm run build`）
 - [x] 已有 GitHub Actions 质量与 E2E 门禁
 - [ ] 无容器配置
-- [ ] 无部署平台配置
+- [x] 已建立手动确认的 GitHub Pages 发布流水线
 
 目标部署形态：
 - Web SPA：平台无关免费静态托管
@@ -351,10 +352,10 @@ npm run preview
 - [x] ExcelJS 按需加载与固定模板离线缓存
 
 未完成：
-- [ ] 自动化测试体系
-- [ ] 部署配置
+- [x] 自动化测试体系
+- [x] 部署配置
 - [x] 整机加密备份恢复
-- [ ] PWA 生产化
+- [x] PWA 生产构建与自动验收
 
 注意事项：
 - 出货单、报价单模板 Excel 已完成字段映射、填充导出和真实下载内容验收
@@ -363,7 +364,7 @@ npm run preview
 - 当前认证、结构化业务数据、库存、草稿和合同附件已使用 IndexedDB；旧 Base64 附件会幂等迁移到独立 Blob store，失败时保留旧数据
 - 任何后续交付都应区分“本地 MVP 已落地”与“IndexedDB 本地生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 43，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 44，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
@@ -392,9 +393,9 @@ npm run preview
 - [x] 固定模板导出服务（出货单 / 报价单）
 
 ### Phase 5: Hardening
-- [ ] 自动化测试体系
+- [x] 自动化测试体系
 - [x] 空状态 / 错误状态补齐
-- [ ] 部署与运行文档
+- [x] 部署与运行文档
 
 ### Phase 6: Business Correctness
 - [x] 库存差额回算与本地写入一致性
@@ -412,7 +413,8 @@ npm run preview
 - [x] 整机加密备份恢复
 
 ### Phase 8: Release Readiness
-- [ ] 本地适配层回归与 PWA 发布流水线
+- [x] 本地生产适配层自动化回归
+- [x] PWA 发布流水线
 - [ ] 存储健康、备份提醒和 Windows 恢复演练
 - [ ] Windows 迁移、升级与正式上线验收
 
@@ -426,4 +428,4 @@ npm run preview
 - [ ] 若要突破架构约束，先更新文档再修改实现
 - [ ] 生产化任务先读 `tasks/production-roadmap.md` 和上线检查清单
 
-如果你接手后续迭代，当前从任务 43 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。
+如果你接手后续迭代，当前从任务 44 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。

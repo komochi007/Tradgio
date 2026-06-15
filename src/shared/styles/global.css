@@ -220,6 +220,35 @@ a {
   padding: var(--space-6) var(--space-8);
 }
 
+.pwa-update {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  max-width: 1440px;
+  margin: 0 auto var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(37, 99, 235, 0.24);
+  border-radius: var(--radius-md);
+  background: #eff6ff;
+  color: var(--text-secondary);
+}
+
+.pwa-update__content,
+.pwa-update__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pwa-update__content strong {
+  color: var(--text-primary);
+}
+
+.pwa-update__actions {
+  flex-shrink: 0;
+}
+
 .topbar {
   display: flex;
   align-items: flex-start;

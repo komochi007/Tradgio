@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button, Input, SectionCard } from "../../../shared/components"
 import { useToast } from "../../../shared/notification"
+import { markUpdateBackupCompleted } from "../../../shared/platform/pwaUpdateContext"
 import { formatCurrency, formatDateTime, formatFileSize, formatNumber } from "../../../shared/utils"
 import { useAuth } from "../../auth"
 import {
@@ -128,6 +129,7 @@ export function BackupRestorePage() {
     try {
       const backup = await backupService.createBackup(backupPassword)
       await saveBackupFile(backup)
+      markUpdateBackupCompleted()
       setLastBackup(backup)
       setBackupPassword("")
       setBackupPasswordAgain("")

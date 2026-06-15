@@ -123,6 +123,21 @@ function sumStock(records: unknown[]): number {
   }, 0)
 }
 
+function getDefaultStorage(): Storage {
+  if (typeof globalThis.localStorage !== "undefined") return globalThis.localStorage
+  const unavailable = () => {
+    throw new PlatformAdapterError("STORAGE_UNAVAILABLE", "当前环境不支持 localStorage")
+  }
+  return {
+    length: 0,
+    clear: unavailable,
+    getItem: unavailable,
+    key: unavailable,
+    removeItem: unavailable,
+    setItem: unavailable,
+  }
+}
+
 export class BackupService {
   private readonly databaseFactory: IDBFactory
   private readonly cryptoApi: Crypto
@@ -133,7 +148,7 @@ export class BackupService {
   constructor(options: BackupServiceOptions = {}) {
     this.databaseFactory = options.databaseFactory ?? indexedDB
     this.cryptoApi = options.crypto ?? crypto
-    this.storage = options.storage ?? localStorage
+    this.storage = options.storage ?? getDefaultStorage()
     this.estimateStorage = options.estimateStorage ?? (() => navigator.storage.estimate())
     this.now = options.now ?? (() => new Date())
   }

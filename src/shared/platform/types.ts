@@ -136,6 +136,7 @@ export type PwaUpdateEvent =
   | { type: "checking" }
   | { type: "installing" }
   | { type: "update-ready"; candidate: PwaUpdateCandidate }
+  | { type: "activated" }
   | { type: "error"; errorCode: PlatformErrorCode }
 
 export interface PwaUpdateAdapter {
