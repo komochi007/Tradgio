@@ -1,5 +1,5 @@
 import "fake-indexeddb/auto"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import {
   BACKUP_STORES,
   INDEXED_DB_STORES,
@@ -137,6 +137,12 @@ async function changeProductName(name: string) {
 }
 
 describe("BackupService", () => {
+  it("非浏览器环境加载默认服务时不立即访问 localStorage", () => {
+    vi.stubGlobal("localStorage", undefined)
+    expect(() => new BackupService()).not.toThrow()
+    vi.unstubAllGlobals()
+  })
+
   const storage = new MemoryStorage()
   const service = new BackupService({
     crypto,
