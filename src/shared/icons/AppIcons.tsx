@@ -6,6 +6,7 @@ export {
   Truck as SalesIcon,
   FileSpreadsheet as QuoteIcon,
   FileCheck2 as ContractIcon,
+  DatabaseBackup as BackupIcon,
   Search as SearchIcon,
   CircleUserRound as AccountIcon,
   LogOut as LogoutIcon,

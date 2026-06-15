@@ -7,6 +7,7 @@ export {
   SalesIcon,
   QuoteIcon,
   ContractIcon,
+  BackupIcon,
   SearchIcon,
   AccountIcon,
   LogoutIcon,

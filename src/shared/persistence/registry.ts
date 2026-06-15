@@ -76,7 +76,7 @@ export function getAllStorageKeys(): string[] {
  * │ ExportAdapter│ 客户端 Blob 下载      │ 离线客户端按需加载              │
  * │              │ (exportService.ts)  │ 保持 Export Service 接口不变   │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
- * │ BackupAdapter│ 尚未实现             │ 全库加密备份、预览与恢复         │
+ * │ BackupAdapter│ Backup Service      │ 全库加密备份、预览与恢复         │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
  * │ StorageAdapter│ 尚未实现            │ Storage API 容量与持久化         │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
@@ -107,8 +107,8 @@ export const MIGRATION_POINTS = {
     future: "保持客户端导出，按需加载 ExcelJS 和离线模板",
   },
   backup: {
-    current: "尚未实现",
-    future: "按 specs/backup-restore.md 实现整机加密备份与恢复",
+    current: "src/modules/backup/application/backupService.ts",
+    future: "保持 .tradgio-backup v1、恢复预览和整库替换边界稳定",
   },
   storage: {
     current: "尚未实现",

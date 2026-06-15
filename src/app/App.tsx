@@ -18,6 +18,7 @@ import {
   QuoteDetailPage,
 } from "../modules/document-core"
 import { ContractListPage, ContractFormPage, ContractDetailPage } from "../modules/contract-center"
+import { BackupRestorePage } from "../modules/backup"
 import {
   OverviewIcon,
   ProductIcon,
@@ -26,6 +27,7 @@ import {
   SalesIcon,
   QuoteIcon,
   ContractIcon,
+  BackupIcon,
 } from "../shared/icons"
 
 const navigationItems = [
@@ -36,6 +38,7 @@ const navigationItems = [
   { path: "/sales", label: "出货", icon: <SalesIcon size={20} /> },
   { path: "/quotes", label: "报价", icon: <QuoteIcon size={20} /> },
   { path: "/contracts", label: "合同", icon: <ContractIcon size={20} /> },
+  { path: "/backup", label: "数据备份", icon: <BackupIcon size={20} /> },
 ]
 
 export default function App() {
@@ -78,6 +81,8 @@ export default function App() {
           <Route path="/contracts/new" element={<ContractFormPage />} />
           <Route path="/contracts/:id" element={<ContractDetailPage />} />
           <Route path="/contracts/:id/edit" element={<ContractFormPage />} />
+
+          <Route path="/backup" element={<BackupRestorePage />} />
         </Route>
       </Route>
     </Routes>

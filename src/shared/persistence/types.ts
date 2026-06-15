@@ -5,7 +5,7 @@ import type { PersistenceTransaction } from "./indexeddbSchema"
 /**
  * 持久化适配器类型定义
  *
- * 业务数据使用 IndexedDB，合同附件 Blob 与备份适配器按后续任务补齐。
+ * 业务数据、合同附件 Blob 与整机加密备份均使用本地生产适配器。
  */
 
 export type PersistenceConfig = {
