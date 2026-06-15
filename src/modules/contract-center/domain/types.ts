@@ -1,9 +1,8 @@
 export type ContractAttachment = {
-  id: string
+  attachmentId: string
   fileName: string
   mimeType: string
   fileSize: number
-  dataUrl: string
   uploadedAt: string
 }
 
@@ -60,8 +59,7 @@ export function validateContractForm(data: ContractFormData): Record<string, str
 }
 
 export function validateFile(file: File): string | null {
-  const maxSize = 20 * 1024 * 1024
-  if (file.size > maxSize) {
+  if (file.size > 20 * 1024 * 1024) {
     return "单个文件不能超过 20MB"
   }
 

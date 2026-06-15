@@ -201,4 +201,11 @@ File Adapter 接收稳定 `attachmentId`、`contractId`、文件元数据和 Blo
 - 三类单据和合同编号由账号内复合唯一索引兜底，应用层保留可读冲突提示。
 - `local-storage-business-data-v1` 在首次业务访问时迁移基础资料、单据、库存、合同记录和草稿，完成后写入记录统计。
 - 迁移失败不写完成标记、不留下半迁移数据、不删除 localStorage 源数据；重复执行直接返回既有报告。
-- 合同记录中的旧 Base64 附件随原记录暂存，任务 40 完成 Blob 分离前不得删除旧附件来源。
+- 合同记录中的旧 Base64 附件已由任务 40 迁移到独立 Blob store，迁移失败时保留旧附件来源。
+
+## 14. 任务 40 实现记录
+
+- IndexedDB File Adapter 提供保存、元数据读取、下载和删除，并同时校验元数据与 Blob 的账号归属。
+- 合同创建、追加附件、删除附件和删除合同覆盖 `contracts`、`attachmentMetadata`、`attachmentBlobs` 三个 store。
+- 合同引用使用稳定 `attachmentId`，Blob 不进入合同 JSON 或附件元数据。
+- Base64 迁移记录包含合同数、附件数和总字节数，重复执行不复制附件。

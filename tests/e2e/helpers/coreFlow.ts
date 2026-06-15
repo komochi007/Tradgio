@@ -137,6 +137,18 @@ export async function createContract(page: Page, seed: CoreFlowSeed) {
   await page.getByRole("button", { name: "保存合同" }).click()
   await expect(page).toHaveURL(/\/contracts$/)
   await expect(page.getByText(seed.contractTitle)).toBeVisible()
+
+  await page
+    .locator("tbody tr")
+    .filter({ hasText: seed.contractTitle })
+    .getByRole("button", { name: "查看" })
+    .click()
+  await expect(page).toHaveURL(/\/contracts\/.+/)
+  const downloadPromise = page.waitForEvent("download")
+  await page.getByRole("button", { name: "下载" }).click()
+  const download = await downloadPromise
+  expect(await download.failure()).toBeNull()
+  expect(download.suggestedFilename()).toBe("e2e-contract.pdf")
 }
 
 export async function downloadTemplate(page: Page) {

@@ -40,7 +40,6 @@
 - 已转换的标准 `.xlsx` 模板资产：`public/templates/`
 
 当前仍未完成：
-- 合同附件 Blob 存储
 - 整机加密备份与恢复
 - PWA 离线运行、更新与 Windows 上线验收
 
@@ -48,7 +47,7 @@
 - 不要把当前仓库当成空项目
 - 代码实现应优先沿用 `src/modules` 与 `src/shared` 的现有分层
 - 文档中如仍出现“没有代码/没有模板资产”的旧描述，应以当前代码和本文件为准
-- 生产化路线图已建立；任务 35-39 的契约、本地安全 Auth 和业务 IndexedDB 已完成，当前下一任务为任务 40
+- 生产化路线图已建立；任务 35-40 的契约、本地安全 Auth、业务 IndexedDB 和附件 Blob 已完成，当前下一任务为任务 41
 
 ## 3. 业务范围
 
@@ -279,7 +278,7 @@ Presentation -> Application -> Domain -> Infrastructure
 3. 任务 38-42：安全 Auth、IndexedDB、Blob、离线导出和加密备份
 4. 任务 43-46：本地回归、PWA 发布、Windows 恢复与上线
 
-详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。当前不实施云端供应商 SDK，下一步完成任务 40 的合同附件 Blob 迁移。
+详细依赖和验收标准以 `tasks/production-roadmap.md` 为准。当前不实施云端供应商 SDK，下一步完成任务 41 的客户端导出离线化与性能优化。
 
 ## 12. 任务路由提示
 
@@ -330,7 +329,7 @@ AI 首次进入项目时，建议阅读顺序：
 当前实现风险：
 - 结构化业务数据已进入 IndexedDB；旧 localStorage 源数据暂保留到后续迁移验收完成
 - 新账号密码已使用 PBKDF2 校验值；未登录旧账号的明文会在首次成功登录后迁移删除
-- 当前附件以内嵌 Base64 保存，待任务 40 迁移到 IndexedDB Blob
+- 合同附件已进入独立 IndexedDB Blob store，旧 Base64 来源在迁移失败时保留
 - 尚未实现整机加密备份、PWA 更新和 Windows 恢复演练
 - 若 AI 不先读 ADR-0002、路线图和现有代码，容易误回云端后端路线
 

@@ -39,7 +39,7 @@
 
 ```ts
 type ContractAttachment = {
-  id: string;
+  attachmentId: string;
   fileName: string;
   mimeType: string;
   fileSize: number;
@@ -165,3 +165,11 @@ MVP 阶段可先不做复杂格式白名单，但要保留校验入口。
 - 上传失败时不留下半成品记录
 - 删除附件后不留下孤儿 Blob
 - 附件进入整机加密备份并可完整恢复
+
+## 13. 任务 40 实现记录
+
+- 合同记录只保存 `attachmentId` 与展示元数据，不再保存 `dataUrl`。
+- `attachmentMetadata` 和 `attachmentBlobs` 分别保存元数据与原生 Blob，File Adapter 强制当前账号访问。
+- 新建、追加、删除附件和删除合同均与合同记录使用同一 IndexedDB transaction。
+- `contract-attachments-base64-v1` 幂等迁移旧 Base64，校验文件大小后才写完成标记；失败时旧合同与 localStorage 来源保持不变。
+- Storage API 按预计使用率执行 70% 提醒和 85% 阻断；无法估算时降级提醒，不绕过 20 MB 单文件限制。

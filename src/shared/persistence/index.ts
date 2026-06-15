@@ -10,6 +10,13 @@ export { openTradgioDatabase, requestToPromise, transactionToPromise } from "./i
 export { BUSINESS_DATA_MIGRATION_ID, migrateBusinessDataToIndexedDb } from "./businessDataMigration"
 export type { BusinessDataMigrationReport } from "./businessDataMigration"
 export {
+  ATTACHMENT_MAX_FILE_SIZE,
+  ATTACHMENT_STORAGE_WARNING_RATIO,
+  ATTACHMENT_STORAGE_BLOCK_RATIO,
+  estimateAttachmentStorage,
+} from "./attachmentStoragePolicy"
+export type { AttachmentStorageStatus } from "./attachmentStoragePolicy"
+export {
   BACKUP_FILE_EXTENSION,
   BACKUP_MAGIC,
   BACKUP_FORMAT_VERSION,

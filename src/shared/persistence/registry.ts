@@ -70,8 +70,8 @@ export function getAllStorageKeys(): string[] {
  * │ DataAdapter  │ IndexedDB          │ 已完成业务数据与草稿迁移       │
  * │              │ Repository         │ 保持 Repository<T> 接口不变   │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
- * │ FileAdapter  │ dataUrl (base64)    │ IndexedDB Blob store          │
- * │              │ (内嵌在 Contract)    │ FileAdapter save/read/remove  │
+ * │ FileAdapter  │ IndexedDB Blob     │ 已完成 save/read/remove       │
+ * │              │ + 独立元数据        │ 合同仅保留 attachmentId       │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
  * │ ExportAdapter│ 客户端 Blob 下载      │ 离线客户端按需加载              │
  * │              │ (exportService.ts)  │ 保持 Export Service 接口不变   │
@@ -99,8 +99,8 @@ export const MIGRATION_POINTS = {
     future: "保持 IndexedDB Repository 和账号隔离事务边界稳定",
   },
   file: {
-    current: "ContractAttachment.dataUrl (内嵌在合同中)",
-    future: "实现 IndexedDB File Adapter，分离附件元数据与 Blob",
+    current: "src/modules/contract-center/infrastructure/indexedDbFileAdapter.ts",
+    future: "保持附件元数据、Blob 和合同事务边界稳定",
   },
   export: {
     current: "src/modules/export-service/application/exportService.ts",

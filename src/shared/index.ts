@@ -97,6 +97,10 @@ export {
   buildRestorePreview,
   BUSINESS_DATA_MIGRATION_ID,
   migrateBusinessDataToIndexedDb,
+  ATTACHMENT_MAX_FILE_SIZE,
+  ATTACHMENT_STORAGE_WARNING_RATIO,
+  ATTACHMENT_STORAGE_BLOCK_RATIO,
+  estimateAttachmentStorage,
 } from "./persistence"
 export type {
   PersistenceConfig,
@@ -123,6 +127,7 @@ export type {
   RestorePhase,
   RestorePreview,
   BusinessDataMigrationReport,
+  AttachmentStorageStatus,
 } from "./persistence"
 export { useFormDraft, getDraft, saveDraft, removeDraft } from "./drafts"
 export type { DraftFormKey, DraftRecord } from "./drafts"

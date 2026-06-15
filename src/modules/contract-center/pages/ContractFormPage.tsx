@@ -20,7 +20,9 @@ import {
   createContractRecord,
   updateContractRecord,
   removeAttachment,
+  downloadAttachment,
   getContractRecord,
+  checkAttachmentStorageCapacity,
 } from "../application/contractService"
 import {
   emptyContractForm,
@@ -131,6 +133,20 @@ export function ContractFormPage() {
     }
   }
 
+  async function handleDownloadExisting(attachment: ContractAttachment) {
+    try {
+      const blob = await downloadAttachment(attachment.attachmentId)
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = attachment.fileName
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "附件下载失败")
+    }
+  }
+
   async function handleSubmit() {
     const validationErrors = validateContractForm(formData)
     setErrors(validationErrors)
@@ -138,6 +154,8 @@ export function ContractFormPage() {
 
     setSubmitting(true)
     try {
+      const storageStatus = await checkAttachmentStorageCapacity(selectedFiles)
+      if (storageStatus.message) toast.warning(storageStatus.message)
       if (isEdit && id) {
         await updateContractRecord(id, formData, selectedFiles)
         toast.success("合同已更新")
@@ -313,26 +331,21 @@ export function ContractFormPage() {
                 </thead>
                 <tbody>
                   {existingAttachments.map((att) => (
-                    <tr key={att.id}>
+                    <tr key={att.attachmentId}>
                       <td className="data-table__name">{att.fileName}</td>
                       <td className="data-table__muted">{formatFileSize(att.fileSize)}</td>
                       <td className="data-table__actions">
                         <Button
                           variant="ghost"
                           size="small"
-                          onClick={() => {
-                            const link = document.createElement("a")
-                            link.href = att.dataUrl
-                            link.download = att.fileName
-                            link.click()
-                          }}
+                          onClick={() => handleDownloadExisting(att)}
                         >
                           下载
                         </Button>
                         <Button
                           variant="ghost"
                           size="small"
-                          onClick={() => handleRemoveExisting(att.id)}
+                          onClick={() => handleRemoveExisting(att.attachmentId)}
                         >
                           删除
                         </Button>

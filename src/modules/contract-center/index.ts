@@ -5,6 +5,8 @@ export {
   createContractRecord,
   updateContractRecord,
   removeAttachment,
+  downloadAttachment,
+  checkAttachmentStorageCapacity,
   getContractRecord,
   listContractRecords,
   deleteContractRecord,

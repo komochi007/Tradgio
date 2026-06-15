@@ -1,12 +1,21 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Button, Tag, EmptyState, SkeletonCard, formatDate, formatFileSize } from "../../../shared"
-import { getContractRecord } from "../application/contractService"
+import {
+  Button,
+  Tag,
+  EmptyState,
+  SkeletonCard,
+  formatDate,
+  formatFileSize,
+  useToast,
+} from "../../../shared"
+import { downloadAttachment, getContractRecord } from "../application/contractService"
 import type { ContractRecord } from "../domain/types"
 
 export function ContractDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const toast = useToast()
   const [record, setRecord] = useState<ContractRecord | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -125,7 +134,7 @@ export function ContractDetailPage() {
                 </thead>
                 <tbody>
                   {record.attachments.map((att) => (
-                    <tr key={att.id}>
+                    <tr key={att.attachmentId}>
                       <td className="data-table__name">{att.fileName}</td>
                       <td>
                         <Tag variant="info">
@@ -138,11 +147,18 @@ export function ContractDetailPage() {
                         <Button
                           variant="ghost"
                           size="small"
-                          onClick={() => {
-                            const link = document.createElement("a")
-                            link.href = att.dataUrl
-                            link.download = att.fileName
-                            link.click()
+                          onClick={async () => {
+                            try {
+                              const blob = await downloadAttachment(att.attachmentId)
+                              const url = URL.createObjectURL(blob)
+                              const link = document.createElement("a")
+                              link.href = url
+                              link.download = att.fileName
+                              link.click()
+                              URL.revokeObjectURL(url)
+                            } catch (error) {
+                              toast.error(error instanceof Error ? error.message : "附件下载失败")
+                            }
                           }}
                         >
                           下载

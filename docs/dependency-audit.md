@@ -38,3 +38,23 @@
 
 - `npm run quality` 通过，`npm audit --audit-level=moderate` 报告 0 个漏洞。
 - 当前无未处置的中危、高危或严重依赖漏洞。
+
+## 2026-06-15
+
+审计命令：`npm audit --audit-level=moderate`
+
+### 初始结果
+
+- 高危：2
+- 根因：Vite 7 依赖的 esbuild 命中开发服务器任意文件读取和二进制完整性校验漏洞。
+
+### 处置
+
+- 将 `vite` 从 7 升级到 `8.0.16`，将 `@vitejs/plugin-react` 升级到 `6.0.2`。
+- 使用 Node `26.0.0` 验证满足 Vite 8 的 Node 版本要求。
+- 重新生成依赖锁文件，并执行类型检查、82 项测试、生产构建和核心流程 E2E。
+
+### 结论
+
+- `npm audit --audit-level=moderate` 报告 0 个漏洞。
+- 当前无未处置的中危、高危或严重依赖漏洞。
