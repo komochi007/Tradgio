@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { useAuth } from "../modules/auth"
 import { AppIcon, AccountIcon, LogoutIcon } from "../shared/icons"
+import { PwaUpdateBanner } from "../shared/platform/PwaUpdateBanner"
 
 type NavigationItem = {
   path: string
@@ -59,6 +60,7 @@ export function AppShell({ navigationItems }: AppShellProps) {
       </aside>
 
       <div className="app-shell__main">
+        <PwaUpdateBanner />
         <main className="page-container">
           <Outlet />
         </main>

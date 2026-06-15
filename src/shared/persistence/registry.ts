@@ -80,7 +80,7 @@ export function getAllStorageKeys(): string[] {
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
  * │ StorageAdapter│ 尚未实现            │ Storage API 容量与持久化         │
  * ├──────────────┼─────────────────────┼──────────────────────────────┤
- * │ PwaUpdateAdapter│ 尚未实现          │ waiting 更新提示与显式激活       │
+ * │ PwaUpdateAdapter│ Service Worker    │ waiting 更新提示与显式激活       │
  * └──────────────┴─────────────────────┴──────────────────────────────┘
  *
  * 迁移原则：
@@ -115,7 +115,7 @@ export const MIGRATION_POINTS = {
     future: "封装 Storage API 容量查询、持久化与阈值策略",
   },
   pwaUpdate: {
-    current: "尚未实现",
-    future: "封装 Service Worker 注册、检查、waiting 提示与显式激活",
+    current: "src/shared/platform/browserPwaUpdateAdapter.ts",
+    future: "保持显式激活、编辑阻断和高风险更新备份约束",
   },
 }

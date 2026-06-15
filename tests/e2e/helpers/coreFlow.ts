@@ -19,6 +19,12 @@ export function createCoreFlowSeed() {
 export async function resetBrowserData(page: Page) {
   await page.goto("/login")
   await page.evaluate(async () => {
+    await new Promise((resolve) => window.setTimeout(resolve, 100))
+    await Promise.all(
+      (await navigator.serviceWorker.getRegistrations()).map((registration) =>
+        registration.unregister()
+      )
+    )
     localStorage.clear()
     await Promise.all((await caches.keys()).map((cacheName) => caches.delete(cacheName)))
     await new Promise<void>((resolve, reject) => {

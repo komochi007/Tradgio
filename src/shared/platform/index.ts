@@ -12,6 +12,7 @@ export {
 export { createPlatformAdapterRegistry, replacePlatformAdapter } from "./registry"
 export { createPwaUpdateTestDouble, createPlatformAdapterTestRegistry } from "./testDoubles"
 export { PlatformAdapterError, mapPlatformError } from "./errors"
+export { createBrowserPwaUpdateAdapter } from "./browserPwaUpdateAdapter"
 export type {
   AdapterOperationOptions,
   TransactionalOperationOptions,

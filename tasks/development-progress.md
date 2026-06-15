@@ -305,12 +305,12 @@
 
 ## 13. 生产化推进状态
 
-状态：任务 43 已完成并自动验收，等待推进任务 44。
+状态：任务 44 正在推进。
 
 - 主要执行依据：`tasks/production-roadmap.md`
 - 上线准入依据：`tasks/production-readiness-checklist.md`
 - 当前阶段：P3 发布准备
-- 当前下一任务：任务 44 PWA 与平台无关静态发布
+- 当前任务：任务 44 PWA 与平台无关静态发布
 - 阶段约束：任务 38-43 已完成，进入 P3 发布准备但不跳过任务 44-46
 - 平台选型：已锁定 IndexedDB 本地优先方案，详见 `docs/adr/0002-local-first-indexeddb.md`
 
