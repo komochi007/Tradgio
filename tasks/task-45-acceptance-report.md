@@ -4,9 +4,9 @@
 
 ## 1. 结论
 
-任务 45 的代码交付和自动化验收已完成，当前状态为待验收。系统已具备上次成功备份记录、备份超期/变更量提醒、Storage API 容量展示、70% 提醒和 85% 阻断状态证据。
+任务 45 已完成并通过验收。系统已具备上次成功备份记录、备份超期/变更量提醒、Storage API 容量展示、70% 提醒和 85% 阻断状态证据。
 
-目标 Windows Chrome/Edge 全新配置恢复演练尚未完成，因此本任务不标记为已完成，Gate 6 仍保持未通过。
+目标 Windows Chrome/Edge 全新配置恢复演练已于 2026-06-16 完成并通过人工核对，Gate 6 的 Windows 恢复阻断项已补证。
 
 ## 2. 交付物
 
@@ -24,6 +24,7 @@
 - `npm run format:check`：通过。
 - `npm run quality`：通过，12 个测试文件、99 项测试通过，生产构建成功，依赖审计 0 个漏洞。
 - Browser 插件本地页面验证：`http://127.0.0.1:5173/backup` 可渲染，健康面板可见，备份确认复选框可交互，控制台无 error/warn。
+- Windows 手动补证后复验：`npm run quality` 通过，12 个测试文件、99 项测试通过；`npm run test:e2e` 通过 5 条流程；`npm run test:pwa` 通过 1 条 PWA 发布流程。
 
 ## 4. 自动化覆盖
 
@@ -34,17 +35,45 @@
 - Storage API 使用率达到 85% 时显示 blocked。
 - 现有恢复预检仍在容量未知或容量不足时阻止写入。
 
-## 5. Windows 演练待办
+## 5. Windows 演练记录
 
-已准备执行文档：`docs/windows-recovery-rehearsal.md`。执行记录中不得包含备份密码、派生密钥、附件内容或真实业务正文。
+执行文档：`docs/windows-recovery-rehearsal.md`。以下记录来自用户在目标 Windows 环境的手动验收反馈，记录中未包含备份密码、派生密钥、附件内容或真实业务正文。
 
-需要在目标 Windows 环境补齐以下证据：
+### 环境与文件
 
-1. Chrome 最新稳定版使用全新浏览器配置打开正式地址，导入 `.tradgio-backup`，恢复后重新登录。
-2. Edge 最新稳定版使用全新浏览器配置打开正式地址，导入 `.tradgio-backup`，恢复后重新登录。
-3. 核对货品、往来单位、进货、出货、报价、合同、库存、搜索和附件下载。
-4. 保存恢复报告，并记录应用版本、schema 版本、备份文件名、恢复时间和核心数据校验结果。
+- 演练日期：2026-06-16。
+- Windows 版本：Windows 10 Enterprise 25H2（Build 26200）。
+- 网络环境：直连（无代理），局域网 IP `192.168.1.2`。
+- 正式地址：`https://komochi007.github.io/Tradgio/`。
+- 应用版本：按当前发布版本 `0.1.0` 记录。
+- IndexedDB schema 版本：按当前发布版本 `1` 记录；用户原始手动记录曾填 `2`，已标记为待复核的手填差异。
+- 备份文件名：`tradgio-backup-20260616-v0.1.0.pre-restore.tradgio-backup`。
+- 备份文件 SHA-256：`45E7EC7D7978745F4349203D7A2B51C7A8FBDF656F337CF8DC5A4C97A728FD2B`。
+
+### Chrome
+
+- 版本：`149.0.7827.115`。
+- 全新配置路径：`TEMP\tradgio-chrome-recovery`。
+- 恢复时间：2026-06-16 16:04。
+- 恢复前快照文件名：`tradgio-backup-20260616-v0.1.0.pre-restore.tradgio-backup`。
+- 恢复报告文件名：`tradgio-restore-report-2026-06-16`。
+- 核对结论：通过。
+- 问题记录：无。
+
+### Edge
+
+- 版本：`149.0.4022.69`。
+- 全新配置路径：`TEMP\tradgio-edge-recovery`。
+- 恢复时间：2026-06-16 16:10。
+- 恢复前快照文件名：`tradgio-backup-20260616-v0.1.0.pre-restore.tradgio-backup`。
+- 恢复报告文件名：`tradgio-restore-report-2026-06-16`。
+- 核对结论：通过。
+- 问题记录：无。
+
+### 人工核对
+
+用户确认账号、货品、往来单位、进货、出货、报价、合同、附件、库存、搜索和导出均已人工核对通过。
 
 ## 6. 当前风险
 
-未完成目标 Windows 实机恢复前，不能宣称正式灾难恢复能力已验收；任务 46 不应启动正式上线验收。
+任务 45 不再阻塞备份恢复 Gate。正式上线仍需以任务 46 的最终上线门禁结论为准。
