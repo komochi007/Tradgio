@@ -50,7 +50,7 @@
 - 2026-06-11，任务 33 本地核心流程 E2E 通过，覆盖注册登录、基础资料、进货、出货、报价、合同、库存、统一搜索、会话恢复和模板下载；测试从清空 localStorage 开始并使用随机数据，失败时保留截图、视频和 trace。
 - 2026-06-11，GitHub Actions `quality` 与 `e2e` 运行通过，失败证据 artifact 上传成功；`main-quality-gate` Ruleset 已严格要求两项检查且不允许绕过。
 - 2026-06-15，任务 43 完成本地生产适配层回归：12 个测试文件、96 项测试及 5 条 Playwright 流程通过；E2E 使用独立浏览器上下文并清理 localStorage、IndexedDB、Cache Storage，失败继续保留截图、视频和 trace。
-- 本地与生产候选站点自动化证据已完整；Windows 恢复和人工 UAT 已于 2026-06-16 补证。2026-06-16 已确认首版继续使用 schema `1`，并通过 `npm run test:pwa` 复验同 schema 更新和回滚后 IndexedDB 数据保持。正式上线前仍需最终发布记录，因此 Gate 2 保持未完全通过。
+- 本地与生产候选站点自动化证据已完整；Windows 恢复和人工 UAT 已于 2026-06-16 补证。2026-06-16 已确认首版继续使用 schema `1`，并通过 `npm run test:pwa` 复验同 schema 更新和回滚后 IndexedDB 数据保持。基线提交 `74bd022520d69ea75257c27ee993df5aa6f760b6` 已完成上线前最终质量门禁：`npm run quality`、`npm run test:e2e`、`npm run test:pwa` 均通过。正式上线前仍需最终发布记录，因此 Gate 2 保持未完全通过。
 
 ## Gate 3：本地架构与安全
 
@@ -154,6 +154,7 @@
 
 当前证据：
 - 2026-06-16，任务 46 已从“暂缓上线”推进到上线前最终复验。`npm run quality`、`npm run test:e2e`、`npm run test:pwa` 均通过；PWA 更新和回滚后 IndexedDB 货品数据保持可读。
+- 2026-06-16，上线前最终质量门禁已基于提交 `74bd022520d69ea75257c27ee993df5aa6f760b6` 重新执行并通过：`npm run quality`（12 个测试文件、99 项测试、生产构建、依赖审计 0 漏洞）、`npm run test:e2e`（5 条 Playwright 流程）、`npm run test:pwa`（1 条 PWA 发布流程）。
 - 2026-06-16，用户确认目标 Windows Chrome/Edge 恢复后，账号、货品、往来单位、进货、出货、报价、合同、附件、库存、搜索和导出均已人工核对通过；Chrome/Edge 问题记录均为无。
 - 任务 43 以来无未关闭 P0/P1 缺陷，本次 Windows 演练也未记录新问题。
 - Windows 手动补证落档后，`npm run quality`、`npm run test:e2e`、`npm run test:pwa` 均通过。

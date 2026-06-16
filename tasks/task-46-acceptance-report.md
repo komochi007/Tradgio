@@ -24,6 +24,7 @@
 - `npm run test:e2e`：通过，5 条 Playwright 流程通过；覆盖核心业务链路、整机加密备份恢复、两次本地生产迁移演练和离线模板错误提示。
 - Windows 手动补证落档后复验：`npm run quality`、`npm run test:e2e`、`npm run test:pwa` 均通过。
 - 2026-06-16 同 schema 更新复验：`npm run test:pwa` 通过，确认 schema `1` 下安全更新和静态回滚后 IndexedDB 货品数据仍可读取。
+- 2026-06-16 上线前最终质量门禁：基线提交 `74bd022520d69ea75257c27ee993df5aa6f760b6`，`npm run quality` 通过（12 个测试文件、99 项测试、生产构建、依赖审计 0 漏洞），`npm run test:e2e` 通过（5 条 Playwright 流程），`npm run test:pwa` 通过（1 条 PWA 发布流程）。
 
 ## 4. 版本与回滚记录
 
@@ -35,10 +36,9 @@
 
 ## 5. 上线前最终待办
 
-1. 在上线窗口前基于最终提交重新执行 `npm run quality`、`npm run test:e2e` 和 `npm run test:pwa`。
-2. 发布前生成并留存最终 `.tradgio-backup`，记录备份文件名、SHA-256、应用版本、IndexedDB schema 版本和回滚版本。
-3. 通过 `Deploy PWA` 手动发布正式版本，发布后记录最终提交号和 Pages 工作流结果。
-4. 未来出现 schema `2` 生产候选版本时，必须补做真实跨 schema 升级验收；该项不阻塞首版 schema `1` 上线。
+1. 发布前生成并留存最终 `.tradgio-backup`，记录备份文件名、SHA-256、应用版本、IndexedDB schema 版本和回滚版本。
+2. 通过 `Deploy PWA` 手动发布正式版本，发布后记录最终提交号和 Pages 工作流结果。
+3. 未来出现 schema `2` 生产候选版本时，必须补做真实跨 schema 升级验收；该项不阻塞首版 schema `1` 上线。
 
 ## 6. 已补证记录
 
@@ -50,4 +50,4 @@
 
 ## 7. 当前风险
 
-当前不发生 Origin 变更，Origin 迁移演练本次不适用。正式发布前仍必须完成最终质量门禁、最终备份、发布提交号和回滚版本记录；在这些发布记录落档前，不得宣称已完成正式上线。
+当前不发生 Origin 变更，Origin 迁移演练本次不适用。最终质量门禁已通过；正式发布前仍必须完成最终备份、发布提交号和回滚版本记录。在这些发布记录落档前，不得宣称已完成正式上线。
