@@ -36,6 +36,8 @@
 
 ## 5. Windows 演练待办
 
+已准备执行文档：`docs/windows-recovery-rehearsal.md`。执行记录中不得包含备份密码、派生密钥、附件内容或真实业务正文。
+
 需要在目标 Windows 环境补齐以下证据：
 
 1. Chrome 最新稳定版使用全新浏览器配置打开正式地址，导入 `.tradgio-backup`，恢复后重新登录。
