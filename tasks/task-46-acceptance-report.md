@@ -4,16 +4,16 @@
 
 ## 1. 结论
 
-任务 46 已完成一次上线门禁评估，并补齐目标 Windows 恢复与人工核对证据；用户已确认正式 Origin、首版 schema 策略和上线窗口，当前进入上线前最终复验。
+任务 46 已完成正式发布验收，结论为允许上线。正式 PWA 已发布到 `https://komochi007.github.io/Tradgio/`，Pages 工作流结果为成功，最小验证通过。
 
 本次自动化验收确认质量门禁、核心 E2E、备份恢复 E2E、localStorage 到 IndexedDB 迁移 E2E、PWA 更新和静态回滚均通过；并补充验证 PWA 更新与回滚后 IndexedDB 业务数据仍可读取。
 
-目标 Windows Chrome/Edge 全新浏览器配置恢复、关键业务核对和导出人工确认已于 2026-06-16 补证通过。正式地址继续使用 `https://komochi007.github.io/Tradgio/`，本次不发生 Origin 变更；首版上线继续使用 IndexedDB schema `1`，同 schema 更新不破坏数据已通过 PWA 自动化复验。正式上线窗口为 2026-06-17 10:00（Asia/Shanghai）。
+目标 Windows Chrome/Edge 全新浏览器配置恢复、关键业务核对和导出人工确认已于 2026-06-16 补证通过。正式地址继续使用 `https://komochi007.github.io/Tradgio/`，本次不发生 Origin 变更；首版上线继续使用 IndexedDB schema `1`，同 schema 更新不破坏数据已通过 PWA 自动化复验。正式上线窗口为 2026-06-17 10:00（Asia/Shanghai），当前发布版本允许按该窗口启用。
 
 ## 2. 本次交付物
 
 - PWA 发布回滚测试已增加业务数据保持断言：创建货品后，安全更新和静态回滚激活后仍能在货品列表读取同一条 IndexedDB 数据。
-- 生产就绪清单已记录任务 46 进入上线前最终复验，Origin 变更项本次标记为不适用。
+- 生产就绪清单已记录任务 46 允许上线结论，Origin 变更项本次标记为不适用。
 - 开发进度、生产路线图、README 和部署文档已同步当前运行状态。
 - 目标 Windows Chrome/Edge 恢复演练记录已补充到任务 45 和生产就绪清单。
 
@@ -32,6 +32,10 @@
 - IndexedDB schema 版本：`1`
 - 本次评估基线：本次任务 46 提交
 - 发布前质量门禁基线：`38ce3a14788ad9088b2bb2f5881ee4b350419a90`
+- 正式发布提交号：`877cef4702eaf9617675ced17b019c8aebfbbcf4`
+- Pages 工作流结果：成功。
+- 发布地址：`https://komochi007.github.io/Tradgio/`
+- 发布后最小验证：通过，页面可打开、可登录、货品列表可见数据、数据备份页可打开、刷新后仍正常。
 - 当前线上 Pages 发布基线：`14a6ce8328a925998a6a3024143582bc2096bb90`
 - 最终备份文件：`radgio-backup-20260616-v0.1.0.tradgio-backup`
 - 最终备份 SHA-256：`E59DE8F8F15D0194268C3DFCA84A316CD87E4ACD7C5C10A23B0E0D086F241F2C`
@@ -41,8 +45,7 @@
 
 ## 5. 上线前最终待办
 
-1. 通过 `Deploy PWA` 手动发布正式版本，发布后记录最终提交号和 Pages 工作流结果。
-2. 未来出现 schema `2` 生产候选版本时，必须补做真实跨 schema 升级验收；该项不阻塞首版 schema `1` 上线。
+1. 未来出现 schema `2` 生产候选版本时，必须补做真实跨 schema 升级验收；该项不阻塞首版 schema `1` 上线。
 
 ## 6. 已补证记录
 
@@ -54,4 +57,4 @@
 
 ## 7. 当前风险
 
-当前不发生 Origin 变更，Origin 迁移演练本次不适用。最终质量门禁和最终备份记录已完成；正式发布前仍必须完成 `Deploy PWA` 发布并记录最终发布提交号与 Pages 工作流结果。在发布记录落档前，不得宣称已完成正式上线。
+当前不发生 Origin 变更，Origin 迁移演练本次不适用。最终质量门禁、最终备份、正式发布和发布后最小验证均已完成。未来 schema `2` 生产候选版本必须重新执行跨 schema 升级验收。

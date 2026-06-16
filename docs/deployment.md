@@ -12,9 +12,9 @@
 
 ## 当前上线状态
 
-2026-06-16 任务 46 已完成上线门禁评估并进入上线前最终复验。当前自动化质量门禁、核心 E2E、备份恢复 E2E 和 PWA 更新/回滚数据保持测试均通过；目标 Windows Chrome/Edge 全新配置恢复、关键业务核对和用户导出确认已补证通过。用户确认正式地址继续使用 `https://komochi007.github.io/Tradgio/`，本次不发生 Origin 变更；首版继续使用 IndexedDB schema `1`，同 schema 更新和回滚后 IndexedDB 数据保持已通过 `npm run test:pwa` 复验。正式上线窗口为 2026-06-17 10:00（Asia/Shanghai）。
+2026-06-16 任务 46 已完成正式发布验收，结论为允许上线。自动化质量门禁、核心 E2E、备份恢复 E2E 和 PWA 更新/回滚数据保持测试均通过；目标 Windows Chrome/Edge 全新配置恢复、关键业务核对和用户导出确认已补证通过。用户确认正式地址继续使用 `https://komochi007.github.io/Tradgio/`，本次不发生 Origin 变更；首版继续使用 IndexedDB schema `1`，同 schema 更新和回滚后 IndexedDB 数据保持已通过 `npm run test:pwa` 复验。`Deploy PWA` 正式发布成功，发布提交号 `877cef4702eaf9617675ced17b019c8aebfbbcf4`，发布后最小验证通过。正式上线窗口为 2026-06-17 10:00（Asia/Shanghai）。
 
-正式发布前仍需基于最终提交执行质量门禁、生成最终加密备份并记录上线提交号、备份文件和回滚版本。
+未来 schema `2` 生产候选版本发布前，必须重新执行跨 schema 升级验收并生成新的加密备份。
 
 ## 手动发布
 

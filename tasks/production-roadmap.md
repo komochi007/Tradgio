@@ -292,7 +292,7 @@
 ### 任务 46：Windows 迁移、升级与正式上线验收
 
 - 优先级：P3
-- 状态：已完成门禁评估，进入上线前最终复验
+- 状态：已完成，允许上线
 - 目标：将正式数据迁移到目标 Windows，并验证后续 Mac 发布更新不会破坏数据。
 - 实施内容：冻结上线版本；完成 localStorage 到 IndexedDB 迁移、备份恢复、PWA 安装、真实业务 UAT、Chrome/Edge 兼容、离线运行和至少一次跨 schema 版本升级；确认回滚版本和恢复文件；逐项关闭生产就绪清单。
 - 交付物：Windows 迁移报告、UAT 记录、升级与回滚记录、上线结论和版本标记。
@@ -300,8 +300,8 @@
 - 依赖：任务 43-45。
 - 验证方式：按生产就绪清单逐项留证并形成最终结论。
 - 文档同步：更新 README、开发进度、发布记录和当前运行状态。
-- 当前记录：2026-06-16 已完成一次上线门禁评估并进入上线前最终复验。`npm run quality` 通过：12 个测试文件、99 项测试全部通过，生产构建成功，依赖审计为 0 个漏洞；`npm run test:e2e` 通过 5 条流程；`npm run test:pwa` 通过，并新增安全更新与静态回滚后 IndexedDB 货品数据保持断言。目标 Windows Chrome/Edge 全新配置恢复、关键业务 UAT 和用户导出确认已补证通过。用户确认正式地址继续使用 `https://komochi007.github.io/Tradgio/`，本次不发生 Origin 变更；首版继续使用 IndexedDB schema `1`，同 schema 更新和回滚后 IndexedDB 数据保持已于 2026-06-16 复验通过；正式上线窗口为 2026-06-17 10:00（Asia/Shanghai）。未来 schema `2` 真实升级改为后续 schema 升级发布门禁，不阻塞首版上线。完整记录见 `tasks/task-46-acceptance-report.md`。
+- 当前记录：2026-06-16 已完成正式发布验收，结论为允许上线。`npm run quality` 通过：12 个测试文件、99 项测试全部通过，生产构建成功，依赖审计为 0 个漏洞；`npm run test:e2e` 通过 5 条流程；`npm run test:pwa` 通过，并新增安全更新与静态回滚后 IndexedDB 货品数据保持断言。目标 Windows Chrome/Edge 全新配置恢复、关键业务 UAT 和用户导出确认已补证通过。用户确认正式地址继续使用 `https://komochi007.github.io/Tradgio/`，本次不发生 Origin 变更；首版继续使用 IndexedDB schema `1`，同 schema 更新和回滚后 IndexedDB 数据保持已于 2026-06-16 复验通过；正式上线窗口为 2026-06-17 10:00（Asia/Shanghai）。`Deploy PWA` 正式发布成功，发布提交号 `877cef4702eaf9617675ced17b019c8aebfbbcf4`，发布地址 `https://komochi007.github.io/Tradgio/`，发布后最小验证通过。未来 schema `2` 真实升级改为后续 schema 升级发布门禁，不阻塞首版上线。完整记录见 `tasks/task-46-acceptance-report.md`。
 
 ## 7. 当前启动顺序
 
-任务 45 已完成；任务 46 已完成上线门禁评估并进入上线前最终复验。下一步是在 2026-06-17 10:00（Asia/Shanghai）上线窗口前执行最终质量门禁、生成最终加密备份、记录上线提交号、备份文件和回滚版本，然后手动触发 `Deploy PWA`。
+任务 45 已完成；任务 46 已完成正式发布验收，结论为允许上线。未来如出现 schema `2` 生产候选版本，必须补做真实跨 schema 升级验收。

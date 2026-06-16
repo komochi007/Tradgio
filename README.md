@@ -7,7 +7,7 @@
 - 提供上下文导航入口
 - 降低首次接手成本
 
-注意：当前仓库已完成 MVP 前端实现，可本地启动并进行验收；生产化路线已进入任务 46 上线前最终复验。正式地址继续使用 `https://komochi007.github.io/Tradgio/`，首版继续使用 IndexedDB schema `1`，同 schema 更新数据保持已复验；正式上线窗口为 2026-06-17 10:00（Asia/Shanghai）。
+注意：当前仓库已完成 MVP 前端实现，可本地启动并进行验收；生产化路线已完成任务 46 正式发布验收，结论为允许上线。正式地址为 `https://komochi007.github.io/Tradgio/`，首版使用 IndexedDB schema `1`，发布提交号为 `877cef4702eaf9617675ced17b019c8aebfbbcf4`，正式上线窗口为 2026-06-17 10:00（Asia/Shanghai）。
 
 ## 1. Project Overview
 Tradgio 是一个面向国内贸易个体经营者和小公司老板的单人业务系统，统一管理：
@@ -364,7 +364,7 @@ npm run preview
 - 当前认证、结构化业务数据、库存、草稿和合同附件已使用 IndexedDB；旧 Base64 附件会幂等迁移到独立 Blob store，失败时保留旧数据
 - 任何后续交付都应区分“本地 MVP 已落地”与“IndexedDB 本地生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前生产化已进入任务 46 上线前最终复验，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前生产化已完成任务 46 正式发布验收，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
