@@ -126,12 +126,12 @@ async function getProductName() {
   }
 }
 
-async function changeProductName(name: string) {
+async function changeProductName(name: string, updatedAt = "2026-06-15T00:00:00.000Z") {
   const database = await openTradgioDatabase()
   const transaction = database.transaction(INDEXED_DB_STORES.products, "readwrite")
   const store = transaction.objectStore(INDEXED_DB_STORES.products)
   const product = (await requestToPromise(store.get("product-a"))) as Record<string, unknown>
-  store.put({ ...product, name })
+  store.put({ ...product, name, updatedAt })
   await transactionToPromise(transaction)
   database.close()
 }
@@ -242,5 +242,47 @@ describe("BackupService", () => {
     await expect(
       blockedService.inspectBackup(backup.bytes, "correct horse battery")
     ).rejects.toMatchObject({ code: "QUOTA_EXCEEDED" } satisfies Partial<PlatformAdapterError>)
+  })
+
+  it("记录成功备份并按时间和变更量生成提醒", async () => {
+    let health = await service.getBackupHealth()
+    expect(health.reminderLevel).toBe("warning")
+    expect(health.lastBackupAt).toBeNull()
+    expect(health.changedRecordCount).toBe(9)
+
+    const backup = await service.createBackup("correct horse battery")
+    await service.recordBackupCompleted(backup)
+    health = await service.getBackupHealth()
+    expect(health.reminderLevel).toBe("normal")
+    expect(health.changedRecordCount).toBe(0)
+    expect(health.lastBackupAt).toBe("2026-06-15T08:00:00.000Z")
+
+    await changeProductName("备份后修改", "2026-06-15T09:00:00.000Z")
+    health = await service.getBackupHealth()
+    expect(health.reminderLevel).toBe("warning")
+    expect(health.changedRecordCount).toBe(1)
+    expect(health.reminderMessage).toContain("1 条记录变化")
+  })
+
+  it("展示 70% 容量提醒和 85% 容量阻断状态", async () => {
+    const warningService = new BackupService({
+      crypto,
+      storage,
+      estimateStorage: async () => ({ usage: 750, quota: 1000 }),
+      now: () => new Date("2026-06-15T08:00:00.000Z"),
+    })
+    const blockedService = new BackupService({
+      crypto,
+      storage,
+      estimateStorage: async () => ({ usage: 900, quota: 1000 }),
+      now: () => new Date("2026-06-15T08:00:00.000Z"),
+    })
+
+    await expect(warningService.getBackupHealth()).resolves.toMatchObject({
+      storage: { level: "warning", usageRatio: 0.75 },
+    })
+    await expect(blockedService.getBackupHealth()).resolves.toMatchObject({
+      storage: { level: "blocked", usageRatio: 0.9 },
+    })
   })
 })

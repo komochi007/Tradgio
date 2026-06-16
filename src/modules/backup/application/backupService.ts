@@ -1,4 +1,6 @@
 import {
+  ATTACHMENT_STORAGE_BLOCK_RATIO,
+  ATTACHMENT_STORAGE_WARNING_RATIO,
   BACKUP_FILE_EXTENSION,
   BACKUP_PASSWORD_MIN_LENGTH,
   BACKUP_STORES,
@@ -27,6 +29,8 @@ import {
 } from "../infrastructure/backupCodec"
 
 const SESSION_KEY = "tradgio_session"
+const BACKUP_HEALTH_SETTING_KEY = "backupHealth"
+const BACKUP_STALE_DAYS = 7
 const encoder = new TextEncoder()
 
 type BackupServiceOptions = {
@@ -62,6 +66,32 @@ export type RestoreReport = {
   attachments: BackupArchive["manifest"]["attachments"]
   totals: BackupBusinessTotals
   status: "completed"
+}
+
+export type BackupHealthLevel = "normal" | "warning" | "blocked" | "unknown"
+
+export type BackupHealth = {
+  checkedAt: string
+  lastBackupAt: string | null
+  daysSinceLastBackup: number | null
+  changedRecordCount: number
+  totalRecordCount: number
+  reminderLevel: Exclude<BackupHealthLevel, "blocked" | "unknown">
+  reminderMessage: string
+  storage: {
+    usage: number | null
+    quota: number | null
+    usageRatio: number | null
+    level: BackupHealthLevel
+    message: string
+    persisted: boolean | null
+  }
+}
+
+type BackupHealthSetting = {
+  key: typeof BACKUP_HEALTH_SETTING_KEY
+  lastBackupAt: string
+  contentSha256: string
 }
 
 type AttachmentBlobRecord = { id: string; accountId: string; blob: Blob }
@@ -247,6 +277,68 @@ export class BackupService {
       attachments: restored.manifest.attachments,
       totals: restored.manifest.totals,
       status: "completed",
+    }
+  }
+
+  async recordBackupCompleted(file: BackupFile, signal?: AbortSignal): Promise<void> {
+    ensureNotAborted(signal)
+    const database = await openTradgioDatabase(this.databaseFactory)
+    const transaction = database.transaction(INDEXED_DB_STORES.appSettings, "readwrite")
+    const completion = transactionToPromise(transaction)
+    try {
+      transaction.objectStore(INDEXED_DB_STORES.appSettings).put({
+        key: BACKUP_HEALTH_SETTING_KEY,
+        lastBackupAt: this.now().toISOString(),
+        contentSha256: file.archive.manifest.contentSha256,
+      } satisfies BackupHealthSetting)
+      await completion
+    } finally {
+      database.close()
+    }
+  }
+
+  async getBackupHealth(signal?: AbortSignal): Promise<BackupHealth> {
+    ensureNotAborted(signal)
+    const checkedAt = this.now().toISOString()
+    const [archive, setting, storage] = await Promise.all([
+      this.readArchive(signal),
+      this.readBackupHealthSetting(),
+      this.readStorageHealth(),
+    ])
+    const allRecords = BACKUP_STORES.flatMap((store) =>
+      store === INDEXED_DB_STORES.appSettings ? [] : archive.stores[store]
+    )
+    const lastBackupAt = setting?.lastBackupAt ?? null
+    const totalRecordCount = allRecords.length
+    const changedRecordCount = lastBackupAt
+      ? allRecords.filter((record) => recordChangedAfter(record, lastBackupAt)).length
+      : totalRecordCount
+    const daysSinceLastBackup = lastBackupAt
+      ? Math.floor(
+          (this.now().getTime() - new Date(lastBackupAt).getTime()) / (24 * 60 * 60 * 1000)
+        )
+      : null
+    const reminderLevel =
+      !lastBackupAt || (daysSinceLastBackup ?? 0) >= BACKUP_STALE_DAYS || changedRecordCount > 0
+        ? "warning"
+        : "normal"
+    const reminderMessage = !lastBackupAt
+      ? "尚未记录成功备份，请先生成加密备份并保留两处副本"
+      : (daysSinceLastBackup ?? 0) >= BACKUP_STALE_DAYS
+        ? `距离上次备份已 ${daysSinceLastBackup} 天，建议立即生成新备份`
+        : changedRecordCount > 0
+          ? `上次备份后已有 ${changedRecordCount} 条记录变化，建议生成新备份`
+          : "备份状态正常，仍建议按每周节奏保留新副本"
+
+    return {
+      checkedAt,
+      lastBackupAt,
+      daysSinceLastBackup,
+      changedRecordCount,
+      totalRecordCount,
+      reminderLevel,
+      reminderMessage,
+      storage,
     }
   }
 
@@ -437,6 +529,83 @@ export class BackupService {
       database.close()
     }
   }
+
+  private async readBackupHealthSetting(): Promise<BackupHealthSetting | null> {
+    const database = await openTradgioDatabase(this.databaseFactory)
+    try {
+      const setting = (await requestToPromise(
+        database
+          .transaction(INDEXED_DB_STORES.appSettings, "readonly")
+          .objectStore(INDEXED_DB_STORES.appSettings)
+          .get(BACKUP_HEALTH_SETTING_KEY)
+      )) as BackupHealthSetting | undefined
+      return setting ?? null
+    } finally {
+      database.close()
+    }
+  }
+
+  private async readStorageHealth(): Promise<BackupHealth["storage"]> {
+    let estimate: StorageEstimate
+    try {
+      estimate = await this.estimateStorage()
+    } catch {
+      return {
+        usage: null,
+        quota: null,
+        usageRatio: null,
+        level: "unknown",
+        message: "浏览器无法提供可靠容量信息，请及时备份并检查站点数据",
+        persisted: null,
+      }
+    }
+    if (!estimate.quota || estimate.usage === undefined) {
+      return {
+        usage: estimate.usage ?? null,
+        quota: estimate.quota ?? null,
+        usageRatio: null,
+        level: "unknown",
+        message: "浏览器无法提供可靠容量信息，请及时备份并检查站点数据",
+        persisted: null,
+      }
+    }
+    const usageRatio = estimate.usage / estimate.quota
+    if (usageRatio >= ATTACHMENT_STORAGE_BLOCK_RATIO) {
+      return {
+        usage: estimate.usage,
+        quota: estimate.quota,
+        usageRatio,
+        level: "blocked",
+        message: "本地存储已达到 85% 风险线，附件上传和恢复会被阻断，请先备份并清理空间",
+        persisted: null,
+      }
+    }
+    if (usageRatio >= ATTACHMENT_STORAGE_WARNING_RATIO) {
+      return {
+        usage: estimate.usage,
+        quota: estimate.quota,
+        usageRatio,
+        level: "warning",
+        message: "本地存储已达到 70% 提醒线，建议尽快备份并清理空间",
+        persisted: null,
+      }
+    }
+    return {
+      usage: estimate.usage,
+      quota: estimate.quota,
+      usageRatio,
+      level: "normal",
+      message: "本地存储容量正常",
+      persisted: null,
+    }
+  }
 }
 
 export const backupService = new BackupService()
+
+function recordChangedAfter(record: unknown, since: string): boolean {
+  const source = record as Record<string, unknown>
+  const timestamp =
+    source.updatedAt ?? source.uploadedAt ?? source.createdAt ?? source.completedAt ?? null
+  return typeof timestamp === "string" && new Date(timestamp).getTime() > new Date(since).getTime()
+}
