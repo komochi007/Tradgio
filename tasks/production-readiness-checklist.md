@@ -50,7 +50,7 @@
 - 2026-06-11，任务 33 本地核心流程 E2E 通过，覆盖注册登录、基础资料、进货、出货、报价、合同、库存、统一搜索、会话恢复和模板下载；测试从清空 localStorage 开始并使用随机数据，失败时保留截图、视频和 trace。
 - 2026-06-11，GitHub Actions `quality` 与 `e2e` 运行通过，失败证据 artifact 上传成功；`main-quality-gate` Ruleset 已严格要求两项检查且不允许绕过。
 - 2026-06-15，任务 43 完成本地生产适配层回归：12 个测试文件、96 项测试及 5 条 Playwright 流程通过；E2E 使用独立浏览器上下文并清理 localStorage、IndexedDB、Cache Storage，失败继续保留截图、视频和 trace。
-- 本地与生产候选站点自动化证据已完整；Windows 恢复和人工 UAT 已于 2026-06-16 补证。正式上线前仍需关闭上线窗口、最终发布记录和跨 schema 升级策略，因此 Gate 2 保持未完全通过。
+- 本地与生产候选站点自动化证据已完整；Windows 恢复和人工 UAT 已于 2026-06-16 补证。2026-06-16 已确认首版继续使用 schema `1`，并通过 `npm run test:pwa` 复验同 schema 更新和回滚后 IndexedDB 数据保持。正式上线前仍需最终发布记录，因此 Gate 2 保持未完全通过。
 
 ## Gate 3：本地架构与安全
 
@@ -99,14 +99,14 @@
 - [x] 阻断：测试站点已从零成功部署并可在 Windows 安装为 PWA。
 - [x] 阻断：生产发布流程包含质量门禁、人工确认和高风险更新前备份提示。
 - [x] 阻断：已成功演练恢复上一稳定静态版本。
-- [ ] 阻断：正式 HTTPS Origin 已固定，Origin 变更迁移流程已验证。
+- [x] 阻断：正式 HTTPS Origin 已固定；本次不变更 Origin，Origin 迁移流程标记为不适用。
 - [x] 断网后可打开上一稳定版本并执行核心只读及录单流程。
 - [x] Service Worker 更新不会强制刷新正在编辑的页面。
 - [x] 静态资源和模板已按缓存策略离线可访问。
 - [x] ExcelJS 不阻塞首屏加载，构建产物体积已有评估。
 - [x] 运行文档包含发布、更新、Origin 迁移、回滚和常见故障处理。
 
-当前证据（正式 Origin 变更迁移流程仍待任务 46 复验，因此 Gate 5 保持未完全通过）：
+当前证据：
 - 2026-06-12，任务 37 已定义固定 HTTPS Origin、应用/schema 版本、同源 Service Worker 路径和数据库兼容写入阻断。
 - PWA 更新状态机禁止自动 `skipWaiting` 和自动刷新；未保存表单阻止激活，schema/高风险更新要求先完成加密备份，用户可保留 waiting 更新稍后处理。
 - `.env.example` 只包含非敏感运行配置，12 项模拟 Adapter 演练通过。
@@ -116,8 +116,9 @@
 - 2026-06-16，任务 44 已实现真实 Service Worker、manifest、离线应用壳、SPA fallback、显式更新提示、编辑页更新阻断和高风险更新前备份提示；新增 PWA 自动化验收并通过 `npm run test:pwa`。
 - 2026-06-16，GitHub Pages 已启用 workflow 发布，`Deploy PWA` 在提交 `14a6ce8328a925998a6a3024143582bc2096bb90` 上成功；PR #4 已合并。
 - 2026-06-16，线上验证入口、Service Worker、manifest 和断网重开均正常；目标 Windows Chrome 与 Edge 均反馈能打开、能安装、断网重开正常。
-- `docs/deployment.md` 已记录正式地址、发布、更新、缓存、Origin 迁移、回滚和常见故障处理；Origin 变更迁移流程仍需在任务 46 随正式上线演练复验。
-- 2026-06-16，任务 46 自动化门禁评估补充 PWA 安全更新和静态回滚后的 IndexedDB 货品数据保持断言，`npm run test:pwa` 通过；该证据不替代真实跨 schema 升级和 Origin 迁移演练。
+- `docs/deployment.md` 已记录正式地址、发布、更新、缓存、Origin 迁移、回滚和常见故障处理。
+- 2026-06-16，用户确认正式地址继续使用 `https://komochi007.github.io/Tradgio/`，本次不发生 Origin 变更；Origin 变更迁移流程本次标记为不适用。
+- 2026-06-16，任务 46 自动化门禁评估补充 PWA 安全更新和静态回滚后的 IndexedDB 货品数据保持断言，`npm run test:pwa` 通过；同日再次执行 `npm run test:pwa` 通过，确认首版 schema `1` 下同 schema 更新和回滚后 IndexedDB 数据保持。
 
 ## Gate 6：备份、容量与恢复
 
@@ -147,13 +148,13 @@
 - [x] 阻断：出货单与报价单模板 Excel 内容和样式经用户确认。
 - [x] 阻断：无未关闭的 P0/P1 缺陷。
 - [x] Windows 最新稳定版 Chrome 和 Edge 完成关键流程验证。
-- [ ] 用户确认迁移结果和上线窗口。
+- [x] 用户确认迁移结果和上线窗口。
 - [ ] 上线版本、提交号、IndexedDB schema 版本、备份文件和回滚版本已记录。
-- [x] 任务 46 已形成最终“允许上线”或“暂缓上线”结论。
+- [x] 任务 46 已形成上线前最终复验结论。
 
 当前证据：
-- 2026-06-16，任务 46 已形成最终结论：暂缓上线。`npm run quality`、`npm run test:e2e`、`npm run test:pwa` 均通过；PWA 更新和回滚后 IndexedDB 货品数据保持可读。
+- 2026-06-16，任务 46 已从“暂缓上线”推进到上线前最终复验。`npm run quality`、`npm run test:e2e`、`npm run test:pwa` 均通过；PWA 更新和回滚后 IndexedDB 货品数据保持可读。
 - 2026-06-16，用户确认目标 Windows Chrome/Edge 恢复后，账号、货品、往来单位、进货、出货、报价、合同、附件、库存、搜索和导出均已人工核对通过；Chrome/Edge 问题记录均为无。
 - 任务 43 以来无未关闭 P0/P1 缺陷，本次 Windows 演练也未记录新问题。
 - Windows 手动补证落档后，`npm run quality`、`npm run test:e2e`、`npm run test:pwa` 均通过。
-- 用户尚未确认正式上线窗口，未来 schema 2 真实升级仍未完成，因此 Gate 7 保持未通过。
+- 用户已确认正式上线窗口为 2026-06-17 10:00（Asia/Shanghai），正式地址继续使用 `https://komochi007.github.io/Tradgio/`，首版继续使用 IndexedDB schema `1`。未来 schema `2` 真实升级改为后续 schema 升级发布门禁，不阻塞首版；Gate 7 仍待最终上线版本、提交号、备份文件和回滚版本落档。
