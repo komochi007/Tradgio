@@ -28,14 +28,18 @@ type FilePickerWindow = Window & {
 async function saveBlob(blob: Blob, filename: string, description: string, extension: string) {
   const picker = (window as FilePickerWindow).showSaveFilePicker
   if (picker) {
-    const handle = await picker({
-      suggestedName: filename,
-      types: [{ description, accept: { [blob.type || "application/octet-stream"]: [extension] } }],
-    })
-    const writable = await handle.createWritable()
-    await writable.write(blob)
-    await writable.close()
-    return
+    try {
+      const handle = await picker({
+        suggestedName: filename,
+        types: [{ description, accept: { [blob.type || "application/octet-stream"]: [extension] } }],
+      })
+      const writable = await handle.createWritable()
+      await writable.write(blob)
+      await writable.close()
+      return
+    } catch (error) {
+      if ((error as DOMException)?.name === "AbortError") throw error
+    }
   }
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement("a")
