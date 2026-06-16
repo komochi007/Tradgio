@@ -27,7 +27,8 @@ type FilePickerWindow = Window & {
 
 async function saveBlob(blob: Blob, filename: string, description: string, extension: string) {
   const picker = (window as FilePickerWindow).showSaveFilePicker
-  if (picker) {
+  const canUseFilePicker = picker && /^\.[A-Za-z0-9]+$/.test(extension)
+  if (canUseFilePicker) {
     try {
       const handle = await picker({
         suggestedName: filename,
