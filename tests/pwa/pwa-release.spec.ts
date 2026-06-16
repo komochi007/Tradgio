@@ -1,10 +1,15 @@
 import { execFileSync } from "node:child_process"
 import { expect, test, type Page } from "@playwright/test"
-import { createCoreFlowSeed, registerAndLogin, resetBrowserData } from "../e2e/helpers/coreFlow"
+import {
+  createCoreFlowSeed,
+  createProduct,
+  registerAndLogin,
+  resetBrowserData,
+} from "../e2e/helpers/coreFlow"
 
 test.afterAll(() => generateServiceWorker("0.1.0"))
 
-test("PWA 支持离线启动、安全更新和静态版本回滚", async ({ page, context }) => {
+test("PWA 支持离线启动、安全更新、数据保持和静态版本回滚", async ({ page, context }) => {
   const seed = createCoreFlowSeed()
   await page.goto("/login")
   await page.evaluate(async () => {
@@ -12,6 +17,7 @@ test("PWA 支持离线启动、安全更新和静态版本回滚", async ({ page
   })
   await resetBrowserData(page)
   await registerAndLogin(page, seed)
+  await createProduct(page, seed)
 
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready
@@ -57,12 +63,17 @@ test("PWA 支持离线启动、安全更新和静态版本回滚", async ({ page
   await expect(banner.getByRole("button", { name: "刷新使用新版" })).toBeVisible()
   await banner.getByRole("button", { name: "刷新使用新版" }).click()
   await expect(page.getByText(seed.username, { exact: true })).toBeVisible()
+  await page.goto("/products")
+  await expect(page.getByText(seed.productName)).toBeVisible()
 
   generateServiceWorker("0.1.0")
   await checkForUpdate(page)
   await expect(banner).toContainText("0.1.0 → 0.1.0")
   await banner.getByRole("button", { name: "安全更新" }).click()
   await expect(banner.getByRole("button", { name: "刷新使用新版" })).toBeVisible()
+  await banner.getByRole("button", { name: "刷新使用新版" }).click()
+  await page.goto("/products")
+  await expect(page.getByText(seed.productName)).toBeVisible()
 })
 
 async function checkForUpdate(page: Page) {

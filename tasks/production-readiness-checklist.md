@@ -117,6 +117,7 @@
 - 2026-06-16，GitHub Pages 已启用 workflow 发布，`Deploy PWA` 在提交 `14a6ce8328a925998a6a3024143582bc2096bb90` 上成功；PR #4 已合并。
 - 2026-06-16，线上验证入口、Service Worker、manifest 和断网重开均正常；目标 Windows Chrome 与 Edge 均反馈能打开、能安装、断网重开正常。
 - `docs/deployment.md` 已记录正式地址、发布、更新、缓存、Origin 迁移、回滚和常见故障处理；Origin 变更迁移流程仍需在任务 46 随正式上线演练复验。
+- 2026-06-16，任务 46 自动化门禁评估补充 PWA 安全更新和静态回滚后的 IndexedDB 货品数据保持断言，`npm run test:pwa` 通过；该证据不替代真实跨 schema 升级和 Origin 迁移演练。
 
 ## Gate 6：备份、容量与恢复
 
@@ -147,4 +148,8 @@
 - [ ] Windows 最新稳定版 Chrome 和 Edge 完成关键流程验证。
 - [ ] 用户确认迁移结果和上线窗口。
 - [ ] 上线版本、提交号、IndexedDB schema 版本、备份文件和回滚版本已记录。
-- [ ] 任务 46 已形成最终“允许上线”或“暂缓上线”结论。
+- [x] 任务 46 已形成最终“允许上线”或“暂缓上线”结论。
+
+当前证据：
+- 2026-06-16，任务 46 已形成最终结论：暂缓上线。`npm run quality`、`npm run test:e2e`、`npm run test:pwa` 均通过；PWA 更新和回滚后 IndexedDB 货品数据保持可读。
+- 目标 Windows Chrome/Edge 全新配置恢复、真实业务 UAT、用户导出确认、Origin 变更演练和未来 schema 2 真实升级仍未完成，因此 Gate 7 保持未通过。

@@ -32,7 +32,9 @@ async function saveBlob(blob: Blob, filename: string, description: string, exten
     try {
       const handle = await picker({
         suggestedName: filename,
-        types: [{ description, accept: { [blob.type || "application/octet-stream"]: [extension] } }],
+        types: [
+          { description, accept: { [blob.type || "application/octet-stream"]: [extension] } },
+        ],
       })
       const writable = await handle.createWritable()
       await writable.write(blob)
