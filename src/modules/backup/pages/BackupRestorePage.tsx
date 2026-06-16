@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button, Input, SectionCard } from "../../../shared/components"
 import { useToast } from "../../../shared/notification"
@@ -8,6 +8,7 @@ import { useAuth } from "../../auth"
 import {
   backupService,
   type BackupFile,
+  type BackupHealth,
   type RestoreInspection,
   type RestoreReport,
 } from "../application/backupService"
@@ -26,15 +27,22 @@ type FilePickerWindow = Window & {
 
 async function saveBlob(blob: Blob, filename: string, description: string, extension: string) {
   const picker = (window as FilePickerWindow).showSaveFilePicker
-  if (picker) {
-    const handle = await picker({
-      suggestedName: filename,
-      types: [{ description, accept: { [blob.type || "application/octet-stream"]: [extension] } }],
-    })
-    const writable = await handle.createWritable()
-    await writable.write(blob)
-    await writable.close()
-    return
+  const canUseFilePicker = picker && /^\.[A-Za-z0-9]+$/.test(extension)
+  if (canUseFilePicker) {
+    try {
+      const handle = await picker({
+        suggestedName: filename,
+        types: [
+          { description, accept: { [blob.type || "application/octet-stream"]: [extension] } },
+        ],
+      })
+      const writable = await handle.createWritable()
+      await writable.write(blob)
+      await writable.close()
+      return
+    } catch (error) {
+      if ((error as DOMException)?.name === "AbortError") throw error
+    }
   }
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement("a")
@@ -100,6 +108,58 @@ function Preview({ inspection }: { inspection: RestoreInspection }) {
   )
 }
 
+function formatPercent(value: number | null) {
+  if (value === null) return "未知"
+  return `${Math.round(value * 100)}%`
+}
+
+function BackupHealthPanel({ health }: { health: BackupHealth | null }) {
+  if (!health) {
+    return (
+      <SectionCard title="备份提醒与存储健康" description="正在读取本机备份与容量状态。">
+        <div className="backup-health backup-health--unknown">正在检查...</div>
+      </SectionCard>
+    )
+  }
+
+  const storageUsed =
+    health.storage.usage !== null && health.storage.quota !== null
+      ? `${formatFileSize(health.storage.usage)} / ${formatFileSize(health.storage.quota)}`
+      : "未知"
+
+  return (
+    <SectionCard
+      title="备份提醒与存储健康"
+      description="每周至少备份一次；备份文件请保存在电脑本机之外的第二位置。"
+    >
+      <div className="backup-health-grid">
+        <div className={`backup-health backup-health--${health.reminderLevel}`}>
+          <span>备份提醒</span>
+          <strong>{health.reminderMessage}</strong>
+          <small>
+            上次备份：
+            {health.lastBackupAt ? formatDateTime(health.lastBackupAt) : "未记录"}
+          </small>
+        </div>
+        <div className={`backup-health backup-health--${health.storage.level}`}>
+          <span>存储健康</span>
+          <strong>{health.storage.message}</strong>
+          <small>
+            已用 {storageUsed}，使用率 {formatPercent(health.storage.usageRatio)}
+          </small>
+        </div>
+        <div className="backup-health backup-health--normal">
+          <span>变更量</span>
+          <strong>
+            {formatNumber(health.changedRecordCount)} / {formatNumber(health.totalRecordCount)} 条
+          </strong>
+          <small>统计上次备份后有更新时间的业务记录，不包含备份密码或附件内容。</small>
+        </div>
+      </div>
+    </SectionCard>
+  )
+}
+
 export function BackupRestorePage() {
   const navigate = useNavigate()
   const toast = useToast()
@@ -115,6 +175,19 @@ export function BackupRestorePage() {
   const [inspecting, setInspecting] = useState(false)
   const [restoreConfirmed, setRestoreConfirmed] = useState(false)
   const [restoring, setRestoring] = useState(false)
+  const [health, setHealth] = useState<BackupHealth | null>(null)
+
+  async function refreshHealth() {
+    try {
+      setHealth(await backupService.getBackupHealth())
+    } catch {
+      setHealth(null)
+    }
+  }
+
+  useEffect(() => {
+    void refreshHealth()
+  }, [])
 
   async function handleCreateBackup() {
     if (backupPassword !== backupPasswordAgain) {
@@ -129,6 +202,8 @@ export function BackupRestorePage() {
     try {
       const backup = await backupService.createBackup(backupPassword)
       await saveBackupFile(backup)
+      await backupService.recordBackupCompleted(backup)
+      await refreshHealth()
       markUpdateBackupCompleted()
       setLastBackup(backup)
       setBackupPassword("")
@@ -221,6 +296,8 @@ export function BackupRestorePage() {
       </header>
 
       <div className="backup-page__grid">
+        <BackupHealthPanel health={health} />
+
         <SectionCard
           title="创建整机加密备份"
           description="使用 AES-256-GCM 加密。密码不会保存，忘记后无法恢复。"

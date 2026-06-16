@@ -237,7 +237,7 @@ npm run preview
 - [x] 仓库已提供 `.env.example`
 - [x] 本地优先方案不依赖服务端密钥
 - [x] PWA 应用版本、schema 版本、固定 Origin 和 Service Worker 路径契约已由任务 37 定义
-- [x] GitHub Pages 候选 Origin 与 PWA 发布配置已建立，等待目标 Windows 网络复验
+- [x] GitHub Pages Origin 与 PWA 发布配置已建立，并已通过目标 Windows Chrome / Edge 安装与离线重开复验
 
 预期变量类别：
 
@@ -364,7 +364,7 @@ npm run preview
 - 当前认证、结构化业务数据、库存、草稿和合同附件已使用 IndexedDB；旧 Base64 附件会幂等迁移到独立 Blob store，失败时保留旧数据
 - 任何后续交付都应区分“本地 MVP 已落地”与“IndexedDB 本地生产能力已接入”
 - 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前下一任务为任务 44，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 当前下一任务为任务 45，生产化实施顺序以 `tasks/production-roadmap.md` 为准
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
@@ -428,4 +428,4 @@ npm run preview
 - [ ] 若要突破架构约束，先更新文档再修改实现
 - [ ] 生产化任务先读 `tasks/production-roadmap.md` 和上线检查清单
 
-如果你接手后续迭代，当前从任务 44 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。
+如果你接手后续迭代，当前从任务 45 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。
