@@ -158,4 +158,5 @@
 - 2026-06-16，用户确认目标 Windows Chrome/Edge 恢复后，账号、货品、往来单位、进货、出货、报价、合同、附件、库存、搜索和导出均已人工核对通过；Chrome/Edge 问题记录均为无。
 - 任务 43 以来无未关闭 P0/P1 缺陷，本次 Windows 演练也未记录新问题。
 - Windows 手动补证落档后，`npm run quality`、`npm run test:e2e`、`npm run test:pwa` 均通过。
-- 用户已确认正式上线窗口为 2026-06-17 10:00（Asia/Shanghai），正式地址继续使用 `https://komochi007.github.io/Tradgio/`，首版继续使用 IndexedDB schema `1`。未来 schema `2` 真实升级改为后续 schema 升级发布门禁，不阻塞首版；Gate 7 仍待最终上线版本、提交号、备份文件和回滚版本落档。
+- 用户已确认正式上线窗口为 2026-06-17 10:00（Asia/Shanghai），正式地址继续使用 `https://komochi007.github.io/Tradgio/`，首版继续使用 IndexedDB schema `1`。未来 schema `2` 真实升级改为后续 schema 升级发布门禁，不阻塞首版；Gate 7 仍待最终发布提交号和 Pages 工作流结果落档。
+- 2026-06-16，发布前备份记录已补齐：应用版本 `0.1.0`，IndexedDB schema `1`，发布前质量门禁基线 `38ce3a14788ad9088b2bb2f5881ee4b350419a90`，备份文件 `radgio-backup-20260616-v0.1.0.tradgio-backup`，备份 SHA-256 `E59DE8F8F15D0194268C3DFCA84A316CD87E4ACD7C5C10A23B0E0D086F241F2C`，用户确认备份已保存两处，回滚版本 `38ce3a14788ad9088b2bb2f5881ee4b350419a90`。
