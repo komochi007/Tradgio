@@ -6,6 +6,7 @@ import {
   EXPORT_TEMPLATE_CACHE_NAME,
   EXPORT_TEMPLATE_DEFINITIONS,
   loadExportTemplate,
+  resolveTemplatePath,
 } from "./infrastructure/localExportAdapter"
 import type { ExportPayload } from "./domain/types"
 import type { SalesOrder } from "../document-core/sales/domain/types"
@@ -166,6 +167,12 @@ afterEach(() => {
 })
 
 describe("客户端离线导出适配器", () => {
+  it("模板地址跟随部署 base path", () => {
+    expect(resolveTemplatePath("/templates/sales-order-template.xlsx", "/Tradgio/")).toBe(
+      "http://localhost/Tradgio/templates/sales-order-template.xlsx"
+    )
+  })
+
   it("打印版不加载 ExcelJS 或模板", async () => {
     const loadExcelJs = vi.fn(() => import("exceljs"))
     const loadTemplate = vi.fn(createSalesTemplate)
@@ -250,7 +257,10 @@ describe("客户端离线导出适配器", () => {
   it("缓存模板版本不匹配且断网时拒绝生成文件", async () => {
     const cacheStorage = new MemoryCacheStorage()
     const cache = await cacheStorage.open(EXPORT_TEMPLATE_CACHE_NAME)
-    await cache.put(EXPORT_TEMPLATE_DEFINITIONS.sales.path, new Response(new Uint8Array([1, 2, 3])))
+    await cache.put(
+      resolveTemplatePath(EXPORT_TEMPLATE_DEFINITIONS.sales.path),
+      new Response(new Uint8Array([1, 2, 3]))
+    )
     Object.defineProperty(globalThis, "caches", { configurable: true, value: cacheStorage })
     Object.defineProperty(globalThis, "fetch", {
       configurable: true,

@@ -36,6 +36,16 @@ export const EXPORT_TEMPLATE_DEFINITIONS: Record<TemplateDocumentType, TemplateD
   },
 }
 
+export function resolveTemplatePath(
+  templatePath: string,
+  baseUrl = import.meta.env.BASE_URL
+): string {
+  const normalizedTemplatePath = templatePath.replace(/^\/+/, "")
+  const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`
+  const origin = globalThis.location?.origin ?? "http://localhost"
+  return new URL(normalizedTemplatePath, new URL(normalizedBaseUrl, origin)).toString()
+}
+
 function throwIfAborted(signal?: AbortSignal): void {
   if (signal?.aborted) {
     throw new DOMException("The operation was aborted", "AbortError")
@@ -76,19 +86,20 @@ export async function loadExportTemplate(
     typeof globalThis.caches !== "undefined"
       ? await globalThis.caches.open(EXPORT_TEMPLATE_CACHE_NAME)
       : null
-  const cachedResponse = await cache?.match(definition.path)
+  const templatePath = resolveTemplatePath(definition.path)
+  const cachedResponse = await cache?.match(templatePath)
 
   if (cachedResponse) {
     const cachedBuffer = await cachedResponse.arrayBuffer()
     if (await verifyTemplate(cachedBuffer, definition.sha256)) {
       return cachedBuffer
     }
-    await cache?.delete(definition.path)
+    await cache?.delete(templatePath)
   }
 
   let response: Response
   try {
-    response = await fetch(definition.path, {
+    response = await fetch(templatePath, {
       cache: "no-cache",
       signal: options?.signal,
     })
@@ -125,7 +136,7 @@ export async function loadExportTemplate(
   if (cache) {
     try {
       await cache.put(
-        definition.path,
+        templatePath,
         new Response(buffer.slice(0), {
           headers: {
             "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
