@@ -47,6 +47,7 @@ function isSalesLineEmpty(line: SalesFormLine): boolean {
 
 function isSalesFormEmpty(form: SalesFormData): boolean {
   return (
+    !form.customerOrderNo.trim() &&
     !form.customerId &&
     !form.customerName.trim() &&
     !form.remark.trim() &&
@@ -84,7 +85,7 @@ export function SalesFormPage() {
     enabled: !isEdit,
     isEmpty: isSalesFormEmpty,
     onRestore: (data) => {
-      setForm(data)
+      setForm({ ...data, customerOrderNo: data.customerOrderNo ?? "" })
       setErrors({})
     },
   })
@@ -330,14 +331,21 @@ export function SalesFormPage() {
             error={errors.customerId}
           />
           <Input
+            label="订单号"
+            placeholder="请输入客户订单号"
+            value={form.customerOrderNo}
+            onChange={(e) => updateField("customerOrderNo", e.target.value)}
+            error={errors.customerOrderNo}
+          />
+        </div>
+        <div className="form-row" style={{ marginTop: "var(--space-4)" }}>
+          <Input
             label="日期"
             type="date"
             value={form.happenedAt}
             onChange={(e) => updateField("happenedAt", e.target.value)}
             error={errors.happenedAt}
           />
-        </div>
-        <div style={{ marginTop: "var(--space-4)" }}>
           <Input
             label="备注"
             placeholder="选填"

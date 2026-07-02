@@ -17,6 +17,7 @@ export type SalesOrder = {
   accountId: string
   type: "sales"
   documentNo: string
+  customerOrderNo?: string
   customerId: string
   customerName: string
   happenedAt: string
@@ -41,6 +42,7 @@ export type SalesFormLine = {
 }
 
 export type SalesFormData = {
+  customerOrderNo: string
   customerId: string
   customerName: string
   happenedAt: string
@@ -53,6 +55,12 @@ export function validateSalesForm(data: SalesFormData): Record<string, string> {
 
   if (!data.customerId) {
     errors.customerId = "请选择客户"
+  }
+
+  if (!data.customerOrderNo.trim()) {
+    errors.customerOrderNo = "请输入订单号"
+  } else if (data.customerOrderNo.length > 50) {
+    errors.customerOrderNo = "订单号不能超过 50 个字"
   }
 
   if (!data.happenedAt) {
@@ -107,6 +115,7 @@ export function emptySalesLine(): SalesFormLine {
 
 export function emptySalesForm(): SalesFormData {
   return {
+    customerOrderNo: "",
     customerId: "",
     customerName: "",
     happenedAt: new Date().toISOString().slice(0, 10),
@@ -117,6 +126,7 @@ export function emptySalesForm(): SalesFormData {
 
 export function orderToFormData(order: SalesOrder): SalesFormData {
   return {
+    customerOrderNo: order.customerOrderNo ?? "",
     customerId: order.customerId,
     customerName: order.customerName,
     happenedAt: order.happenedAt.slice(0, 10),
@@ -167,6 +177,7 @@ export function formDataToOrder(
     accountId,
     type: "sales",
     documentNo: existing?.documentNo ?? "",
+    customerOrderNo: data.customerOrderNo.trim(),
     customerId: data.customerId,
     customerName: data.customerName,
     happenedAt: data.happenedAt,

@@ -7,7 +7,11 @@ import {
   resetBrowserData,
 } from "../e2e/helpers/coreFlow"
 
-test.afterAll(() => generateServiceWorker("0.1.0"))
+const PREVIOUS_RELEASE_VERSION = "0.1.0"
+const CURRENT_RELEASE_VERSION = "0.1.1"
+
+test.beforeEach(() => generateServiceWorker(PREVIOUS_RELEASE_VERSION))
+test.afterAll(() => generateServiceWorker(CURRENT_RELEASE_VERSION))
 
 test("PWA 支持离线启动、安全更新、数据保持和静态版本回滚", async ({ page, context }) => {
   const seed = createCoreFlowSeed()
@@ -49,10 +53,10 @@ test("PWA 支持离线启动、安全更新、数据保持和静态版本回滚"
   await expect(page.getByText(seed.username, { exact: true })).toBeVisible()
   await context.setOffline(false)
 
-  generateServiceWorker("0.1.1")
+  generateServiceWorker(CURRENT_RELEASE_VERSION)
   await checkForUpdate(page)
   const banner = page.getByTestId("pwa-update-banner")
-  await expect(banner).toContainText("0.1.0 → 0.1.1")
+  await expect(banner).toContainText(`${PREVIOUS_RELEASE_VERSION} → ${CURRENT_RELEASE_VERSION}`)
 
   await page.goto("/products/new")
   await banner.getByRole("button", { name: "安全更新" }).click()
@@ -66,9 +70,9 @@ test("PWA 支持离线启动、安全更新、数据保持和静态版本回滚"
   await page.goto("/products")
   await expect(page.getByText(seed.productName)).toBeVisible()
 
-  generateServiceWorker("0.1.0")
+  generateServiceWorker(PREVIOUS_RELEASE_VERSION)
   await checkForUpdate(page)
-  await expect(banner).toContainText("0.1.0 → 0.1.0")
+  await expect(banner).toContainText(`${PREVIOUS_RELEASE_VERSION} → ${PREVIOUS_RELEASE_VERSION}`)
   await banner.getByRole("button", { name: "安全更新" }).click()
   await expect(banner.getByRole("button", { name: "刷新使用新版" })).toBeVisible()
   await banner.getByRole("button", { name: "刷新使用新版" }).click()

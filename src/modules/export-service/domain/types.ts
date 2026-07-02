@@ -17,6 +17,7 @@ export type ExportLineItem = {
 
 export type ExportHeader = {
   documentNo: string
+  customerOrderNo?: string
   date: string
   counterpartyLabel: string
   counterpartyName: string

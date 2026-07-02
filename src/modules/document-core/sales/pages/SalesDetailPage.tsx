@@ -122,6 +122,10 @@ export function SalesDetailPage() {
             <span className="detail-item__value">{order.documentNo}</span>
           </div>
           <div className="detail-item">
+            <span className="detail-item__label">订单号</span>
+            <span className="detail-item__value">{order.customerOrderNo || "-"}</span>
+          </div>
+          <div className="detail-item">
             <span className="detail-item__label">客户</span>
             <span className="detail-item__value">{order.customerName}</span>
           </div>
