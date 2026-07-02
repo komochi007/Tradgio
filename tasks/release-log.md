@@ -55,13 +55,15 @@
 
 ### 0.1.1：上线后管理与出货导出修复补丁
 
-- 发布状态：计划中
-- 目标日期：待定
-- 发布提交号：待发布后填写
+- 发布状态：已发布
+- 发布日期：2026-07-02 21:41（Asia/Shanghai）
+- 发布提交号：`9b377ed4fbaea82020029b2594b7a73eca66a43e`
 - IndexedDB schema：`1`
 - 是否需要备份：否
 - 是否涉及 schema：否
-- 回滚点：待发布前填写
+- 回滚点：`877cef4702eaf9617675ced17b019c8aebfbbcf4`
+- 发布方式：PR #12 合并后手动触发 `Deploy PWA`
+- 部署记录：`https://github.com/komochi007/Tradgio/actions/runs/28594359547`
 
 变更摘要：
 
@@ -76,17 +78,34 @@
 - `PL-001`
 - `PL-002`
 
-验证计划：
+验证记录：
 
 - 检查 Markdown 文档完整性与互相引用。
-- `npm run test -- src/modules/export-service/exportAdapter.test.ts src/modules/document-core/documentTransaction.test.ts`：开发阶段通过，2 个测试文件、26 个用例通过。
-- `npm run quality`：开发阶段通过，lint、format check、typecheck、105 个单元测试、生产构建和 audit 均通过。
-- `npm run test:e2e`：开发阶段通过，5 个 E2E 用例通过。
-- `npm run test:pwa`：发布前通过，1 个 PWA 发布/更新/回滚用例通过。
+- `npm run test -- src/modules/export-service/exportAdapter.test.ts src/modules/document-core/documentTransaction.test.ts`：通过，2 个测试文件、26 个用例通过。
+- `npm run quality`：通过，lint、format check、typecheck、105 个单元测试、生产构建和 audit 均通过。
+- `npm run test:e2e`：通过，5 个 E2E 用例通过。
+- `npm run test:pwa`：通过，1 个 PWA 发布/更新/回滚用例通过。
+- PR #12：`quality` 和 `e2e` 必需检查通过。
 
 发布后最小验证：
 
-- 待发布后填写。
+- 正式地址可打开：通过，`https://komochi007.github.io/Tradgio/` 返回 HTTP 200。
+- 可登录：通过，线上冒烟账号注册并登录成功。
+- 核心数据可见：通过，登录后核心页面加载正常。
+- 数据备份页可打开：通过。
+- 刷新后仍正常：通过。
+- PWA 发布版本：线上 `sw.js` 的 `APP_VERSION` 为 `9b377ed4fbaea82020029b2594b7a73eca66a43e`，`SCHEMA_VERSION` 为 `1`。
+
+备份与回滚：
+
+- 备份文件：不适用，本次不涉及 IndexedDB schema、迁移、备份恢复或账号隔离。
+- 备份 SHA-256：不适用。
+- 副本确认：不适用。
+- 回滚限制：继续使用 schema `1`，可回滚到 `0.1.0` 正式发布提交 `877cef4702eaf9617675ced17b019c8aebfbbcf4`。
+
+结论：
+
+- 通过。
 
 ## 4. 发布记录模板
 

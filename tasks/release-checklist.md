@@ -87,37 +87,68 @@
 - 完成时间：
 - 对应 release log 条目：
 
-## 4. 0.1.1 候选检查
+## 4. 0.1.1 发布检查
 
-本节用于当前 `0.1.1` 补丁候选，发布前可复制到上方模板。
+本节记录 `0.1.1` 补丁发布检查结果。
 
 基础信息：
 
 - 目标版本：`0.1.1`
+- 目标发布日期：2026-07-02
 - 发布类型：补丁版
 - 风险等级：中
+- 目标提交号：`9b377ed4fbaea82020029b2594b7a73eca66a43e`
+- 回滚提交号：`877cef4702eaf9617675ced17b019c8aebfbbcf4`
 - 是否涉及 schema：否
+- 当前 IndexedDB schema：`1`
+- 目标 IndexedDB schema：`1`
 - 是否需要发布前备份：否
 
 范围确认：
 
-- [ ] `PL-001` 上线后版本与迭代管理文档已登记。
-- [ ] `PL-002` 出货单订单号与模板 Excel 导出修复已登记。
-- [ ] 新增 `docs/release-management.md`。
-- [ ] 新增 `tasks/post-launch-backlog.md`。
-- [ ] 新增 `tasks/release-checklist.md`。
-- [ ] 新增 `tasks/release-log.md`。
-- [ ] 新增根目录 `AGENTS.md`。
-- [ ] 更新 `README.md`、`CONTRIBUTING.md`、`ai/AGENT.md` 和 `ai/CONTEXT.md` 的上线后迭代入口。
-- [ ] 出货单新增手动订单号，且与系统单据编号分开展示和导出。
-- [ ] 出货单模板 Excel 修复动态明细行后的合并单元格重复、表格换行和空字段列保留问题。
-- [ ] 文档之间互相引用准确。
+- [x] `PL-001` 上线后版本与迭代管理文档已登记。
+- [x] `PL-002` 出货单订单号与模板 Excel 导出修复已登记。
+- [x] 新增 `docs/release-management.md`。
+- [x] 新增 `tasks/post-launch-backlog.md`。
+- [x] 新增 `tasks/release-checklist.md`。
+- [x] 新增 `tasks/release-log.md`。
+- [x] 新增根目录 `AGENTS.md`。
+- [x] 更新 `README.md`、`CONTRIBUTING.md`、`ai/AGENT.md` 和 `ai/CONTEXT.md` 的上线后迭代入口。
+- [x] 出货单新增手动订单号，且与系统单据编号分开展示和导出。
+- [x] 出货单模板 Excel 修复动态明细行后的合并单元格重复、表格换行和空字段列保留问题。
+- [x] 文档之间互相引用准确。
 
 验证：
 
-- [ ] Markdown 内容检查通过。
+- [x] Markdown 内容检查通过。
 - [x] `npm run test -- src/modules/export-service/exportAdapter.test.ts src/modules/document-core/documentTransaction.test.ts` 结果：通过，2 个测试文件、26 个用例通过。
 - [x] `npm run quality` 结果：通过，lint、format check、typecheck、105 个单元测试、生产构建和 audit 均通过。
 - [x] `npm run test:e2e` 结果：通过，5 个 E2E 用例通过。
 - [x] `npm run test:pwa` 结果：通过，1 个 PWA 发布/更新/回滚用例通过。
-- [ ] 未验证项及原因：发布后最小线上验证需正式发布后执行。
+- [x] 未验证项及原因：无。
+
+发布：
+
+- [x] `main` 分支质量检查通过：PR #12 的 `quality` 和 `e2e` 检查通过。
+- [x] 已手动触发 `Deploy PWA` 工作流：run `28594359547`。
+- [x] GitHub Pages 部署成功。
+- [x] 正式地址为 `https://komochi007.github.io/Tradgio/`。
+- [x] 发布提交号已记录：`9b377ed4fbaea82020029b2594b7a73eca66a43e`。
+
+发布后最小验证：
+
+- [x] 正式地址可打开：HTTP 200。
+- [x] 可登录：线上冒烟账号注册并登录通过。
+- [x] 核心数据可见：登录态与核心页面加载正常。
+- [x] 数据备份页可打开。
+- [x] 刷新后仍正常。
+- [x] 如涉及核心流程，已验证对应流程：出货流程由自动化用例覆盖。
+- [x] 如涉及导出，已验证对应导出：导出服务单元测试覆盖订单号、合并区域、单行文本与空列隐藏。
+- [x] 如涉及 PWA 更新，已验证安全更新提示和刷新后版本：`npm run test:pwa` 通过；线上 `sw.js` 指向发布提交号。
+
+发布结论：
+
+- 结论：通过
+- 记录人：Codex
+- 完成时间：2026-07-02 21:41（Asia/Shanghai）
+- 对应 release log 条目：`0.1.1：上线后管理与出货导出修复补丁`
