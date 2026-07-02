@@ -15,9 +15,10 @@ function buildHeader(
   date: string,
   counterpartyLabel: string,
   counterpartyName: string,
-  remark?: string
+  remark?: string,
+  customerOrderNo?: string
 ): ExportHeader {
-  return { documentNo, date, counterpartyLabel, counterpartyName, remark }
+  return { documentNo, date, counterpartyLabel, counterpartyName, remark, customerOrderNo }
 }
 
 function buildLines(
@@ -94,7 +95,8 @@ export function buildSalesExportPayload(order: SalesOrder, exportedBy?: string):
       order.happenedAt,
       "客户",
       order.customerName,
-      order.remark
+      order.remark,
+      order.customerOrderNo?.trim() ?? ""
     ),
     lineItems: buildLines(order.lines),
     totals: buildTotals(order.totalAmount, order.lines.length),

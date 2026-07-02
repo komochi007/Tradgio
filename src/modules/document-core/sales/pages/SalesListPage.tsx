@@ -76,6 +76,7 @@ export function SalesListPage() {
     const q = appliedSearch.toLowerCase()
     return (
       o.documentNo.toLowerCase().includes(q) ||
+      (o.customerOrderNo ?? "").toLowerCase().includes(q) ||
       o.customerName.toLowerCase().includes(q) ||
       o.lines.some((l) => l.productName.toLowerCase().includes(q))
     )
@@ -148,6 +149,7 @@ export function SalesListPage() {
             <thead>
               <tr>
                 <th>单据编号</th>
+                <th>订单号</th>
                 <th>客户</th>
                 <th>日期</th>
                 <th>货品数</th>
@@ -159,6 +161,7 @@ export function SalesListPage() {
               {filtered.map((o) => (
                 <tr key={o.id}>
                   <td className="data-table__name">{o.documentNo}</td>
+                  <td>{o.customerOrderNo || "-"}</td>
                   <td>{o.customerName}</td>
                   <td className="data-table__muted">{formatDate(o.happenedAt)}</td>
                   <td className="data-table__muted">{o.lines.length} 种</td>

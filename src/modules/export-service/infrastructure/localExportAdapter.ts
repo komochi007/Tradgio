@@ -180,6 +180,13 @@ function centerCell(cell: ExcelJS.Cell): void {
   }
 }
 
+function disableWrapText(cell: ExcelJS.Cell): void {
+  cell.alignment = {
+    ...cell.alignment,
+    wrapText: false,
+  }
+}
+
 function setThinBorder(cell: ExcelJS.Cell): void {
   const border: Partial<ExcelJS.Border> = { style: "thin" }
   cell.border = { top: border, left: border, bottom: border, right: border }
@@ -191,12 +198,14 @@ function styleDataRange(
   rowCount: number,
   startColumn: number,
   endColumn: number,
-  includeBorder = false
+  includeBorder = false,
+  noWrap = false
 ): void {
   for (let rowNumber = startRow; rowNumber < startRow + rowCount; rowNumber++) {
     for (let column = startColumn; column <= endColumn; column++) {
       const cell = worksheet.getCell(rowNumber, column)
       centerCell(cell)
+      if (noWrap) disableWrapText(cell)
       if (includeBorder) setThinBorder(cell)
     }
   }
@@ -242,15 +251,48 @@ function ensureRows(
   return requiredRows
 }
 
+function unmergeIfExists(worksheet: ExcelJS.Worksheet, range: string): void {
+  try {
+    worksheet.unMergeCells(range)
+  } catch {}
+}
+
+function isBlankExportValue(value: string | number | null | undefined): boolean {
+  return value == null || String(value).trim() === ""
+}
+
+function hideEmptySalesOptionalColumns(
+  worksheet: ExcelJS.Worksheet,
+  lineItems: ExportPayload["lineItems"]
+): void {
+  const optionalColumns = [
+    { column: 1, field: "productCode" },
+    { column: 3, field: "spec" },
+    { column: 4, field: "color" },
+  ] as const
+
+  for (const { column, field } of optionalColumns) {
+    worksheet.getColumn(column).hidden = lineItems.every((item) => isBlankExportValue(item[field]))
+  }
+}
+
 function fillSalesTemplate(workbook: ExcelJS.Workbook, payload: ExportPayload): void {
   const worksheet = workbook.getWorksheet(1)
   if (!worksheet) throw new Error("出货单模板缺少工作表")
 
-  setCellValue(worksheet, "A4", `送货单  NO: ${payload.documentNo}`)
+  const totalLabel = worksheet.getCell("F9").value
+  const signerText = worksheet.getCell("A11").value
+  const noteText = worksheet.getCell("A12").value
+  unmergeIfExists(worksheet, "F9:G9")
+  unmergeIfExists(worksheet, "A11:I11")
+  unmergeIfExists(worksheet, "A12:I12")
+
+  const customerOrderNo = payload.header.customerOrderNo ?? ""
+  setCellValue(worksheet, "A4", `送货单  NO: ${customerOrderNo}`)
   setCellValue(
     worksheet,
     "A5",
-    `收货单位：${payload.header.counterpartyName}     订单号：${payload.documentNo}     日期：${payload.header.date}`
+    `收货单位：${payload.header.counterpartyName}     订单号：${customerOrderNo}     日期：${payload.header.date}`
   )
 
   const lineStartRow = 7
@@ -271,14 +313,25 @@ function fillSalesTemplate(workbook: ExcelJS.Workbook, payload: ExportPayload): 
     setCellValue(worksheet, `I${rowNumber}`, item?.lineRemark)
   }
 
-  styleDataRange(worksheet, lineStartRow, lineRows, 1, 9)
+  styleDataRange(worksheet, lineStartRow, lineRows, 1, 9, false, true)
   for (let rowNumber = lineStartRow; rowNumber < lineStartRow + lineRows; rowNumber++) {
     styleCurrencyCell(worksheet.getCell(`G${rowNumber}`), "RMB")
     styleCurrencyCell(worksheet.getCell(`H${rowNumber}`), "RMB")
   }
 
+  worksheet.mergeCells(`F${totalRow}:G${totalRow}`)
+  worksheet.getCell(`F${totalRow}`).value = totalLabel
   setCellValue(worksheet, `H${totalRow}`, payload.totals.totalAmount)
   styleCurrencyCell(worksheet.getCell(`H${totalRow}`), "RMB")
+
+  const signerRow = totalRow + 2
+  const noteRow = totalRow + 3
+  worksheet.mergeCells(`A${signerRow}:I${signerRow}`)
+  worksheet.getCell(`A${signerRow}`).value = signerText
+  worksheet.mergeCells(`A${noteRow}:I${noteRow}`)
+  worksheet.getCell(`A${noteRow}`).value = noteText
+
+  hideEmptySalesOptionalColumns(worksheet, payload.lineItems)
 }
 
 function fillQuoteTemplate(workbook: ExcelJS.Workbook, payload: ExportPayload): void {

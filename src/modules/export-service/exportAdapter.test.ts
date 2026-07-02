@@ -102,6 +102,7 @@ function createPayload(documentType: "sales" | "quote" = "sales"): ExportPayload
     documentNo: documentType === "sales" ? "CH2026061501" : "BJ2026061501",
     header: {
       documentNo: documentType === "sales" ? "CH2026061501" : "BJ2026061501",
+      customerOrderNo: documentType === "sales" ? "SO2026061501" : undefined,
       date: "2026-06-15",
       counterpartyLabel: "客户",
       counterpartyName: "测试客户",
@@ -136,11 +137,50 @@ async function createSalesTemplate(): Promise<ArrayBuffer> {
   const worksheet = workbook.addWorksheet("出货单")
   worksheet.getCell("A4").value = "送货单"
   worksheet.getCell("A5").value = "收货单位"
+  worksheet.getCell("A6").value = "产品编号"
+  worksheet.getCell("B6").value = "产品名称"
+  worksheet.getCell("C6").value = "尺寸"
+  worksheet.getCell("D6").value = "颜色"
+  worksheet.getCell("E6").value = "单位"
+  worksheet.getCell("F6").value = "数量"
+  worksheet.getCell("G6").value = "单价"
+  worksheet.getCell("H6").value = "金额"
+  worksheet.getCell("I6").value = "备注"
   worksheet.getRow(8).height = 24
-  worksheet.getCell("B7").alignment = { horizontal: "left" }
+  worksheet.getCell("B7").alignment = { horizontal: "left", wrapText: true }
+  worksheet.mergeCells("F9:G9")
   worksheet.getCell("H9").value = "合计"
+  worksheet.mergeCells("A11:I11")
+  worksheet.getCell("A11").value =
+    "送货人（盖章）陈秋霞                                     收货人（盖章）"
+  worksheet.mergeCells("A12:I12")
+  worksheet.getCell("A12").value =
+    "注：上列货品请核对后如有不符，请于五日内通知本司退换，逾期不负责。"
   const buffer = await workbook.xlsx.writeBuffer()
   return new Uint8Array(buffer).buffer
+}
+
+function createSalesPayloadWithLines(lineCount: number): ExportPayload {
+  const payload = createPayload("sales")
+  const lineItems = Array.from({ length: lineCount }, (_, index) => ({
+    productCode: "",
+    productName: `测试货品${index + 1}`,
+    spec: "",
+    color: "",
+    unit: "件",
+    quantity: index + 1,
+    unitPrice: 10,
+    lineAmount: (index + 1) * 10,
+    lineRemark: "",
+  }))
+  return {
+    ...payload,
+    lineItems,
+    totals: {
+      totalAmount: lineItems.reduce((sum, item) => sum + item.lineAmount, 0),
+      lineCount: lineItems.length,
+    },
+  }
 }
 
 async function sha256(buffer: ArrayBuffer): Promise<string> {
@@ -193,7 +233,8 @@ describe("客户端离线导出适配器", () => {
     await workbook.xlsx.load(await blob.arrayBuffer())
     const worksheet = workbook.getWorksheet(1)
 
-    expect(worksheet?.getCell("A4").value).toBe("送货单  NO: CH2026061501")
+    expect(worksheet?.getCell("A4").value).toBe("送货单  NO: SO2026061501")
+    expect(worksheet?.getCell("A5").value).toContain("订单号：SO2026061501")
     expect(worksheet?.getCell("B7").value).toBe("测试货品")
     expect(worksheet?.getCell("H7").value).toBe(40)
     expect(worksheet?.getCell("H7").numFmt).toBe("¥#,##0.00")
@@ -202,6 +243,46 @@ describe("客户端离线导出适配器", () => {
       horizontal: "center",
       vertical: "middle",
     })
+  })
+
+  it("出货模板动态明细行重新合并底部区域并关闭表格文字自动换行", async () => {
+    const adapter = createLocalExportAdapter({ loadTemplate: createSalesTemplate })
+    const blob = await adapter.export({
+      payload: createSalesPayloadWithLines(6),
+      format: "sheet",
+    })
+    const excelJs = await import("exceljs")
+    const workbook = new excelJs.Workbook()
+    await workbook.xlsx.load(await blob.arrayBuffer())
+    const worksheet = workbook.getWorksheet(1)
+
+    expect(worksheet?.model.merges).toEqual(
+      expect.arrayContaining(["F13:G13", "A15:I15", "A16:I16"])
+    )
+    expect(worksheet?.model.merges).not.toEqual(
+      expect.arrayContaining(["F9:G9", "A11:I11", "A12:I12"])
+    )
+    expect(worksheet?.getCell("B7").alignment?.wrapText).not.toBe(true)
+    expect(worksheet?.getCell("C7").alignment?.wrapText).not.toBe(true)
+  })
+
+  it("出货模板隐藏整列全空的可选货品字段且保留备注列", async () => {
+    const adapter = createLocalExportAdapter({ loadTemplate: createSalesTemplate })
+    const blob = await adapter.export({
+      payload: createSalesPayloadWithLines(3),
+      format: "sheet",
+    })
+    const excelJs = await import("exceljs")
+    const workbook = new excelJs.Workbook()
+    await workbook.xlsx.load(await blob.arrayBuffer())
+    const worksheet = workbook.getWorksheet(1)
+
+    expect(worksheet?.getColumn(1).hidden).toBe(true)
+    expect(worksheet?.getColumn(3).hidden).toBe(true)
+    expect(worksheet?.getColumn(4).hidden).toBe(true)
+    expect(worksheet?.getColumn(2).hidden).not.toBe(true)
+    expect(worksheet?.getColumn(5).hidden).not.toBe(true)
+    expect(worksheet?.getColumn(9).hidden).not.toBe(true)
   })
 
   it("在线读取后缓存模板，断网时继续从版本化缓存读取", async () => {
@@ -310,5 +391,32 @@ describe("客户端离线导出适配器", () => {
     } as SalesOrder
 
     expect(() => buildSalesExportPayload(order)).toThrow("不能导出其他账号的单据")
+  })
+
+  it("构建出货导出 payload 时使用手动订单号且不回退到系统单据编号", () => {
+    switchAccount("account-a")
+    const order = {
+      id: "sales-1",
+      accountId: "account-a",
+      type: "sales",
+      documentNo: "CH2026061501",
+      customerOrderNo: "SO-MANUAL-001",
+      customerId: "customer-1",
+      customerName: "测试客户",
+      happenedAt: "2026-06-15",
+      remark: "",
+      totalAmount: 0,
+      lines: [],
+      createdAt: "2026-06-15T00:00:00.000Z",
+      updatedAt: "2026-06-15T00:00:00.000Z",
+    } as SalesOrder
+
+    expect(buildSalesExportPayload(order).header.customerOrderNo).toBe("SO-MANUAL-001")
+    expect(
+      buildSalesExportPayload({
+        ...order,
+        customerOrderNo: undefined,
+      }).header.customerOrderNo
+    ).toBe("")
   })
 })

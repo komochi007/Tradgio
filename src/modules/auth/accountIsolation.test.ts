@@ -151,6 +151,7 @@ function salesForm(
   quantity: string
 ): SalesFormData {
   return {
+    customerOrderNo: `${label}-SO-001`,
     customerId,
     customerName: `${label}隔离客户`,
     happenedAt: "2026-06-10",

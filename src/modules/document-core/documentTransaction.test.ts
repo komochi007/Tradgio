@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createPurchaseOrder, deletePurchaseOrder, updatePurchaseOrder } from "./purchases"
 import type { PurchaseFormData } from "./purchases"
 import { createSalesOrder, deleteSalesOrder, updateSalesOrder } from "./sales"
+import { validateSalesForm } from "./sales"
 import type { SalesFormData } from "./sales"
 import { purchaseRepository } from "./purchases"
 import { salesRepository } from "./sales"
@@ -70,6 +71,7 @@ function purchaseForm(quantity = "5"): PurchaseFormData {
 
 function salesForm(quantity = "2"): SalesFormData {
   return {
+    customerOrderNo: "SO-20260610",
     customerId: "customer-1",
     customerName: "测试客户",
     happenedAt: "2026-06-10",
@@ -184,6 +186,27 @@ beforeEach(async () => {
 })
 
 describe("单据与库存 IndexedDB 原子保存", () => {
+  it("出货单订单号必填", () => {
+    expect(
+      validateSalesForm({
+        ...salesForm(),
+        customerOrderNo: "  ",
+      })
+    ).toMatchObject({
+      customerOrderNo: "请输入订单号",
+    })
+  })
+
+  it("出货单保存时持久化手动订单号并与系统单据编号区分", async () => {
+    const order = await createSalesOrder({
+      ...salesForm(),
+      customerOrderNo: "  SO-MANUAL-001  ",
+    })
+
+    expect(order.customerOrderNo).toBe("SO-MANUAL-001")
+    expect(order.documentNo).not.toBe(order.customerOrderNo)
+  })
+
   it.each([
     ["单据", purchaseRepository, "create"],
     ["流水", ledgerRepository, "create"],

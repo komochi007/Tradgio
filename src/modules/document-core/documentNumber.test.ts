@@ -165,6 +165,7 @@ function purchaseForm(productId: string, supplierId: string, remark: string): Pu
 
 function salesForm(productId: string, customerId: string, remark: string): SalesFormData {
   return {
+    customerOrderNo: `SO-${remark}`,
     customerId,
     customerName: "并发报价客户",
     happenedAt: "2026-06-10",

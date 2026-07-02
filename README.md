@@ -7,7 +7,7 @@
 - 提供上下文导航入口
 - 降低首次接手成本
 
-注意：当前仓库已完成 MVP 前端实现，可本地启动并进行验收；生产化路线已完成任务 46 正式发布验收，结论为允许上线。正式地址为 `https://komochi007.github.io/Tradgio/`，首版使用 IndexedDB schema `1`，发布提交号为 `877cef4702eaf9617675ced17b019c8aebfbbcf4`，正式上线窗口为 2026-06-17 10:00（Asia/Shanghai）。
+注意：当前仓库已完成 MVP、生产化任务 26-46 和首版正式上线。正式地址为 `https://komochi007.github.io/Tradgio/`，首版使用 IndexedDB schema `1`，发布提交号为 `877cef4702eaf9617675ced17b019c8aebfbbcf4`，正式上线窗口为 2026-06-17 10:00（Asia/Shanghai）。后续功能优化、问题修复和版本发布统一按上线后迭代管理方案执行：需求进入 `tasks/post-launch-backlog.md`，发布检查使用 `tasks/release-checklist.md`，发布结果记录到 `tasks/release-log.md`。
 
 ## 1. Project Overview
 Tradgio 是一个面向国内贸易个体经营者和小公司老板的单人业务系统，统一管理：
@@ -198,6 +198,12 @@ AI Agent 约束：
 - 当前进度：`tasks/development-progress.md`
 - 贡献与质量门禁：`CONTRIBUTING.md`
 
+上线后迭代入口：
+- 版本与迭代规则：`docs/release-management.md`
+- 需求池与排期：`tasks/post-launch-backlog.md`
+- 发布检查清单：`tasks/release-checklist.md`
+- 发布记录：`tasks/release-log.md`
+
 ## 7. Local Development Setup
 当前可直接本地启动，当前脚本：
 - `npm run dev`
@@ -270,6 +276,10 @@ npm run preview
 | `docs/USER-FLOW.md` | 关键用户流程 | 做路由 / 表单流转时 |
 | `docs/frontend-spec.md` | 页面结构、组件与前端落地规范 | 做前端实现时 |
 | `docs/design.md` | 视觉 token、布局、样式方向 | 做 UI 实现时 |
+| `docs/release-management.md` | 上线后版本、分级、门禁和回滚规则 | 做功能优化、Bug 修复或发布前 |
+| `tasks/post-launch-backlog.md` | 上线后需求池 | 登记或排期新反馈时 |
+| `tasks/release-checklist.md` | 日常发布检查 | 发布补丁、小版本或高风险变更前 |
+| `tasks/release-log.md` | 发布历史 | 发布完成或确认当前线上基线时 |
 
 最小阅读集：
 - [x] `docs/brief.md`
@@ -344,14 +354,14 @@ npm run preview
 - [x] 导出服务（打印版 + 出货单/报价单模板 Excel）
 - [x] 搜索聚合层
 - [x] 生产化任务 26-46 路线图与上线检查清单
+- [x] 首版正式上线与发布后最小验证
+- [x] 上线后版本迭代管理文档
 - [x] P0 业务正确性修复与自动化回归
 - [x] Lint、Format、CI 与依赖审计门禁
 - [x] 核心流程 E2E 基线
 - [x] 结构化业务数据、库存和草稿迁移到 IndexedDB
 - [x] 合同附件迁移到 IndexedDB Blob
 - [x] ExcelJS 按需加载与固定模板离线缓存
-
-未完成：
 - [x] 自动化测试体系
 - [x] 部署配置
 - [x] 整机加密备份恢复
@@ -362,9 +372,10 @@ npm run preview
 - 模板 Excel 的字段内容、表格样式、边框、对齐和货币格式已于 2026-06-10 手动验收通过
 - ExcelJS 已拆分为按需 chunk；固定模板经 SHA-256 校验后进入版本化 Cache Storage，缓存完成后可断网导出
 - 当前认证、结构化业务数据、库存、草稿和合同附件已使用 IndexedDB；旧 Base64 附件会幂等迁移到独立 Blob store，失败时保留旧数据
-- 任何后续交付都应区分“本地 MVP 已落地”与“IndexedDB 本地生产能力已接入”
-- 截至 2026-06-01，MVP 功能已完成手动验收，可作为当前阶段交付基线
-- 当前生产化已完成任务 46 正式发布验收，生产化实施顺序以 `tasks/production-roadmap.md` 为准
+- 任何后续交付都应区分“上线前生产化历史基线”与“上线后日常迭代”
+- 当前生产化已完成任务 46 正式发布验收，`tasks/production-roadmap.md` 作为历史依据保留，不再承载日常小修
+- 后续需求、Bug、优化和运维事项先登记到 `tasks/post-launch-backlog.md`
+- 发布前按 `tasks/release-checklist.md` 选择验证门禁，发布后更新 `tasks/release-log.md`
 
 ## 14. Roadmap Summary
 ### Phase 0: Foundation
@@ -416,16 +427,26 @@ npm run preview
 - [x] 本地生产适配层自动化回归
 - [x] PWA 发布流水线
 - [x] 存储健康、备份提醒和 Windows 恢复演练
-- [ ] Windows 迁移、升级与正式上线验收
+- [x] Windows 迁移、升级与正式上线验收
+- [x] 首版正式上线
+
+### Phase 9: Post-launch Iteration
+- [x] 上线后需求池、发布检查、发布记录和版本规则
+- [ ] 按 `0.1.x` 小步补丁处理上线后反馈
+- [ ] schema `2` 生产候选版本发布前执行真实跨 schema 升级验收
 
 ## Quick Start For Agents
 开始任何实现前，先完成这份 checklist：
 - [x] 确认仓库当前已进入可运行代码阶段
+- [ ] 判断这是上线前历史任务，还是上线后功能优化 / Bug 修复 / 运维事项
+- [ ] 上线后事项先查或登记 `tasks/post-launch-backlog.md`
 - [ ] 先读 `docs/brief.md`、`docs/PRD.md`、`docs/architecture.md`
 - [ ] 判断需求属于哪个顶层模块
 - [ ] 判断代码应落在哪个技术分层
 - [ ] 检查是否涉及库存、导出、附件、搜索等跨模块规则
+- [ ] 若涉及 IndexedDB schema、备份恢复、账号隔离、库存、导出模板或 PWA 更新，按高风险发布门禁处理
+- [ ] 发布前更新 `tasks/release-checklist.md`，发布后更新 `tasks/release-log.md`
 - [ ] 若要突破架构约束，先更新文档再修改实现
-- [ ] 生产化任务先读 `tasks/production-roadmap.md` 和上线检查清单
+- [ ] 生产化历史任务先读 `tasks/production-roadmap.md` 和上线检查清单
 
-如果你接手后续迭代，当前从任务 45 开始推进；实施必须遵循 ADR-0002，且每次只完成一个任务。
+如果你接手后续迭代，默认从 `tasks/post-launch-backlog.md` 开始；实施必须遵循 ADR-0002 和 `docs/release-management.md`，小步完成并按风险选择验证门禁。

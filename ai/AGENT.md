@@ -14,7 +14,7 @@
 - 需求模糊时先提问，不要猜
 - 发现更优路径时主动提出建议
 - 当前仓库是已有完整本地 MVP 的可运行代码项目，先读现有实现再修改
-- 生产化后续工作当前从任务 45 开始，以生产化路线图为执行依据
+- 生产化任务 26-46 已完成并正式上线；后续默认按上线后版本迭代管理方案执行
 
 ## 2. 信息源优先级
 
@@ -23,10 +23,11 @@
 1. 用户当前明确要求
 2. 项目根目录 `AGENTS.md`
 3. `ai/AGENT.md`
-4. `tasks/production-roadmap.md`（生产化任务）
-5. `docs/architecture.md`
-6. `docs/PRD.md`
-7. 其他文档
+4. `docs/release-management.md`、`tasks/post-launch-backlog.md`、`tasks/release-checklist.md`、`tasks/release-log.md`（上线后迭代）
+5. `tasks/production-roadmap.md`（上线前生产化历史任务）
+6. `docs/architecture.md`
+7. `docs/PRD.md`
+8. 其他文档
 
 如果文档与仓库实际代码冲突：
 - 优先以实际代码和用户意图为准
@@ -49,6 +50,12 @@
 - `tasks/production-roadmap.md`
 - `tasks/production-readiness-checklist.md`
 - `tasks/development-progress.md`
+
+如果任务属于上线后功能优化、问题修复、运维或发布，还必须读：
+- `docs/release-management.md`
+- `tasks/post-launch-backlog.md`
+- `tasks/release-checklist.md`
+- `tasks/release-log.md`
 
 ## 4. 编码规则
 
@@ -89,12 +96,15 @@
 - 改变实现路线或技术方向
 - 引入新的环境变量、启动方式、部署方式
 - 完成或阻塞生产化任务
+- 完成上线后 backlog 事项
+- 准备或完成正式发布
 
 不要：
 - 把规划写成已完成
 - 复制大段 PRD 到 README 或 AI 文件
 - 生成与当前仓库状态不符的运行说明
 - 只改任务总表而不同步生产化路线图与开发进度
+- 发布相关改动只改代码而不同步 release checklist 和 release log
 
 ## 7. 任务执行规则
 
@@ -105,12 +115,19 @@
 4. 自检验证
 5. 汇报结果
 
-生产化任务额外规则：
+上线后迭代规则：
+- 新需求、Bug、优化和运维事项先登记或核对 `tasks/post-launch-backlog.md`
+- 每个事项进入开发前必须补齐问题或目标、影响用户、所属模块、优先级、风险等级、验收标准和验证命令
+- 默认使用 `0.1.x` 小步补丁；用户可感知的新功能组合进入 `0.2.0+`
+- 涉及 IndexedDB schema、备份恢复、账号隔离、库存、导出模板、Service Worker 或 PWA 更新时，按高风险发布处理
+- 发布前更新 `tasks/release-checklist.md`，发布后更新 `tasks/release-log.md`
+- schema `2` 生产候选版本发布前必须补做真实跨 schema 升级验收
+
+生产化历史任务规则：
 - 按路线图依赖顺序推进，当前任务 46 已完成，未来 schema `2` 生产候选版本需补做真实跨 schema 升级验收
 - 任务 34 已由 ADR-0002 锁定 IndexedDB 本地优先方案，不得擅自恢复云端后端路线
 - 任务 35-46 已完成；正式 PWA 已发布到 `https://komochi007.github.io/Tradgio/`，发布提交号为 `877cef4702eaf9617675ced17b019c8aebfbbcf4`
-- 任务开始时更新状态为“进行中”，验收完成后才标记“已完成”
-- 每项任务同时更新 `tasks/development-progress.md` 和生产就绪清单中的对应证据
+- `tasks/production-roadmap.md` 作为上线前历史依据保留，不再承载日常小修
 
 修改前：
 - 先说明要改什么
@@ -140,7 +157,7 @@
 - 总览页可以有一定结构设计感，但整体不应营销化
 - 列表页、录单页、详情页优先保证效率和可读性
 - 当前认证、结构化业务数据和附件 Blob 已切换 IndexedDB，客户端导出支持离线缓存，整机加密备份恢复已实现，PWA 正式发布已完成
-- 未登录旧账号的明文迁移、备份提醒、存储健康、Windows 恢复演练和正式上线验收是当前剩余高优先级风险
+- 当前正式版基线为 `0.1.0`，上线后管理入口为 `docs/release-management.md` 和 `tasks/post-launch-backlog.md`
 
 ## 10. 交付标准
 
@@ -150,4 +167,4 @@
 - 能被后续 AI 或开发者快速接手
 - 说明清楚“已完成什么”和“未完成什么”
 - 生产化任务具备自动化验证或明确的未验证说明
-- 任务状态、路线图和开发进度保持一致
+- 上线后任务状态、发布检查和发布记录保持一致

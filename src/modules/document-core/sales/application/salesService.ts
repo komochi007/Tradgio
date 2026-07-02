@@ -130,6 +130,7 @@ export async function listSalesOrders(query?: {
     filtered = filtered.filter(
       (o) =>
         o.documentNo.toLowerCase().includes(q) ||
+        (o.customerOrderNo ?? "").toLowerCase().includes(q) ||
         o.customerName.toLowerCase().includes(q) ||
         o.lines.some((l) => l.productName.toLowerCase().includes(q))
     )

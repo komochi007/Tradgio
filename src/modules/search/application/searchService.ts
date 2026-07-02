@@ -25,6 +25,11 @@ function formatMatchedField(
   const docNo = (record.documentNo || record.contractNo || "") as string
   if (matchKeyword(docNo, k)) return `${MODULE_LABELS[type]}编号`
 
+  if (type === "sales") {
+    const customerOrderNo = (record.customerOrderNo || "") as string
+    if (matchKeyword(customerOrderNo, k)) return "订单号"
+  }
+
   if (type === "contract") {
     const title = (record.title || "") as string
     if (matchKeyword(title, k)) return "合同标题"
@@ -78,6 +83,7 @@ export async function searchDocuments(keyword: string): Promise<SearchResult[]> 
     .filter(
       (o) =>
         matchKeyword(o.documentNo, k) ||
+        matchKeyword(o.customerOrderNo ?? "", k) ||
         matchKeyword(o.customerName, k) ||
         o.lines.some((l) => matchKeyword(l.productName, k))
     )

@@ -107,6 +107,7 @@ export async function createPurchase(page: Page, seed: CoreFlowSeed) {
 export async function createSales(page: Page, seed: CoreFlowSeed) {
   await page.goto("/sales/new")
   await selectOption(page, "客户", seed.customerName)
+  await page.getByLabel("订单号").fill(`SO-${seed.keyword}`.slice(0, 50))
   const row = page.locator("tbody tr").first()
   await selectProduct(row, page, seed.productName)
   await row.getByPlaceholder("颜色").fill("象牙白")
